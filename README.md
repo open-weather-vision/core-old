@@ -26,7 +26,7 @@ owvision install-interface <path-to-js-file> <interface-name>
 After that you can use this interface to connect to your weather station. You have to give your station a name and you can select your favorite units. Added to that you can set each sensor's update times. Your selected interface may require more configuration (e.g. a `COM` port). Any configuration can be changed later.
 
 ```markdown
-owvision connect <interface-name>
+owvision initialize <interface-name>
 ```
 
 You can temporary disconnect using `owvision <station-name> disconnect`.
