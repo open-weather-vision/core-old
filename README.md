@@ -55,7 +55,7 @@ This command lists all sensors of a weather station with some additional informa
 owvision station <station-name> sensors read
 ```
 
-This command lists the most recently recorded value (and unit) of every sensor of the specified sensors.
+This command lists the most recently recorded value (and unit) of every sensor of the specified weather station.
 
 ### Getting additional information about a sensor
 
