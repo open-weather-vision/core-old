@@ -28,7 +28,7 @@ export default class extends BaseSchema {
       table.enum('soil_moisture_unit', SoilMoistureUnits).notNullable()
       table.enum('humidity_unit', HumidityUnits).notNullable()
       table.boolean('global').defaultTo(false)
-      table.timestamp('updated_at')
+      table.integer('weather_station_id').references('weather_stations.id').onDelete('CASCADE')
     })
   }
 

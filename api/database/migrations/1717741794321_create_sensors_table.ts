@@ -9,7 +9,11 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('name', 50).index()
-      table.integer('weather_station_id').notNullable().references('weather_stations.id')
+      table
+        .integer('weather_station_id')
+        .notNullable()
+        .references('weather_stations.id')
+        .onDelete('CASCADE')
       table.enum('summary_type', SensorSummaryTypes).notNullable()
       table.integer('record_interval_seconds').notNullable()
       table.enum('unit_type', UnitTypes).notNullable()

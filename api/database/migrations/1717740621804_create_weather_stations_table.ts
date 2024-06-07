@@ -9,12 +9,6 @@ export default class extends BaseSchema {
       table.string('name', 50).unique()
       table.string('interface', 50).notNullable()
       table.json('interface_config').defaultTo({}).notNullable()
-
-      table
-        .integer('unit_config_id')
-        .notNullable()
-        .references('unit_configs.id')
-        .onDelete('CASCADE')
     })
   }
 

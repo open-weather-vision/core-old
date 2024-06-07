@@ -23,5 +23,5 @@ export const SensorSummaryTypes: SensorSummaryType[] = [
   'custom',
 ]
 
-export type SummaryType = 'hour' | 'day' | 'week' | 'month' | 'year'
-export const SummaryTypes = ['hour', 'day', 'week', 'month', 'year']
+export type SummaryType = 'hour' | 'day' | 'week' | 'month' | 'year' | 'alltime'
+export const SummaryTypes = ['hour', 'day', 'week', 'month', 'year', 'alltime']
