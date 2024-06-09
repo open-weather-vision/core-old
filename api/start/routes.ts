@@ -7,10 +7,9 @@
 |
 */
 
+import WeatherStationsController from '#controllers/weather_stations_controller'
 import router from '@adonisjs/core/services/router'
 
-router.get('/', async () => {
-  return {
-    hello: 'world',
-  }
-})
+router.get('/v1/weather-stations', [WeatherStationsController, 'getAll'])
+router.get('/v1/weather-stations/:slug', [WeatherStationsController, 'getOne'])
+router.post('/v1/weather-stations/', [WeatherStationsController, 'initialize'])

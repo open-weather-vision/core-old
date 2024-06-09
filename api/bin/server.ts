@@ -12,6 +12,10 @@
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
 
+// Snake case naming strateg
+import { BaseModel, SnakeCaseNamingStrategy } from '@adonisjs/lucid/orm'
+BaseModel.namingStrategy = new SnakeCaseNamingStrategy()
+
 /**
  * URL to the application root. AdonisJS need it to resolve
  * paths to file and directories for scaffolding commands

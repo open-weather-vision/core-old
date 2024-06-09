@@ -3,6 +3,7 @@ import type {
   ElevationUnit,
   HumidityUnit,
   PrecipationUnit,
+  PressureUnit,
   SoilMoistureUnit,
   SolarRadiationUnit,
   TemperatureUnit,
@@ -12,7 +13,7 @@ import WeatherStation from './weather_station.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
 export default class UnitConfig extends BaseModel {
-  @column({ isPrimary: true })
+  @column({ isPrimary: true, serializeAs: null })
   declare id: number
 
   @column()
@@ -31,7 +32,7 @@ export default class UnitConfig extends BaseModel {
   declare evo_transpiration_unit: PrecipationUnit
 
   @column()
-  declare pressure_unit: PrecipationUnit
+  declare pressure_unit: PressureUnit
 
   @column()
   declare elevation_unit: ElevationUnit

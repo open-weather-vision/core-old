@@ -8,6 +8,12 @@ export default class WeatherStation extends BaseModel {
   declare id: number
 
   @column()
+  declare slug: string
+
+  @column()
+  declare running: boolean
+
+  @column()
   declare name: string
 
   @column()
