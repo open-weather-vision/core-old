@@ -8,7 +8,7 @@ import {
   SolarRadiationUnits,
   SoilMoistureUnits,
   HumidityUnits,
-} from '../../app/utils/units/units.js'
+} from '../../app/other/units/units.js'
 
 export default class extends BaseSchema {
   protected tableName = 'unit_configs'

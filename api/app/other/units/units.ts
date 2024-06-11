@@ -1,3 +1,17 @@
+import simple_units from 'simple-units'
+
+const units = simple_units.default
+
+export type Unit =
+  | PrecipationUnit
+  | ElevationUnit
+  | WindUnit
+  | TemperatureUnit
+  | SolarRadiationUnit
+  | PressureUnit
+  | SoilMoistureUnit
+  | HumidityUnit
+
 /**
  * A supported rain unit. The default rain unit is `"in"`.
  */
@@ -56,23 +70,23 @@ export const HumidityUnits: HumidityUnit[] = ['%']
 
 export interface UnitConfiguration {
   /** The desired rain unit. Default is `in`. */
-  rain: PrecipationUnit
+  precipation: PrecipationUnit
   /** The desired wind unit. Default is `mph`. */
   wind: WindUnit
   /** The desired temperature unit. Default is `°F`. */
   temperature: TemperatureUnit
   /** The desired solar radiation unit. Default is `W/m²`. */
-  solarRadiation: SolarRadiationUnit
+  solar_radiation: SolarRadiationUnit
   /** The desired pressure unit. Default is `inHg`. */
   pressure: PressureUnit
   /** The desired soil moisture unit. Default is `cb`. */
-  soilMoisture: SoilMoistureUnit
+  soil_moisture: SoilMoistureUnit
   /** The desired leaf temperature unit. Default is `°F`. */
-  leafTemperature: TemperatureUnit
+  leaf_temperature: TemperatureUnit
   /** The desired soil temperature unit. Default is `°F`. */
-  soilTemperature: TemperatureUnit
+  soil_temperature: TemperatureUnit
   /** The desired evo transpiration unit. Default is `in`. */
-  evoTranspiration: PrecipationUnit
+  evo_transpiration: PrecipationUnit
   /** The desired humidity unit. Default is `%`. */
   humidity: HumidityUnit
   /** The desired elevation unit. Default is `in`. */
@@ -82,18 +96,23 @@ export interface UnitConfiguration {
 export type UnitType = keyof UnitConfiguration | 'none'
 
 export const UnitTypes: UnitType[] = [
-  'rain',
+  'precipation',
   'wind',
   'temperature',
-  'solarRadiation',
+  'solar_radiation',
   'pressure',
-  'soilMoisture',
-  'leafTemperature',
-  'soilTemperature',
-  'evoTranspiration',
+  'soil_moisture',
+  'leaf_temperature',
+  'soil_temperature',
+  'evo_transpiration',
   'humidity',
   'elevation',
   'none',
 ]
 
 export type UnitSettings = Readonly<UnitConfiguration>
+
+export function convert(value: number | null, source_unit: Unit, target_unit: Unit): number | null {
+  if (value === null) return value
+  return units.from(value, source_unit).to(target_unit)
+}

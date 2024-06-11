@@ -1,12 +1,15 @@
 {
   "name": "api",
   "version": "0.0.0",
+  "description": "owvision's rest api",
   "private": true,
   "type": "module",
-  "license": "UNLICENSED",
+  "license": "ISC",
+  "author": "Henri Hollmann (harrydehix)",
   "scripts": {
     "start": "node bin/server.js",
     "build": "node ace build",
+    "fresh": "node ace migration:fresh && node ace db:seed global_unit_config weather_station_dummy",
     "dev": "node ace serve --watch",
     "test": "node ace test",
     "lint": "eslint .",
@@ -41,6 +44,7 @@
     "@japa/plugin-adonisjs": "^3.0.1",
     "@japa/runner": "^3.1.4",
     "@swc/core": "^1.5.7",
+    "@types/long-timeout": "^0.1.2",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.12.12",
     "eslint": "^8.57.0",
@@ -56,9 +60,11 @@
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^20.6.0",
     "@vinejs/vine": "^2.0.0",
+    "long-timeout": "^0.1.1",
     "luxon": "^3.4.4",
     "pg": "^8.12.0",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "simple-units": "^1.0.6"
   },
   "hotHook": {
     "boundaries": [

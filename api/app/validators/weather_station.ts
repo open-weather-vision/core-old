@@ -8,7 +8,7 @@ import {
   SolarRadiationUnits,
   TemperatureUnits,
   WindUnits,
-} from '../utils/units/units.js'
+} from '../other/units/units.js'
 
 export const initializeWeatherStationValidator = vine.compile(
   vine.object({

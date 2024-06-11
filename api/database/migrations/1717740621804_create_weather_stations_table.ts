@@ -1,3 +1,4 @@
+import { WeatherStationStates } from '#models/weather_station'
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
@@ -10,7 +11,7 @@ export default class extends BaseSchema {
       table.string('name', 50).unique()
       table.string('interface', 50).notNullable()
       table.json('interface_config').defaultTo({}).notNullable()
-      table.boolean('running').defaultTo(false).notNullable()
+      table.enum('state', WeatherStationStates).defaultTo('connecting').notNullable()
     })
   }
 

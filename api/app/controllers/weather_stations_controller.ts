@@ -5,10 +5,13 @@ import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
 import { initializeWeatherStationValidator } from '#validators/weather_station'
 import { HttpContext } from '@adonisjs/core/http'
+import { SummaryCreator } from '../other/summary_creator.js'
+import WeatherStationInterface from '../other/weather_station_interface.js'
+import Sensor from '#models/sensor'
 
 export default class WeatherStationsController {
   async getAll() {
-    const data = await WeatherStation.query().select('slug', 'name', 'interface', 'running')
+    const data = await WeatherStation.query().select('slug', 'name', 'interface', 'state')
 
     return {
       success: true,
@@ -19,7 +22,6 @@ export default class WeatherStationsController {
   async getOne(ctx: HttpContext) {
     const data = await WeatherStation.query()
       .preload('unit_config')
-      .preload('sensors')
       .where('slug', ctx.params.slug)
       .first()
 
@@ -51,7 +53,7 @@ export default class WeatherStationsController {
       interface_config: payload.interface_config,
       name: payload.name,
       slug: payload.slug,
-      running: false,
+      state: 'disconnected',
     })
 
     if (payload.units) {
@@ -72,14 +74,21 @@ export default class WeatherStationsController {
       })
     }
 
-    if (!payload.remote_recorder) {
-      // await recorder.start(payload.slug) // starts a recorder
-      // await summary_creator.start(payload.slug) // starts a summary creator
-      weatherStation.running = true
-      weatherStation.save()
-    } else {
-      // await summary_creator.start(payload.slug) // starts a summary creator
+    const StationInterface = await import(`../../interfaces/${payload.interface}.js`)
+    const station_interface: WeatherStationInterface = new StationInterface.default(
+      payload.interface_config
+    )
+
+    for (const sensor_slug in station_interface.sensors) {
+      const sensor = station_interface.sensors[sensor_slug]
+      await Sensor.create({
+        ...sensor,
+        weather_station_id: weatherStation.id,
+        slug: sensor_slug,
+      })
     }
+
+    await SummaryCreator.createAndStart(weatherStation.id, station_interface)
 
     return {
       success: true,
