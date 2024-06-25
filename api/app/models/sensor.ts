@@ -6,10 +6,11 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Record from './record.js'
 import SensorTag from './sensor_tag.js'
 import type { TimeUnit } from '../other/scheduler.js'
+import AppBaseModel from './app_base_model.js'
 
 export type SensorValueType = 'double' | 'int'
 
-export default class Sensor extends BaseModel {
+export default class Sensor extends AppBaseModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -30,9 +31,6 @@ export default class Sensor extends BaseModel {
 
   @column()
   declare unit_type: UnitType
-
-  @column()
-  declare value_type: SensorValueType
 
   @column()
   declare weather_station_id: number

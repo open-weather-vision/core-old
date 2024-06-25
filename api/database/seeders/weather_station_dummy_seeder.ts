@@ -1,4 +1,3 @@
-import WeatherStationsController from '#controllers/weather_stations_controller'
 import Record from '#models/record'
 import Sensor from '#models/sensor'
 import UnitConfig from '#models/unit_config'
@@ -8,8 +7,9 @@ import { DateTime } from 'luxon'
 
 export default class extends BaseSeeder {
   async run() {
+    const global_unit_config = await UnitConfig.global_unit_config()
     const weather_station = await WeatherStation.create({
-      interface: 'davis/vp2',
+      interface: 'davis-vp2',
       interface_config: {
         path: 'COM3',
       },
@@ -24,10 +24,9 @@ export default class extends BaseSeeder {
       interval_unit: 'second',
       summary_type: 'min-max-avg',
       unit_type: 'temperature',
-      value_type: 'double',
       weather_station_id: weather_station.id,
     })
-    await this.createRecordsForSensor(tempIn, 100, 15, 25, 0.1)
+    await this.createRecordsForSensor(tempIn, global_unit_config, 100, 15, 25, 0.1)
 
     const tempOut = await Sensor.create({
       slug: 'tempOut',
@@ -35,10 +34,9 @@ export default class extends BaseSeeder {
       interval_unit: 'second',
       summary_type: 'min-max-avg',
       unit_type: 'temperature',
-      value_type: 'double',
       weather_station_id: weather_station.id,
     })
-    await this.createRecordsForSensor(tempOut, 100, -25, 25, 0.1)
+    await this.createRecordsForSensor(tempOut, global_unit_config, 100, -25, 25, 0.1)
 
     const pressure = await Sensor.create({
       slug: 'pressure',
@@ -46,10 +44,9 @@ export default class extends BaseSeeder {
       interval_unit: 'second',
       summary_type: 'min-max-avg',
       unit_type: 'temperature',
-      value_type: 'double',
       weather_station_id: weather_station.id,
     })
-    await this.createRecordsForSensor(pressure, 100, 980, 1035, 0)
+    await this.createRecordsForSensor(pressure, global_unit_config, 100, 980, 1035, 0)
 
     const wind = await Sensor.create({
       slug: 'wind',
@@ -57,10 +54,9 @@ export default class extends BaseSeeder {
       interval_unit: 'second',
       summary_type: 'max-avg',
       unit_type: 'wind',
-      value_type: 'double',
       weather_station_id: weather_station.id,
     })
-    await this.createRecordsForSensor(wind, 100, 0, 50, 0.2)
+    await this.createRecordsForSensor(wind, global_unit_config, 100, 0, 50, 0.2)
 
     const rain15min = await Sensor.create({
       slug: 'rain15min',
@@ -68,10 +64,9 @@ export default class extends BaseSeeder {
       interval_unit: 'minute',
       summary_type: 'sum',
       unit_type: 'precipation',
-      value_type: 'double',
       weather_station_id: weather_station.id,
     })
-    await this.createRecordsForSensor(rain15min, 100, 0, 5, 0.4)
+    await this.createRecordsForSensor(rain15min, global_unit_config, 100, 0, 5, 0.4)
 
     await Sensor.create({
       slug: 'rainRate',
@@ -79,7 +74,6 @@ export default class extends BaseSeeder {
       interval_unit: 'second',
       summary_type: 'avg',
       unit_type: 'precipation',
-      value_type: 'double',
       weather_station_id: weather_station.id,
     })
 
@@ -89,10 +83,9 @@ export default class extends BaseSeeder {
       interval_unit: 'minute',
       summary_type: 'custom',
       unit_type: 'none',
-      value_type: 'int',
       weather_station_id: weather_station.id,
     })
-    await this.createRecordsForSensor(conditions, 100, 0, 5, 0.05)
+    await this.createRecordsForSensor(conditions, global_unit_config, 100, 0, 5, 0.05, false)
   }
 
   randomRange(min: number, max: number) {
@@ -101,21 +94,28 @@ export default class extends BaseSeeder {
 
   async createRecordsForSensor(
     sensor: Sensor,
+    unit_config: UnitConfig,
     count: number,
     min: number,
     max: number,
-    nullPossibilty: number = 0
+    nullPossibilty: number = 0,
+    floating_point_values: boolean = true
   ) {
     for (let i = 0; i < count; i++) {
       let value: number | null = this.randomRange(min, max)
       if (Math.random() > 1 - nullPossibilty) {
         value = null
       }
+
+      if (!floating_point_values && value !== null) {
+        value = Math.floor(value)
+      }
+
       await Record.create({
         sensor_id: sensor.id,
         created_at: DateTime.now().minus({ [sensor.interval_unit]: sensor.interval * i }),
-        value_float: sensor.value_type == 'double' ? value : undefined,
-        value_int: sensor.value_type == 'int' ? value && Math.round(value) : undefined,
+        value,
+        unit: unit_config.of_type(sensor.unit_type),
       })
     }
   }

@@ -20,7 +20,6 @@ export default class extends BaseSchema {
       table.integer('interval').notNullable()
       table.enum('interval_unit', TimeUnits).notNullable()
       table.enum('unit_type', UnitTypes).notNullable()
-      table.enum('value_type', ['int', 'double'])
       table.unique(['name', 'weather_station_id'])
       table.unique(['slug', 'weather_station_id'])
     })

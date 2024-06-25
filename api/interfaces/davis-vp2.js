@@ -1,9 +1,7 @@
-import WeatherStationInterface, {
-  SensorsDescription,
-} from '../../app/other/weather_station_interface.js'
+import { WeatherStationInterface } from '../app/other/weather_station_interface.js'
 
 export default class DavisVantagePro2Interface extends WeatherStationInterface {
-  sensors: SensorsDescription = {
+  sensors = {
     tempIn: {
       interval: 10,
       interval_unit: 'second',
@@ -11,15 +9,17 @@ export default class DavisVantagePro2Interface extends WeatherStationInterface {
       summary_type: 'min-max-avg',
       tags: ['primary'],
       unit_type: 'temperature',
-      value_type: 'double',
     },
   }
 
-  async connect(): Promise<boolean> {
+  async connect() {
     return true
   }
 
-  async record(sensor_slug: string): Promise<number | null> {
-    return Promise.resolve(null)
+  async record(sensor_slug) {
+    return Promise.resolve({
+      value: null,
+      unit: 'none',
+    })
   }
 }

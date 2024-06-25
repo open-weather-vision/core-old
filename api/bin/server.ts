@@ -11,10 +11,8 @@
 
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
-
-// Snake case naming strateg
-import { BaseModel, SnakeCaseNamingStrategy } from '@adonisjs/lucid/orm'
-BaseModel.namingStrategy = new SnakeCaseNamingStrategy()
+import * as hooks from './hooks.js'
+import { ApplicationService } from '@adonisjs/core/types'
 
 /**
  * URL to the application root. AdonisJS need it to resolve
@@ -40,6 +38,14 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
     })
     app.listen('SIGTERM', () => app.terminate())
     app.listenIf(app.managedByPm2, 'SIGINT', () => app.terminate())
+
+    // Register hooks
+    for (const hook in hooks) {
+      if (hook in app) {
+        const confirmed_hook = hook as keyof ApplicationService
+        app[confirmed_hook](hooks[hook as keyof typeof hooks])
+      }
+    }
   })
   .httpServer()
   .start()

@@ -1,9 +1,13 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, computed } from '@adonisjs/lucid/orm'
+import { belongsTo, column } from '@adonisjs/lucid/orm'
 import Sensor from './sensor.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import { TimeUnit } from '../other/scheduler.js'
+import AppBaseModel from './app_base_model.js'
+import { Unit, convert } from '../other/units/units.js'
+import { Exception } from '@adonisjs/core/exceptions'
 
-export default class Record extends BaseModel {
+export default class Record extends AppBaseModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -11,69 +15,31 @@ export default class Record extends BaseModel {
   declare sensor_id: number
 
   @column()
-  declare value_int: number | null
+  declare value: number | null
 
   @column()
-  declare value_float: number | null
+  declare unit: Unit | 'none'
 
   @column.dateTime({ autoCreate: true })
   declare created_at: DateTime
-
-  @computed()
-  get value() {
-    return this.value_int !== null ? this.value_int : this.value_float
-  }
 
   @belongsTo(() => Sensor, {
     foreignKey: 'sensor_id',
   })
   declare sensor: BelongsTo<typeof Sensor>
 
-  static hour() {
-    return Record.query().where(
-      'created_at',
-      '>',
-      DateTime.now().set({ minute: 0, second: 0, millisecond: 0 }).toISO()
-    )
+  static current(interval: TimeUnit, time: DateTime = DateTime.now()) {
+    return Record.query()
+      .where('created_at', '>=', time.startOf(interval).toString())
+      .andWhere('created_at', '<', time.endOf(interval).toString())
   }
 
-  static day() {
-    return Record.query().where(
-      'created_at',
-      '>',
-      DateTime.now().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).toISO()
-    )
-  }
+  convert_to(unit: Unit) {
+    if (this.unit === 'none') {
+      throw new Exception('Cannot change unit of an record not having any unit!')
+    }
 
-  static week() {
-    return Record.query().where(
-      'created_at',
-      '>',
-      DateTime.now().set({ localWeekday: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).toISO()
-    )
-  }
-
-  static month() {
-    return Record.query().where(
-      'created_at',
-      '>',
-      DateTime.now().set({ day: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).toISO()
-    )
-  }
-
-  static year() {
-    return Record.query().where(
-      'created_at',
-      '>',
-      DateTime.now().set({ month: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).toISO()
-    )
-  }
-
-  static alltime() {
-    return Record.query().where(
-      'created_at',
-      '>',
-      DateTime.now().set({ month: 1, hour: 0, minute: 0, second: 0, millisecond: 0 }).toISO()
-    )
+    this.value = convert(this.value, this.unit, unit)
+    this.unit = unit
   }
 }

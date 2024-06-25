@@ -7,12 +7,15 @@ import type {
   SoilMoistureUnit,
   SolarRadiationUnit,
   TemperatureUnit,
+  Unit,
+  UnitType,
   WindUnit,
 } from '../other/units/units.js'
 import WeatherStation from './weather_station.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import AppBaseModel from './app_base_model.js'
 
-export default class UnitConfig extends BaseModel {
+export default class UnitConfig extends AppBaseModel {
   @column({ isPrimary: true, serializeAs: null })
   declare id: number
 
@@ -59,6 +62,11 @@ export default class UnitConfig extends BaseModel {
     foreignKey: 'weather_station_id',
   })
   declare weather_station: BelongsTo<typeof WeatherStation>
+
+  of_type(type: UnitType): Unit | 'none' {
+    if (type === 'none') return 'none'
+    else return this[`${type}_unit`]
+  }
 
   static async global_unit_config() {
     return await UnitConfig.query().where('global', true).firstOrFail()

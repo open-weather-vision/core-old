@@ -1,4 +1,3 @@
-import { SensorValueType } from '#models/sensor'
 import { DateTime } from 'luxon'
 import { TimeUnit } from './scheduler.js'
 import { SensorSummaryType, SummaryType } from './summaries/summary_types.js'
@@ -11,20 +10,18 @@ export type SensorDescription = {
   interval: number
   interval_unit: TimeUnit
   unit_type: UnitType
-  value_type: SensorValueType
 }
 
 export type SensorsDescription = { [Property in string]: SensorDescription }
 
-export type SimpleRecord = {
+export type StoredRecord = {
   value: number | null
-  created_at: DateTime
+  created_at: DateTime | null
 }
 
-export type SimpleRecordWithUnit = {
+export type RecordWithUnit = {
   value: number | null
-  unit?: Unit
-  created_at: DateTime
+  unit?: Unit | 'none'
 }
 
 export type CommandResult = {
@@ -33,17 +30,24 @@ export type CommandResult = {
   data?: any
 }
 
-export default abstract class WeatherStationInterface {
-  abstract sensors: SensorsDescription
+export class WeatherStationInterface {
+  sensors: SensorsDescription = {}
   config: any
 
   constructor(config: any) {
     this.config = config
   }
 
-  abstract connect(): Promise<boolean>
+  connect(): Promise<boolean> {
+    return Promise.resolve(false)
+  }
 
-  abstract record(sensor_slug: string): Promise<number | null>
+  record(sensor_slug: string): Promise<RecordWithUnit> {
+    return Promise.resolve({
+      value: null,
+      unit: 'none',
+    })
+  }
 
   command(command: string, ...params: any[]): Promise<CommandResult> {
     return Promise.resolve({
@@ -52,7 +56,7 @@ export default abstract class WeatherStationInterface {
     })
   }
 
-  summarize(sensor_slug: string, records: SimpleRecord[]): SimpleRecord | null {
+  summarize(sensor_slug: string, records: StoredRecord[]): StoredRecord | null {
     return null
   }
 }

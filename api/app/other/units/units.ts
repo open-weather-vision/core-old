@@ -112,7 +112,22 @@ export const UnitTypes: UnitType[] = [
 
 export type UnitSettings = Readonly<UnitConfiguration>
 
-export function convert(value: number | null, source_unit: Unit, target_unit: Unit): number | null {
-  if (value === null) return value
-  return units.from(value, source_unit).to(target_unit)
+export function convert<T extends number | null | undefined>(
+  value: T,
+  source_unit: Unit,
+  target_unit: Unit
+): T {
+  if (value === null || value === undefined) return value
+  return units.from(value, source_unit).to(target_unit) as T
 }
+
+export const Units = [
+  ...PrecipationUnits,
+  ...ElevationUnits,
+  ...WindUnits,
+  ...TemperatureUnits,
+  ...SolarRadiationUnits,
+  ...PressureUnits,
+  ...SoilMoistureUnits,
+  ...HumidityUnits,
+]

@@ -1,15 +1,16 @@
-import { BaseModel, column, hasMany, hasOne } from '@adonisjs/lucid/orm'
+import { column, computed, hasMany, hasOne } from '@adonisjs/lucid/orm'
 import type { HasMany, HasOne } from '@adonisjs/lucid/types/relations'
 import UnitConfig from './unit_config.js'
 import Sensor from './sensor.js'
-import { ModelObject } from '@adonisjs/lucid/types/model'
 import Summary from './summary.js'
+import { WeatherStationInterface } from '../other/weather_station_interface.js'
+import AppBaseModel from './app_base_model.js'
 
 export type WeatherStationState = 'connecting' | 'connected' | 'disconnected' | 'disconnecting'
 
 export const WeatherStationStates = ['connecting', 'connected', 'disconnected', 'disconnecting']
 
-export default class WeatherStation extends BaseModel {
+export default class WeatherStation extends AppBaseModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -27,6 +28,9 @@ export default class WeatherStation extends BaseModel {
 
   @column()
   declare interface_config: object
+
+  @column()
+  declare remote_recorder: boolean
 
   @column({ serializeAs: null })
   declare unit_config_id: number
@@ -48,4 +52,13 @@ export default class WeatherStation extends BaseModel {
 
   @column()
   declare state: WeatherStationState
+
+  @computed({
+    serializeAs: null,
+  })
+  get interface_class(): Promise<typeof WeatherStationInterface> {
+    return import(`../../interfaces/${this.interface}.js`).then((value) => {
+      return value?.default
+    })
+  }
 }

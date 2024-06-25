@@ -4,6 +4,25 @@ import { Timeout, clearTimeout, setTimeout } from 'long-timeout'
 export type TimeUnit = 'second' | 'minute' | 'hour' | 'day' | 'week' | 'month' | 'year'
 export const TimeUnits: TimeUnit[] = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year']
 
+export function previous(interval: Exclude<TimeUnit, 'second'> | 'alltime'): TimeUnit {
+  switch (interval) {
+    case 'minute':
+      return 'second'
+    case 'hour':
+      return 'minute'
+    case 'day':
+      return 'hour'
+    case 'week':
+      return 'day'
+    case 'month':
+      return 'week'
+    case 'year':
+      return 'month'
+    case 'alltime':
+      return 'year'
+  }
+}
+
 export class Schedule {
   interval: number = 1
   unit: TimeUnit = 'second'

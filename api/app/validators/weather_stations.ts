@@ -39,6 +39,6 @@ export const initializeWeatherStationValidator = vine.compile(
       .optional(),
     interface: vine.string().trim().minLength(1).maxLength(50),
     interface_config: vine.object({}).allowUnknownProperties(),
-    remote_recorder: vine.boolean().optional(),
+    remote_recorder: vine.boolean(),
   })
 )

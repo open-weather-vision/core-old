@@ -3,15 +3,35 @@
 import NotFoundException from '#exceptions/not_found_exception'
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
-import { initializeWeatherStationValidator } from '#validators/weather_station'
+import { initializeWeatherStationValidator } from '#validators/weather_stations'
 import { HttpContext } from '@adonisjs/core/http'
-import { SummaryCreator } from '../other/summary_creator.js'
-import WeatherStationInterface from '../other/weather_station_interface.js'
 import Sensor from '#models/sensor'
+import summary_creator_service from '../services/summary_creator_service.js'
+import recorder_service from '#services/recorder_service'
+import * as fs from 'fs'
+import { WeatherStationInterface } from '../other/weather_station_interface.js'
 
 export default class WeatherStationsController {
-  async getAll() {
+  async get_interface(ctx: HttpContext) {
+    const data = await WeatherStation.query().where('slug', ctx.params.slug).first()
+
+    if (data == null) {
+      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
+    }
+
+    const interface_name = data?.interface
+
+    const interface_file = fs.createReadStream(`./interfaces/${interface_name}.js`)
+
+    ctx.response.stream(interface_file)
+  }
+
+  async get_all(ctx: HttpContext) {
     const data = await WeatherStation.query().select('slug', 'name', 'interface', 'state')
+
+    if (data == null) {
+      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
+    }
 
     return {
       success: true,
@@ -19,7 +39,7 @@ export default class WeatherStationsController {
     }
   }
 
-  async getOne(ctx: HttpContext) {
+  async get_one(ctx: HttpContext) {
     const data = await WeatherStation.query()
       .preload('unit_config')
       .where('slug', ctx.params.slug)
@@ -27,7 +47,6 @@ export default class WeatherStationsController {
 
     const serializedData = data?.serialize()
 
-    console.log(serializedData)
     if (serializedData?.unit_config === null) {
       serializedData.unit_config = (
         await UnitConfig.query().where('global', true).firstOrFail()
@@ -35,7 +54,7 @@ export default class WeatherStationsController {
     }
 
     if (data == null) {
-      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exist!`)
+      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
     }
 
     return {
@@ -48,12 +67,13 @@ export default class WeatherStationsController {
     const data = ctx.request.all()
     const payload = await initializeWeatherStationValidator.validate(data)
 
-    const weatherStation = await WeatherStation.create({
+    const weather_station = await WeatherStation.create({
       interface: payload.interface,
       interface_config: payload.interface_config,
       name: payload.name,
       slug: payload.slug,
       state: 'disconnected',
+      remote_recorder: payload.remote_recorder,
     })
 
     if (payload.units) {
@@ -69,13 +89,13 @@ export default class WeatherStationsController {
         pressure_unit: payload.units.pressure,
         soil_temperature_unit: payload.units.soil_temperature,
         wind_unit: payload.units.wind,
-        weather_station_id: weatherStation.id,
+        weather_station_id: weather_station.id,
         global: false,
       })
     }
 
-    const StationInterface = await import(`../../interfaces/${payload.interface}.js`)
-    const station_interface: WeatherStationInterface = new StationInterface.default(
+    const StationInterface = await weather_station.interface_class
+    const station_interface: WeatherStationInterface = new StationInterface(
       payload.interface_config
     )
 
@@ -83,12 +103,16 @@ export default class WeatherStationsController {
       const sensor = station_interface.sensors[sensor_slug]
       await Sensor.create({
         ...sensor,
-        weather_station_id: weatherStation.id,
+        weather_station_id: weather_station.id,
         slug: sensor_slug,
       })
     }
 
-    await SummaryCreator.createAndStart(weatherStation.id, station_interface)
+    // Add station to summary creator / recorder service
+    summary_creator_service.add_station(weather_station)
+    if (payload.remote_recorder) {
+      recorder_service.add_station(weather_station)
+    }
 
     return {
       success: true,

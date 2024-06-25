@@ -4,12 +4,16 @@ import type { SummaryType } from '../other/summaries/summary_types.js'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import SummaryRecord from './summary_record.js'
 import WeatherStation from './weather_station.js'
+import { TimeUnit } from '../other/scheduler.js'
+import AppBaseModel from './app_base_model.js'
 
-export default class Summary extends BaseModel {
+export default class Summary extends AppBaseModel {
   @column({ isPrimary: true })
   declare id: number
 
-  @column.dateTime({ autoCreate: true })
+  @column.dateTime({
+    autoCreate: true,
+  })
   declare created_at: DateTime
 
   @column()
@@ -27,4 +31,11 @@ export default class Summary extends BaseModel {
     foreignKey: 'summary_id',
   })
   declare records: HasMany<typeof SummaryRecord>
+
+  static current(type: TimeUnit & SummaryType, time: DateTime = DateTime.now()) {
+    return Summary.query()
+      .where('created_at', '>=', time.startOf(type).toString())
+      .andWhere('created_at', '<', time.endOf(type).toString())
+      .andWhere('type', type)
+  }
 }
