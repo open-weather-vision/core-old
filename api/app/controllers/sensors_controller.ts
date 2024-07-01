@@ -135,10 +135,10 @@ export default class SensorsController {
       unit: payload.unit,
     })
 
-    summary_creator_service.process_record(ctx.params.slug, record)
+    const result = await summary_creator_service.process_record(ctx.params.slug, record)
 
     return {
-      success: true,
+      success: result,
     }
   }
 }

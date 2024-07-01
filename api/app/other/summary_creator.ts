@@ -108,7 +108,7 @@ export class SummaryCreator {
   }
 
   public async process_record(record: Record): Promise<boolean> {
-    if (record.created_at < this.current_hour_summary?.created_at!) {
+    if (record.created_at < this.latest_record_time!) {
       // if record is not after the record before the record is invalid
       record.delete()
       return false

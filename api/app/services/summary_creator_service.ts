@@ -67,8 +67,10 @@ class SummaryCreatorService extends Service {
   async process_record(station_slug: string, record: Record) {
     if (await this.summary_creators[station_slug].summary_creator.process_record(record)) {
       this.logger.info(`Sucessfully processed record '${record.id}' of station '${station_slug}'!`)
+      return true
     } else {
       this.logger.info(`Failed to process record '${record.id}' of station '${station_slug}'!`)
+      return false
     }
   }
 }
