@@ -20,7 +20,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
         success: false,
         error: {
           message: error.message,
-          name: error.name,
+          code: error.code,
           stack: error.stack,
         },
       })
@@ -29,7 +29,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
         success: false,
         error: {
           message: error.messages[0].message,
-          name: 'validation-error',
+          code: error.code,
           stack: error?.stack,
         },
       })
@@ -38,7 +38,7 @@ export default class HttpExceptionHandler extends ExceptionHandler {
         success: false,
         error: {
           message: error?.message || 'Unknown error!',
-          name: error?.name || 'unknown',
+          code: error?.code || 'unknown',
           stack: error?.stack,
         },
       })

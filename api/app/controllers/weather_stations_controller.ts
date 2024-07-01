@@ -10,6 +10,7 @@ import summary_creator_service from '../services/summary_creator_service.js'
 import recorder_service from '#services/recorder_service'
 import * as fs from 'fs'
 import { WeatherStationInterface } from '../other/weather_station_interface.js'
+import { Exception } from '@adonisjs/core/exceptions'
 
 export default class WeatherStationsController {
   async get_interface(ctx: HttpContext) {
@@ -94,7 +95,16 @@ export default class WeatherStationsController {
       })
     }
 
-    const StationInterface = await weather_station.interface_class
+    let StationInterface
+    try {
+      StationInterface = await weather_station.interface_class
+    } catch (err) {
+      await weather_station.delete()
+      throw new Exception(`Passed interface '${payload.interface}' is not installed!`, {
+        status: 400,
+        code: 'unkown-interface-error',
+      })
+    }
     const station_interface: WeatherStationInterface = new StationInterface(
       payload.interface_config
     )
@@ -110,7 +120,7 @@ export default class WeatherStationsController {
 
     // Add station to summary creator / recorder service
     summary_creator_service.add_station(weather_station)
-    if (payload.remote_recorder) {
+    if (!payload.remote_recorder) {
       recorder_service.add_station(weather_station)
     }
 

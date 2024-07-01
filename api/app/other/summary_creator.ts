@@ -65,7 +65,7 @@ export class SummaryCreator {
     type: SummaryType,
     interval_start: DateTime
   ) {
-    const latest_summary = await Summary.latest(type)
+    const latest_summary = await Summary.latest(type, this.weather_station_id)
     if (
       latest_summary !== null &&
       (+latest_summary.created_at === +interval_start || type === 'alltime')

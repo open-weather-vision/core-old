@@ -39,7 +39,11 @@ export default class Summary extends AppBaseModel {
       .andWhere('type', type)
   }
 
-  static latest(type: SummaryType) {
-    return Summary.query().where('type', type).orderBy('created_at', 'desc').first()
+  static latest(type: SummaryType, weather_station_id: number) {
+    return Summary.query()
+      .where('type', type)
+      .andWhere('weather_station_id', weather_station_id)
+      .orderBy('created_at', 'desc')
+      .first()
   }
 }
