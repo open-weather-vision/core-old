@@ -8,7 +8,6 @@ export type SensorSummaryType =
   | 'max-avg'
   | 'min-max-avg'
   | 'avg'
-  | 'middle'
   | 'latest'
   | 'oldest'
   | 'sum'
@@ -22,7 +21,6 @@ export const SensorSummaryTypes: SensorSummaryType[] = [
   'max-avg',
   'min-max-avg',
   'avg',
-  'middle',
   'latest',
   'oldest',
   'sum',

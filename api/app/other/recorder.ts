@@ -50,18 +50,21 @@ export class Recorder {
   private async create_schedules() {
     for (const sensor_slug in this.station_interface.sensors) {
       const sensor_config = this.station_interface.sensors[sensor_slug]
-      this.sensor_schedules[sensor_slug] = schedule(async () => {
+      this.sensor_schedules[sensor_slug] = schedule(async (time) => {
         const record = await this.station_interface.record(sensor_slug)
         const url = `${this.api_url}/weather-stations/${this.weather_station_slug}/sensors/${sensor_slug}/`
         this.logger.info(
-          `Record (${this.weather_station_slug}/${sensor_slug}): ${record.value} ${record.unit}`
+          `Record (${this.weather_station_slug}/${sensor_slug}): ${record.value} ${record.unit} [${time}]`
         )
         this.logger.info(`Sending record to ${url}`)
         try {
           await axios({
             method: 'post',
             url,
-            data: record,
+            data: {
+              ...record,
+              created_at: time,
+            },
             headers: {
               'content-type': 'application/json',
             },

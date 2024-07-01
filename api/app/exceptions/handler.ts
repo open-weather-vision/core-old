@@ -1,6 +1,7 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
 import { Exception } from '@adonisjs/core/exceptions'
+import { errors } from '@vinejs/vine'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -21,6 +22,15 @@ export default class HttpExceptionHandler extends ExceptionHandler {
           message: error.message,
           name: error.name,
           stack: error.stack,
+        },
+      })
+    } else if (error instanceof errors.E_VALIDATION_ERROR) {
+      ctx.response.status(400).json({
+        success: false,
+        error: {
+          message: error.messages[0].message,
+          name: 'validation-error',
+          stack: error?.stack,
         },
       })
     } else {

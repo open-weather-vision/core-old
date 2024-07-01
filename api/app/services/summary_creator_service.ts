@@ -2,6 +2,7 @@ import WeatherStation from '#models/weather_station'
 import { Exception } from '@adonisjs/core/exceptions'
 import { SummaryCreator } from '../other/summary_creator.js'
 import Service from './service.js'
+import Record from '#models/record'
 
 class SummaryCreatorService extends Service {
   private summary_creators: {
@@ -37,12 +38,13 @@ class SummaryCreatorService extends Service {
     }
     this.summary_creators[station.slug] = {
       station,
-      summary_creator: await SummaryCreator.create(
+      summary_creator: new SummaryCreator(
         station.id,
-        new StationInterface(station.interface_config)
+        new StationInterface(station.interface_config),
+        this.logger
       ),
     }
-    this.summary_creators[station.slug].summary_creator.start()
+    await this.summary_creators[station.slug].summary_creator.start()
     this.logger.info(`Started summary creator for station '${station.slug}'`)
   }
 
@@ -51,9 +53,8 @@ class SummaryCreatorService extends Service {
    * @param station
    */
   async remove_station(slug: string) {
-    this.summary_creators[slug].summary_creator.stop()
     delete this.summary_creators[slug]
-    this.logger.info(`Stopped summary creator for station '${slug}'`)
+    this.logger.info(`Removed summary creator for station '${slug}'`)
   }
 
   async terminating() {
@@ -61,6 +62,14 @@ class SummaryCreatorService extends Service {
       this.remove_station(slug)
     }
     this.logger.info(`Stopped summary creator service`)
+  }
+
+  async process_record(station_slug: string, record: Record) {
+    if (await this.summary_creators[station_slug].summary_creator.process_record(record)) {
+      this.logger.info(`Sucessfully processed record '${record.id}' of station '${station_slug}'!`)
+    } else {
+      this.logger.info(`Failed to process record '${record.id}' of station '${station_slug}'!`)
+    }
   }
 }
 

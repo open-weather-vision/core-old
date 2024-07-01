@@ -26,7 +26,6 @@ export default class extends BaseSeeder {
       unit_type: 'temperature',
       weather_station_id: weather_station.id,
     })
-    await this.createRecordsForSensor(tempIn, global_unit_config, 100, 15, 25, 0.1)
 
     const tempOut = await Sensor.create({
       slug: 'tempOut',
@@ -36,56 +35,6 @@ export default class extends BaseSeeder {
       unit_type: 'temperature',
       weather_station_id: weather_station.id,
     })
-    await this.createRecordsForSensor(tempOut, global_unit_config, 100, -25, 25, 0.1)
-
-    const pressure = await Sensor.create({
-      slug: 'pressure',
-      interval: 120,
-      interval_unit: 'second',
-      summary_type: 'min-max-avg',
-      unit_type: 'temperature',
-      weather_station_id: weather_station.id,
-    })
-    await this.createRecordsForSensor(pressure, global_unit_config, 100, 980, 1035, 0)
-
-    const wind = await Sensor.create({
-      slug: 'wind',
-      interval: 100,
-      interval_unit: 'second',
-      summary_type: 'max-avg',
-      unit_type: 'wind',
-      weather_station_id: weather_station.id,
-    })
-    await this.createRecordsForSensor(wind, global_unit_config, 100, 0, 50, 0.2)
-
-    const rain15min = await Sensor.create({
-      slug: 'rain15min',
-      interval: 15,
-      interval_unit: 'minute',
-      summary_type: 'sum',
-      unit_type: 'precipation',
-      weather_station_id: weather_station.id,
-    })
-    await this.createRecordsForSensor(rain15min, global_unit_config, 100, 0, 5, 0.4)
-
-    await Sensor.create({
-      slug: 'rainRate',
-      interval: 10,
-      interval_unit: 'second',
-      summary_type: 'avg',
-      unit_type: 'precipation',
-      weather_station_id: weather_station.id,
-    })
-
-    const conditions = await Sensor.create({
-      slug: 'conditions',
-      interval: 1,
-      interval_unit: 'minute',
-      summary_type: 'custom',
-      unit_type: 'none',
-      weather_station_id: weather_station.id,
-    })
-    await this.createRecordsForSensor(conditions, global_unit_config, 100, 0, 5, 0.05, false)
   }
 
   randomRange(min: number, max: number) {

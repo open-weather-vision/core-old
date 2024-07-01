@@ -38,4 +38,8 @@ export default class Summary extends AppBaseModel {
       .andWhere('created_at', '<', time.endOf(type).toString())
       .andWhere('type', type)
   }
+
+  static latest(type: SummaryType) {
+    return Summary.query().where('type', type).orderBy('created_at', 'desc').first()
+  }
 }

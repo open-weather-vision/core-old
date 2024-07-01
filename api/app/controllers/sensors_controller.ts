@@ -2,6 +2,7 @@ import NotFoundException from '#exceptions/not_found_exception'
 import Record from '#models/record'
 import Sensor from '#models/sensor'
 import WeatherStation from '#models/weather_station'
+import summary_creator_service from '#services/summary_creator_service'
 import { read_query_params_validator, write_validator } from '#validators/sensors'
 import { HttpContext } from '@adonisjs/core/http'
 import logger from '@adonisjs/core/services/logger'
@@ -127,12 +128,14 @@ export default class SensorsController {
       )
     }
 
-    await Record.create({
-      created_at: payload.created_at ? DateTime.fromJSDate(payload.created_at) : DateTime.now(),
+    const record = await Record.create({
+      created_at: payload.created_at,
       sensor_id: sensor.id,
       value: payload.value,
       unit: payload.unit,
     })
+
+    summary_creator_service.process_record(ctx.params.slug, record)
 
     return {
       success: true,

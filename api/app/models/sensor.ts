@@ -49,4 +49,24 @@ export default class Sensor extends AppBaseModel {
     foreignKey: 'sensor_id',
   })
   declare tags: HasMany<typeof SensorTag>
+
+  get_type_information(): {
+    max_summary: boolean
+    min_summary: boolean
+    avg_summary: boolean
+    sum_summary: boolean
+    latest_summary: boolean
+    oldest_summary: boolean
+    custom_summary: boolean
+  } {
+    return {
+      max_summary: this.summary_type.includes('max'),
+      min_summary: this.summary_type.includes('min'),
+      avg_summary: this.summary_type.includes('avg'),
+      sum_summary: this.summary_type === 'sum',
+      latest_summary: this.summary_type === 'latest',
+      oldest_summary: this.summary_type === 'oldest',
+      custom_summary: this.summary_type === 'custom',
+    }
+  }
 }
