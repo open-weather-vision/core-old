@@ -67,8 +67,8 @@ export class SummaryCreator {
   ) {
     const latest_summary = await Summary.latest(type)
     if (
-      latest_summary?.created_at === interval_start ||
-      (latest_summary !== null && type === 'alltime')
+      latest_summary !== null &&
+      (+latest_summary.created_at === +interval_start || type === 'alltime')
     ) {
       this[`current_${type}_summary`] = latest_summary
     } else {
@@ -97,18 +97,29 @@ export class SummaryCreator {
   ) {
     if (+interval_start !== +this[`current_${type}_summary`]!.created_at) {
       this.logger.info(
-        `New ${type} for weather station '${(await WeatherStation.find(this.weather_station_id))?.slug}'`
+        `New '${type}' for weather station '${(await WeatherStation.find(this.weather_station_id))?.slug}': Created new summary!`
       )
       this[`current_${type}_summary`] = await Summary.create({
         created_at: interval_start,
         type: type,
         weather_station_id: this.weather_station_id,
       })
+      for (const sensor_slug in this.station_interface.sensors) {
+        const sensor = await Sensor.query()
+          .where('weather_station_id', this.weather_station_id)
+          .andWhere('slug', sensor_slug)
+          .firstOrFail()
+        await SummaryRecord.createForSensor(
+          sensor,
+          this[`current_${type}_summary`]!.id,
+          this.unit_config!.of_type(sensor.unit_type)
+        )
+      }
     }
   }
 
   public async process_record(record: Record): Promise<boolean> {
-    if (record.created_at < this.latest_record_time!) {
+    if (+record.created_at < +this.latest_record_time!) {
       // if record is not after the record before the record is invalid
       record.delete()
       return false
@@ -133,8 +144,6 @@ export class SummaryCreator {
     // Load sensor information
     await record.load('sensor')
 
-    // Helper
-
     // Update sensor summary records
     for (const type of SummaryTypes) {
       await this.update_current_summary_record(type, record)
@@ -145,18 +154,10 @@ export class SummaryCreator {
 
   private async update_current_summary_record(type: SummaryType, record: Record) {
     const summary_type_info = record.sensor.get_type_information()
-    let summary_record = await SummaryRecord.query()
+    const summary_record = await SummaryRecord.query()
       .where('sensor_id', record.sensor_id)
       .andWhere('summary_id', this[`current_${type}_summary`]!.id)
-      .first()
-
-    if (!summary_record) {
-      summary_record = await SummaryRecord.createForSensor(
-        record.sensor,
-        this[`current_${type}_summary`]!.id,
-        this.unit_config!.of_type(record.sensor.unit_type)
-      )
-    }
+      .firstOrFail()
 
     if (
       summary_type_info.max_summary ||

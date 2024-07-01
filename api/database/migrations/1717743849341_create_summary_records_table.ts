@@ -21,6 +21,7 @@ export default class extends BaseSchema {
         .onUpdate('CASCADE')
         .index()
       table.jsonb('data')
+      table.unique(['sensor_id', 'summary_id'])
       table.enum('unit', [...Units, 'none']).notNullable()
     })
   }
