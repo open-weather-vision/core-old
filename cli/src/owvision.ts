@@ -384,7 +384,7 @@ sensors_command.command("read").addArgument(station_name_argument).description('
             if (record.unit === "none") record.unit = "";
             if (typeof record.value === "number") record.value = record.value.toFixed(2);
             const seconds_ago = record.created_at !== null ? DateTime.fromISO(record.created_at).diffNow("seconds").seconds.toFixed(0) : null
-            console.log(`${chalk.blue(sensor.name)} ${chalk.bold(`(${sensor.slug})`)} ❯ ${record.value}${record.unit} ${seconds_ago !== null ? chalk.gray(`(${-seconds_ago}s ago)`) : ''}`)
+            console.log(`${chalk.blue(sensor.name)} ${chalk.bold(`(${sensor.slug})`)} ❯ ${safe_value_with_unit(record.value, record.unit)} ${seconds_ago !== null ? chalk.gray(`(${-seconds_ago}s ago)`) : ''}`)
         }
     } catch (err) {
         spinner.stop()
@@ -465,36 +465,36 @@ sensors_command.command("summary")
                     let record_string = "";
                     switch (record.summary_type) {
                         case "max":
-                            record_string = `\t❯ ${chalk.magenta('max:')} ${safe_value_with_unit(record.max_value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.max_time).toFormat("dd.MM.yyyy (HH:mm)"))}`
+                            record_string = `\t❯ ${chalk.magenta('max:')} ${safe_value_with_unit(record.max_value, record.unit)} at ${record.max_time ? chalk.italic(DateTime.fromISO(record.max_time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}`
                             break;
                         case "min":
-                            record_string = `\t❯ ${chalk.magenta('min:')} ${safe_value_with_unit(record.min_value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.min_time).toFormat("dd.MM.yyyy (HH:mm)"))}`
+                            record_string = `\t❯ ${chalk.magenta('min:')} ${safe_value_with_unit(record.min_value, record.unit)} at ${record.min_time ? chalk.italic(DateTime.fromISO(record.min_time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}`
                             break;
                         case "min-max":
-                            record_string = `\t❯ ${chalk.magenta('min:')} ${safe_value_with_unit(record.min_value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.min_time).toFormat("dd.MM.yyyy (HH:mm)"))}\n`
-                            record_string += `\t❯ ${chalk.magenta('max:')} ${safe_value_with_unit(record.max_value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.max_time).toFormat("dd.MM.yyyy (HH:mm)"))}`
+                            record_string = `\t❯ ${chalk.magenta('min:')} ${safe_value_with_unit(record.min_value, record.unit)} at ${record.min_time ? chalk.italic(DateTime.fromISO(record.min_time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}\n`
+                            record_string += `\t❯ ${chalk.magenta('max:')} ${safe_value_with_unit(record.max_value, record.unit)} at ${record.max_time ? chalk.italic(DateTime.fromISO(record.max_time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}`
                             break;
                         case "min-avg":
-                            record_string = `\t❯ ${chalk.magenta('min:')} ${safe_value_with_unit(record.min_value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.min_time).toFormat("dd.MM.yyyy (HH:mm)"))} \n`
+                            record_string = `\t❯ ${chalk.magenta('min:')} ${safe_value_with_unit(record.min_value, record.unit)} at ${record.min_time ? chalk.italic(DateTime.fromISO(record.min_time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'} \n`
                             record_string += `\t❯ ${chalk.magenta('avg:')} ${safe_value_with_unit(record.avg_value, record.unit)}`
                             break;
                         case "max-avg":
-                            record_string = `\t❯ ${chalk.magenta('max:')} ${safe_value_with_unit(record.max_value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.max_time).toFormat("dd.MM.yyyy (HH:mm)"))}\n`
+                            record_string = `\t❯ ${chalk.magenta('max:')} ${safe_value_with_unit(record.max_value, record.unit)} at ${record.max_time ? chalk.italic(DateTime.fromISO(record.max_time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}\n`
                             record_string += `\t❯ ${chalk.magenta('avg:')} ${safe_value_with_unit(record.avg_value, record.unit)}`
                             break;
                         case "min-max-avg":
-                            record_string = `\t❯ ${chalk.magenta('min:')} ${safe_value_with_unit(record.min_value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.min_time).toFormat("dd.MM.yyyy (HH:mm)"))} \n`
-                            record_string += `\t❯ ${chalk.magenta('max:')} ${safe_value_with_unit(record.max_value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.max_time).toFormat("dd.MM.yyyy (HH:mm)"))}\n`
+                            record_string = `\t❯ ${chalk.magenta('min:')} ${safe_value_with_unit(record.min_value, record.unit)} at ${record.min_time ? chalk.italic(DateTime.fromISO(record.min_time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}\n`
+                            record_string += `\t❯ ${chalk.magenta('max:')} ${safe_value_with_unit(record.max_value, record.unit)} at ${record.max_time ? chalk.italic(DateTime.fromISO(record.max_time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}\n`
                             record_string += `\t❯ ${chalk.magenta('avg:')} ${safe_value_with_unit(record.avg_value, record.unit)}`
                             break;
                         case "avg":
                             record_string = `\t❯ ${chalk.magenta('avg:')} ${safe_value_with_unit(record.avg_value, record.unit)}`
                             break;
                         case "latest":
-                            record_string = `\t❯ ${chalk.magenta('latest:')} ${safe_value_with_unit(record.value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.time).toFormat("dd.MM.yyyy (HH:mm)"))}`
+                            record_string = `\t❯ ${chalk.magenta('latest:')} ${safe_value_with_unit(record.value, record.unit)} at ${record.time ? chalk.italic(DateTime.fromISO(record.time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}`
                             break;
                         case "oldest":
-                            record_string = `\t❯ ${chalk.magenta('oldest:')} ${safe_value_with_unit(record.value, record.unit)} at ${chalk.italic(DateTime.fromISO(record.time).toFormat("dd.MM.yyyy (HH:mm)"))}`
+                            record_string = `\t❯ ${chalk.magenta('oldest:')} ${safe_value_with_unit(record.value, record.unit)} at ${record.time ? chalk.italic(DateTime.fromISO(record.time).toFormat("dd.MM.yyyy (HH:mm)")) : '-'}`
                             break;
                         case "sum":
                             record_string = `\t❯ ${chalk.magenta('sum:')} ${safe_value_with_unit(record.value, record.unit)}`
