@@ -12,7 +12,7 @@ export default class extends BaseSeeder {
       interface_config: {
         path: 'COM3',
       },
-      state: 'disconnected',
+      state: 'active',
       slug: 'hueff-vp2',
       name: 'Hüffelsheimer Vantage Pro 2',
     })
@@ -33,6 +33,7 @@ export default class extends BaseSeeder {
     })
 
     const tempIn = await Sensor.create({
+      name: 'Inside temperature',
       slug: 'tempIn',
       interval: 10,
       interval_unit: 'second',
@@ -42,6 +43,7 @@ export default class extends BaseSeeder {
     })
 
     const tempOut = await Sensor.create({
+      name: 'Outside temperature',
       slug: 'tempOut',
       interval: 10,
       interval_unit: 'second',

@@ -100,6 +100,7 @@ export default class SensorsController {
       data: {
         value: record?.value ?? null,
         created_at: record?.created_at ?? null,
+        unit: record?.unit ?? null,
       },
     }
   }

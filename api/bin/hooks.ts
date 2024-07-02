@@ -1,5 +1,7 @@
+import * as http from "http";
 import recorder_service from '#services/recorder_service'
 import summary_creator_service from '#services/summary_creator_service'
+import { Server } from 'socket.io';
 
 /**
  * This function is executed after the api has been booted

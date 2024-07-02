@@ -6,9 +6,9 @@ import Summary from './summary.js'
 import { WeatherStationInterface } from '../other/weather_station_interface.js'
 import AppBaseModel from './app_base_model.js'
 
-export type WeatherStationState = 'connecting' | 'connected' | 'disconnected' | 'disconnecting'
+export type WeatherStationState = 'active' | 'inactive'
 
-export const WeatherStationStates = ['connecting', 'connected', 'disconnected', 'disconnecting']
+export const WeatherStationStates: WeatherStationState[] = ['active', 'inactive']
 
 export default class WeatherStation extends AppBaseModel {
   @column({ isPrimary: true })
@@ -16,9 +16,6 @@ export default class WeatherStation extends AppBaseModel {
 
   @column()
   declare slug: string
-
-  @column()
-  declare running: boolean
 
   @column()
   declare name: string

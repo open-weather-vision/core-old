@@ -3,7 +3,7 @@
 import NotFoundException from '#exceptions/not_found_exception'
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
-import { initializeWeatherStationValidator } from '#validators/weather_stations'
+import { initialize_weather_station_validator } from '#validators/weather_stations'
 import { HttpContext } from '@adonisjs/core/http'
 import Sensor from '#models/sensor'
 import summary_creator_service from '../services/summary_creator_service.js'
@@ -13,14 +13,56 @@ import { WeatherStationInterface } from '../other/weather_station_interface.js'
 import { Exception } from '@adonisjs/core/exceptions'
 
 export default class WeatherStationsController {
-  async get_interface(ctx: HttpContext) {
-    const data = await WeatherStation.query().where('slug', ctx.params.slug).first()
+  async pause(ctx: HttpContext){
+    const station = await WeatherStation.query()
+      .where('slug', ctx.params.slug)
+      .first();
 
-    if (data == null) {
+    if (station == null) {
       throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
     }
 
-    const interface_name = data?.interface
+
+    if(!station.remote_recorder && station.state === "active") {
+      await recorder_service.get_recorder(ctx.params.slug).stop();
+    }
+    station.state = 'inactive'
+    await station.save();
+
+    return {
+      success: true,
+    }
+  }
+
+  async resume(ctx: HttpContext){
+    const station = await WeatherStation.query()
+    .where('slug', ctx.params.slug)
+    .first();
+
+    if (station == null) {
+      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
+    }
+
+    if(!station.remote_recorder && station.state === "inactive") {
+      await recorder_service.get_recorder(ctx.params.slug).start();
+    }
+    station.state = 'active'
+    await station.save();
+
+    return {
+      success: true,
+    }
+  }
+
+
+  async get_interface(ctx: HttpContext) {
+    const station = await WeatherStation.query().where('slug', ctx.params.slug).first()
+
+    if (station == null) {
+      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
+    }
+
+    const interface_name = station?.interface
 
     const interface_file = fs.createReadStream(`./interfaces/${interface_name}.js`)
 
@@ -41,14 +83,14 @@ export default class WeatherStationsController {
   }
 
   async get_one(ctx: HttpContext) {
-    const data = await WeatherStation.query()
+    const station = await WeatherStation.query()
       .preload('unit_config')
       .where('slug', ctx.params.slug)
       .first()
 
-    const serializedData = data?.serialize()
+    const serializedData = station?.serialize()
 
-    if (data == null) {
+    if (station == null) {
       throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
     }
 
@@ -60,33 +102,32 @@ export default class WeatherStationsController {
 
   async initialize(ctx: HttpContext) {
     const data = ctx.request.all()
-    const payload = await initializeWeatherStationValidator.validate(data)
+    const payload = await initialize_weather_station_validator.validate(data)
+
 
     const weather_station = await WeatherStation.create({
       interface: payload.interface,
       interface_config: payload.interface_config,
       name: payload.name,
       slug: payload.slug,
-      state: 'disconnected',
+      state: payload.state ?? 'inactive',
       remote_recorder: payload.remote_recorder,
     })
 
-    if (payload.units) {
-      await UnitConfig.create({
-        elevation_unit: payload.units.elevation,
-        evo_transpiration_unit: payload.units.evo_transpiration,
-        humidity_unit: payload.units.humidity,
-        leaf_temperature_unit: payload.units.leaf_temperature,
-        temperature_unit: payload.units.temperature,
-        solar_radiation_unit: payload.units.solar_radiation,
-        soil_moisture_unit: payload.units.soil_moisture,
-        precipation_unit: payload.units.precipation,
-        pressure_unit: payload.units.pressure,
-        soil_temperature_unit: payload.units.soil_temperature,
-        wind_unit: payload.units.wind,
-        weather_station_id: weather_station.id,
-      })
-    }
+    await UnitConfig.create({
+      elevation_unit: payload.units.elevation,
+      evo_transpiration_unit: payload.units.evo_transpiration,
+      humidity_unit: payload.units.humidity,
+      leaf_temperature_unit: payload.units.leaf_temperature,
+      temperature_unit: payload.units.temperature,
+      solar_radiation_unit: payload.units.solar_radiation,
+      soil_moisture_unit: payload.units.soil_moisture,
+      precipation_unit: payload.units.precipation,
+      pressure_unit: payload.units.pressure,
+      soil_temperature_unit: payload.units.soil_temperature,
+      wind_unit: payload.units.wind,
+      weather_station_id: weather_station.id,
+    })
 
     let StationInterface
     try {

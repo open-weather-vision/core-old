@@ -9,8 +9,9 @@ import {
   TemperatureUnits,
   WindUnits,
 } from '../other/units/units.js'
+import { WeatherStationStates } from '#models/weather_station'
 
-export const initializeWeatherStationValidator = vine.compile(
+export const initialize_weather_station_validator = vine.compile(
   vine.object({
     name: vine.string().trim().maxLength(50),
     slug: vine
@@ -35,10 +36,10 @@ export const initializeWeatherStationValidator = vine.compile(
         solar_radiation: vine.enum(SolarRadiationUnits),
         soil_moisture: vine.enum(SoilMoistureUnits),
         humidity: vine.enum(HumidityUnits),
-      })
-      .optional(),
+      }),
     interface: vine.string().trim().minLength(1).maxLength(50),
     interface_config: vine.object({}).allowUnknownProperties(),
     remote_recorder: vine.boolean(),
+    state: vine.enum(WeatherStationStates).optional()
   })
 )

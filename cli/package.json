@@ -1,0 +1,36 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "npx tsc --watch"
+  },
+  "bin": {
+    "owvision": "./dist/owvision.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "js-string-escape": "^1.0.1",
+    "jsonfile": "^6.1.0",
+    "luxon": "^3.4.4",
+    "ora": "^8.0.1",
+    "prompts": "^2.4.2",
+    "simple-units": "^1.0.6"
+  },
+  "devDependencies": {
+    "@types/js-string-escape": "^1.0.3",
+    "@types/jsonfile": "^6.1.4",
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^20.14.9",
+    "@types/promptly": "^3.0.5",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5.5.3"
+  }
+}

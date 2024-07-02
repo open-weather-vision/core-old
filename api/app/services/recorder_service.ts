@@ -39,7 +39,7 @@ class RecorderService extends Service {
       station,
       recorder: await Recorder.create(station.slug, 'http://localhost:3333/v1', this.logger),
     }
-    this.recorders[station.slug].recorder.start()
+    if(station.state === "active") this.recorders[station.slug].recorder.start()
     this.logger.info(`Started recorder for station '${station.slug}'`)
   }
 
@@ -51,6 +51,14 @@ class RecorderService extends Service {
     // this.recorders[slug].recorder.stop()
     delete this.recorders[slug]
     this.logger.info(`Stopped recorder for station '${slug}'`)
+  }
+
+  /**
+   * Gets the recorder of a station.
+   * @param station
+   */
+  get_recorder(slug: string){
+    return this.recorders[slug].recorder;
   }
 
   async terminating() {
