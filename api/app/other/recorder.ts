@@ -1,20 +1,81 @@
 import UnitConfig from '#models/unit_config'
 import axios from 'axios'
 import { Schedule, schedule } from './scheduler.js'
-import { WeatherStationInterface } from './weather_station_interface.js'
+import { IRecord, WeatherStationInterface } from './weather_station_interface.js'
 import * as fs from 'fs'
 import { Exception } from '@adonisjs/core/exceptions'
 import { Logger } from '@adonisjs/core/logger'
+import { Queue } from '@datastructures-js/queue';
 
-// TODO
+/**
+ * The recorder records weather data for each configured sensor of a weather station and sends them to the api.
+ * It can be a seperate process.
+ * 
+ * It uses the intervals configured in the station's interface. It automatically downloads the interface and it's
+ * configuration from the api.
+ * 
+ * The recorder is robust against an unavailable api or internet connection. It stores failed records in a queue and tries to upload
+ * them again later. Records are always sent in order (even on failure).
+ */
 export class Recorder {
   private weather_station_slug: string
   private api_url: string
 
   private station_interface!: WeatherStationInterface
-  private unit_config!: UnitConfig
   private sensor_schedules: { [T in string]: Schedule } = {}
   private logger: Logger
+
+  private queue: Queue<IRecord> = new Queue()
+  private queue_pusher?: NodeJS.Timeout
+  private running: boolean = false
+
+  private sleep(time_milliseconds: number){
+    return new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, time_milliseconds);
+    })
+  }
+
+  private async start_record_pusher(){
+    while(!this.queue.isEmpty()){
+      const sent_successfully = await this.post_oldest_record();
+      if(!sent_successfully) break;
+    }
+    await this.sleep(1000);
+    if(this.running){
+      this.start_record_pusher();
+    }
+  }
+
+  private async post_oldest_record(){
+    const record = this.queue.front();
+      const url = `${this.api_url}/weather-stations/${this.weather_station_slug}/sensors/${record.sensor_slug}/`
+      try {
+        this.logger.info("Sending record...");
+        await axios({
+          method: 'post',
+          url,
+          data: {
+            created_at: record.created_at,
+            unit: record.unit,
+            value: record.value
+          },
+          headers: {
+            'content-type': 'application/json',
+          },
+        })
+        this.logger.info("Sent successfully!");
+        this.queue.dequeue();
+        return true;
+      } catch (err) {
+        if(err?.response?.data?.error?.code === 'validation-error'){
+          this.logger.error('Validation error: ' + err?.response?.data?.error?.message)
+        }
+        this.logger.warn("Failed to sent! Trying later...")
+        return false;
+      }
+  }
 
   private async load_station_interface() {
     const interface_response = await axios({
@@ -38,7 +99,6 @@ export class Recorder {
 
     const interface_class = (await import(interface_import_path)).default
     this.station_interface = new interface_class(config_response.data.interface_config)
-    this.unit_config = config_response.data.data.unit_config
 
     await this.station_interface.connect()
   }
@@ -51,27 +111,12 @@ export class Recorder {
     for (const sensor_slug in this.station_interface.sensors) {
       const sensor_config = this.station_interface.sensors[sensor_slug]
       this.sensor_schedules[sensor_slug] = schedule(async (time) => {
-        const record = await this.station_interface.record(sensor_slug)
-        const url = `${this.api_url}/weather-stations/${this.weather_station_slug}/sensors/${sensor_slug}/`
+        const record_raw = await this.station_interface.record(sensor_slug)
+        const record = { ...record_raw, created_at: time, sensor_slug};
         this.logger.info(
-          `Record (${this.weather_station_slug}/${sensor_slug}): ${record.value} ${record.unit} [${time}]`
+          `Created record $(${this.weather_station_slug}/${sensor_slug}): ${record.value} ${record.unit.toString()} [${record.created_at}]$`
         )
-        this.logger.info(`Sending record to ${url}`)
-        try {
-          await axios({
-            method: 'post',
-            url,
-            data: {
-              ...record,
-              created_at: time,
-            },
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
-        } catch (err) {
-          console.error(err.response.data.error)
-        }
+        this.queue.push(record);
       }).every(sensor_config.interval, sensor_config.interval_unit)
     }
   }
@@ -82,18 +127,34 @@ export class Recorder {
     this.logger = logger
   }
 
+  /**
+   * Starts the recorder.
+   */
   async start() {
     for (const sensor_slug in this.sensor_schedules) {
       this.sensor_schedules[sensor_slug].start()
     }
+    this.start_record_pusher();
+    this.running = true;
   }
 
+  /**
+   * Stops the recorder.
+   */
   async stop() {
     for (const sensor_slug in this.sensor_schedules) {
       this.sensor_schedules[sensor_slug].stop()
     }
+    this.running = false;
   }
 
+  /**
+   * Creates a recorder. Throws if an invalid configuration is passed or no internet connection is available. 
+   * @param weather_station_slug the station's slug
+   * @param api_url the url to the api (e.g. localhost:3333/v1)
+   * @param logger the logger
+   * @returns a configured recorder
+   */
   static async create(
     weather_station_slug: string,
     api_url: string,

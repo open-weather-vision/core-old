@@ -9,8 +9,7 @@ class RecorderService extends Service {
   } = {}
 
   async ready() {
-    this.logger.info(`Starting recorder service`)
-    this.logger.warn(`The recorder service is non functional currently...`)
+    this.logger.info(`Starting local recorder service`)
     const weather_stations = await WeatherStation.query().where('remote_recorder', false).exec()
     for (const station of weather_stations) {
       try {

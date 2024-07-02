@@ -7,6 +7,7 @@
 |
 */
 
+import APIController from '#controllers/api_controller'
 import SensorsController from '#controllers/sensors_controller'
 import SummariesController from '#controllers/summaries_controller'
 import WeatherStationsController from '#controllers/weather_stations_controller'
@@ -35,3 +36,8 @@ router.get('/v1/weather-stations/:slug/sensors/:sensor_slug/summaries/latest', [
   SummariesController,
   'get_latest_one',
 ])
+
+
+router.post('v1/api/shutdown', [
+  APIController, 'shutdown'
+]);

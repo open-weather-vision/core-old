@@ -9,6 +9,19 @@ import { WeatherStationInterface } from './weather_station_interface.js'
 import Sensor from '#models/sensor'
 import { Logger } from '@adonisjs/core/logger'
 
+/**
+ * The summary creator processes incoming records of a specified weather station to update
+ * the
+ *  - hourly
+ *  - daily
+ *  - weekly
+ *  - monthly
+ *  - yearly
+ *  - alltime
+ * 
+ * summaries. It is part of the api.
+ * 
+ */
 export class SummaryCreator {
   private latest_record_time?: DateTime
   private current_hour_summary?: Summary
@@ -24,6 +37,12 @@ export class SummaryCreator {
 
   private logger: Logger
 
+  /**
+   * Creates a new summary creator for the specified weather station.
+   * @param weather_station_id the station's id
+   * @param station_interface the station's interface
+   * @param logger the logger
+   */
   constructor(
     weather_station_id: number,
     station_interface: WeatherStationInterface,
@@ -38,11 +57,14 @@ export class SummaryCreator {
     const result = await WeatherStation.query()
       .where('id', this.weather_station_id)
       .preload('unit_config')
-      .first()
+      .firstOrFail()
 
-    this.unit_config = result?.unit_config ?? (await UnitConfig.global_unit_config())
+    this.unit_config = result.unit_config!;
   }
 
+  /**
+   * Starts the summary creator.
+   */
   async start() {
     await this.load_unit_config()
     this.latest_record_time = DateTime.now()
@@ -118,6 +140,11 @@ export class SummaryCreator {
     }
   }
 
+  /**
+   * Processes a new record. Fails if the record is older than the one before.
+   * @param record a new record
+   * @returns whether the record was valid
+   */
   public async process_record(record: Record): Promise<boolean> {
     if (+record.created_at < +this.latest_record_time!) {
       // if record is not after the record before the record is invalid

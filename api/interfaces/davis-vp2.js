@@ -1,6 +1,7 @@
 import { WeatherStationInterface } from '../app/other/weather_station_interface.js'
 import { DateTime } from 'luxon'
 
+// Dummy
 export default class DavisVantagePro2Interface extends WeatherStationInterface {
   sensors = {
     tempIn: {
@@ -26,9 +27,17 @@ export default class DavisVantagePro2Interface extends WeatherStationInterface {
   }
 
   async record(sensor_slug) {
-    return Promise.resolve({
-      value: Math.random() * 100,
-      unit: 'none',
-    })
+    if(sensor_slug === 'tempIn' || sensor_slug === 'tempOut'){
+      return Promise.resolve({
+        value: Math.random() * 100,
+        unit: '°F',
+      })
+    }else{
+      return Promise.resolve({
+        value: Math.random() * 100,
+        unit: '°C',
+      })
+    }
+    
   }
 }

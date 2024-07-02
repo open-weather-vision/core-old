@@ -48,12 +48,6 @@ export default class WeatherStationsController {
 
     const serializedData = data?.serialize()
 
-    if (serializedData?.unit_config === null) {
-      serializedData.unit_config = (
-        await UnitConfig.query().where('global', true).firstOrFail()
-      ).serialize()
-    }
-
     if (data == null) {
       throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
     }
@@ -91,7 +85,6 @@ export default class WeatherStationsController {
         soil_temperature_unit: payload.units.soil_temperature,
         wind_unit: payload.units.wind,
         weather_station_id: weather_station.id,
-        global: false,
       })
     }
 

@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node bin/server.js",
     "build": "node ace build",
-    "fresh": "node ace migration:fresh && node ace db:seed global_unit_config weather_station_dummy",
+    "fresh": "node ace migration:fresh && node ace db:seed weather_station_dummy",
     "dev": "node ace serve --watch",
     "test": "node ace test",
     "lint": "eslint .",
@@ -59,6 +59,7 @@
     "@adonisjs/core": "^6.9.0",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^20.6.0",
+    "@datastructures-js/queue": "^4.2.3",
     "@vinejs/vine": "^2.0.0",
     "axios": "^1.7.2",
     "long-timeout": "^0.1.1",

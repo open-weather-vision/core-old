@@ -1,9 +1,11 @@
 import NotFoundException from '#exceptions/not_found_exception'
 import Record from '#models/record'
 import Sensor from '#models/sensor'
+import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
 import summary_creator_service from '#services/summary_creator_service'
 import { read_query_params_validator, write_validator } from '#validators/sensors'
+import { Exception } from '@adonisjs/core/exceptions'
 import { HttpContext } from '@adonisjs/core/http'
 import logger from '@adonisjs/core/services/logger'
 import { DateTime } from 'luxon'
@@ -103,10 +105,17 @@ export default class SensorsController {
   }
 
   async write(ctx: HttpContext) {
+    /*if(Math.random() > 0.5){
+      throw new Exception("Something went wrong", {
+        code: "test",
+        status: 500
+      })
+    }*/
     const payload = await write_validator.validate(ctx.request.all())
 
     const weather_station = await WeatherStation.query()
       .select('id')
+      .preload('unit_config')
       .where('slug', ctx.params.slug)
       .first()
 
@@ -119,7 +128,7 @@ export default class SensorsController {
     const sensor = await Sensor.query()
       .where('weather_station_id', weather_station.id)
       .where('slug', ctx.params.sensor_slug)
-      .select('id')
+      .select('id', 'unit_type')
       .first()
 
     if (!sensor) {
@@ -134,6 +143,22 @@ export default class SensorsController {
       value: payload.value,
       unit: payload.unit,
     })
+
+    
+    const target_unit = weather_station.unit_config.of_type(sensor.unit_type);
+    if(record.unit === 'none' && target_unit !== 'none'  && record.value !== null || target_unit === 'none' && record.unit !== 'none'){
+      await record.delete();
+      throw new Exception(`Invalid unit '${record.unit}'!`, {
+        code: 'validation-error',
+        status: 400,
+      });
+    }
+    
+    if(weather_station.unit_config.of_type(sensor.unit_type) !== record.unit && target_unit !== 'none'){
+      record.convert_to(target_unit);
+      await record.save();
+    }
+
 
     const result = await summary_creator_service.process_record(ctx.params.slug, record)
 

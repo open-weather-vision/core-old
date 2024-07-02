@@ -14,6 +14,7 @@ import type {
 import WeatherStation from './weather_station.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import AppBaseModel from './app_base_model.js'
+import { Exception } from '@adonisjs/core/exceptions'
 
 export default class UnitConfig extends AppBaseModel {
   @column({ isPrimary: true, serializeAs: null })
@@ -52,9 +53,6 @@ export default class UnitConfig extends AppBaseModel {
   @column()
   declare humidity_unit: HumidityUnit
 
-  @column()
-  declare global: boolean
-
   @column({ serializeAs: null })
   declare weather_station_id: number
 
@@ -65,10 +63,12 @@ export default class UnitConfig extends AppBaseModel {
 
   of_type(type: UnitType): Unit | 'none' {
     if (type === 'none') return 'none'
-    else return this[`${type}_unit`]
-  }
-
-  static async global_unit_config() {
-    return await UnitConfig.query().where('global', true).firstOrFail()
+    else {
+      const result = this[`${type}_unit`];
+      if(result === undefined){
+        throw new Exception(`'${type}' is an invalid unit type!`);
+      }
+      return result;
+    } 
   }
 }
