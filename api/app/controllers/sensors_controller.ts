@@ -1,3 +1,4 @@
+import PleaseStopException from '#exceptions/please_stop_exception'
 import SensorNotFoundException from '#exceptions/sensor_not_found_exception'
 import StationNotFoundException from '#exceptions/station_not_found_exception'
 import Record from '#models/record'
@@ -5,7 +6,6 @@ import Sensor from '#models/sensor'
 import WeatherStation from '#models/weather_station'
 import summary_creator_service from '#services/summary_creator_service'
 import { read_query_params_validator, write_validator } from '#validators/sensors'
-import { Exception } from '@adonisjs/core/exceptions'
 import { HttpContext } from '@adonisjs/core/http'
 import { errors } from '@vinejs/vine'
 
@@ -95,12 +95,6 @@ export default class SensorsController {
   }
 
   async write(ctx: HttpContext) {
-    /*if(Math.random() > 0.5){
-      throw new Exception("Something went wrong", {
-        code: "test",
-        status: 500
-      })
-    }*/
     const payload = await write_validator.validate(ctx.request.all())
 
     const weather_station = await WeatherStation.query()
@@ -111,6 +105,10 @@ export default class SensorsController {
 
     if (!weather_station) {
       throw new StationNotFoundException(ctx.params.slug);
+    }
+
+    if(weather_station.state === "inactive"){
+      throw new PleaseStopException();
     }
 
     const sensor = await Sensor.query()

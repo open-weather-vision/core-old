@@ -1,7 +1,4 @@
-import * as http from "http";
-import recorder_service from '#services/recorder_service'
 import summary_creator_service from '#services/summary_creator_service'
-import { Server } from 'socket.io';
 
 /**
  * This function is executed after the api has been booted
@@ -9,8 +6,6 @@ import { Server } from 'socket.io';
 export async function ready() {
   await summary_creator_service.loggerInit()
   await summary_creator_service.ready()
-  await recorder_service.loggerInit()
-  await recorder_service.ready()
 }
 
 /**
@@ -18,5 +13,4 @@ export async function ready() {
  */
 export async function terminating() {
   await summary_creator_service.terminating()
-  await recorder_service.terminating()
 }

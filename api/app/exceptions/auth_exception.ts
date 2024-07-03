@@ -5,6 +5,6 @@ export default class AuthException extends Exception {
   static code = 'E_AUTH'
 
   constructor(role?: string){
-    super(`Authentication failed. Are you logged in?${role ? ` Minimum role: ${role}` : ''}`)
+    super(`Authentication failed. Are you logged in?${role ? ` This action requires '${role}' rights!` : ''}`)
   }
 }

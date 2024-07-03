@@ -6,12 +6,18 @@ import type { NextFn } from '@adonisjs/core/types/http'
 
 export type HttpContextWithSession = HttpContext & { session: Session }
 
+export type AuthMiddlewareOptions = {min_role?: Role};
+
 export default class UserAuthenticationMiddleware {
-  async handle(ctx: HttpContextWithSession, next: NextFn, options: {min_role?: Role}) {
+  async handle(ctx: HttpContextWithSession, next: NextFn, options: AuthMiddlewareOptions) {
     /**
      * Middleware logic goes here (before the next call)
      */
     const auth_token = ctx.request.header("OWVISION_AUTH_TOKEN");
+
+    if(!auth_token){
+      throw new AuthException(options?.min_role);
+    }
     
     const session = await Session.find(auth_token);
 

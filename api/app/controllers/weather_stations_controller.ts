@@ -6,7 +6,6 @@ import { initialize_weather_station_validator } from '#validators/weather_statio
 import { HttpContext } from '@adonisjs/core/http'
 import Sensor from '#models/sensor'
 import summary_creator_service from '../services/summary_creator_service.js'
-import recorder_service from '#services/recorder_service'
 import * as fs from 'fs'
 import { WeatherStationInterface } from '../other/weather_station_interface.js'
 import { Exception } from '@adonisjs/core/exceptions'
@@ -24,7 +23,7 @@ export default class WeatherStationsController {
 
 
     if (!station.remote_recorder && station.state === "active") {
-      await recorder_service.get_recorder(ctx.params.slug).stop();
+      //await recorder_service.get_recorder(ctx.params.slug).stop();
     }
     station.state = 'inactive'
     await station.save();
@@ -44,7 +43,7 @@ export default class WeatherStationsController {
     }
 
     if (!station.remote_recorder && station.state === "inactive") {
-      await recorder_service.get_recorder(ctx.params.slug).start();
+      //await recorder_service.get_recorder(ctx.params.slug).start();
     }
     station.state = 'active'
     await station.save();
@@ -151,7 +150,7 @@ export default class WeatherStationsController {
     // Add station to summary creator / recorder service
     summary_creator_service.add_station(weather_station)
     if (!payload.remote_recorder) {
-      recorder_service.add_station(weather_station)
+      // recorder_service.add_station(weather_station)
     }
 
     return {

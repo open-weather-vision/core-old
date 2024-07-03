@@ -63,8 +63,16 @@ router.get('/v1/weather-stations/:slug/sensors/:sensor_slug/summaries/latest', [
 ]).use(middleware.userAuthentication())
 
 router.get('/v1/test', () => {
-  return "works!"
+  return {
+    success: true,
+  }
 })
+
+router.get('/v1/auth/test', () => {
+  return {
+    success: true,
+  }
+}).use(middleware.userAuthentication())
 
 router.post('/v1/auth/login', [
   AuthController,
@@ -78,4 +86,6 @@ router.post('/v1/auth/logout', [
 
 router.post('v1/api/shutdown', [
   APIController, 'shutdown'
-]);
+]).use(middleware.userAuthentication({
+  min_role: "admin"
+}))

@@ -1,0 +1,25 @@
+version: '3.9'
+services:
+  db:
+    container_name: owvision-recorder-postgres
+    image: postgres
+    restart: always
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+      POSTGRES_DB: owvision_recorder
+    volumes:
+      - persistant_data:/data
+  recorder:
+    container_name: owvision-recorder
+    image: owvision-recorder
+    restart: always
+    env_file: ../recorder/.docker.env
+    depends_on:
+      - db
+    ports:
+      - "3334:3334"
+volumes:
+  persistant_data:
