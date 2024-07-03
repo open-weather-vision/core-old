@@ -29,52 +29,72 @@ export class Recorder {
   private queue_pusher?: NodeJS.Timeout
   private running: boolean = false
 
-  private sleep(time_milliseconds: number){
+  private auth_token?: string
+
+  private sleep(time_milliseconds: number) {
     return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, time_milliseconds);
+      setTimeout(() => {
+        resolve();
+      }, time_milliseconds);
     })
   }
 
-  private async start_record_pusher(){
-    while(!this.queue.isEmpty()){
+  private async login(username: string, password: string) {
+    const response = await axios({
+      method: 'post',
+      url: `${this.api_url}/auth/login`,
+      data: {
+        username,
+        password
+      },
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
+
+    this.auth_token = response.data.data.auth_token;
+    this.logger.info("Recorder successfully logged in!");
+  }
+
+  private async start_record_pusher() {
+    while (!this.queue.isEmpty() && this.running) {
       const sent_successfully = await this.post_oldest_record();
-      if(!sent_successfully) break;
+      if (!sent_successfully) break;
     }
     await this.sleep(1000);
-    if(this.running){
+    if (this.running) {
       this.start_record_pusher();
     }
   }
 
-  private async post_oldest_record(){
+  private async post_oldest_record() {
     const record = this.queue.front();
-      const url = `${this.api_url}/weather-stations/${this.weather_station_slug}/sensors/${record.sensor_slug}/`
-      try {
-        this.logger.info("Sending record...");
-        await axios({
-          method: 'post',
-          url,
-          data: {
-            created_at: record.created_at,
-            unit: record.unit,
-            value: record.value
-          },
-          headers: {
-            'content-type': 'application/json',
-          },
-        })
-        this.logger.info("Sent successfully!");
-        this.queue.dequeue();
-        return true;
-      } catch (err) {
-        if(err?.response?.data?.error?.code === 'validation-error'){
-          this.logger.error('Validation error: ' + err?.response?.data?.error?.message)
-        }
-        this.logger.warn("Failed to sent! Trying later...")
-        return false;
+    const url = `${this.api_url}/weather-stations/${this.weather_station_slug}/sensors/${record.sensor_slug}/`
+    try {
+      this.logger.info("Sending record...");
+      await axios({
+        method: 'post',
+        url,
+        data: {
+          created_at: record.created_at,
+          unit: record.unit,
+          value: record.value
+        },
+        headers: {
+          'content-type': 'application/json',
+          "OWVISION_AUTH_TOKEN": this.auth_token
+        },
+      })
+      this.logger.info("Sent successfully!");
+      this.queue.dequeue();
+      return true;
+    } catch (err) {
+      if (err?.response?.data?.error?.code === 'E_VALIDATION_ERROR') {
+        this.logger.error('Validation error: ' + err?.response?.data?.error?.message)
       }
+      this.logger.warn("Failed to sent! Trying later...")
+      return false;
+    }
   }
 
   private async load_station_interface() {
@@ -82,11 +102,17 @@ export class Recorder {
       method: 'get',
       url: `${this.api_url}/weather-stations/${this.weather_station_slug}/interface`,
       responseType: 'stream',
+      headers: {
+        "OWVISION_AUTH_TOKEN": this.auth_token
+      }
     })
 
     const config_response = await axios({
       method: 'get',
       url: `${this.api_url}/weather-stations/${this.weather_station_slug}`,
+      headers: {
+        "OWVISION_AUTH_TOKEN": this.auth_token
+      }
     })
 
     if (!config_response.data.success) {
@@ -112,7 +138,7 @@ export class Recorder {
       const sensor_config = this.station_interface.sensors[sensor_slug]
       this.sensor_schedules[sensor_slug] = schedule(async (time) => {
         const record_raw = await this.station_interface.record(sensor_slug)
-        const record = { ...record_raw, created_at: time, sensor_slug};
+        const record = { ...record_raw, created_at: time, sensor_slug };
         this.logger.info(
           `Created record $(${this.weather_station_slug}/${sensor_slug}): ${record.value} ${record.unit.toString()} [${record.created_at}]$`
         )
@@ -161,6 +187,7 @@ export class Recorder {
     logger: Logger
   ): Promise<Recorder> {
     const recorder = new Recorder(weather_station_slug, api_url, logger)
+    await recorder.login("recorder", "recorder")
     await recorder.load_config_from_api()
     await recorder.create_schedules()
     return recorder

@@ -1,14 +1,13 @@
-import NotFoundException from '#exceptions/not_found_exception'
+import SensorNotFoundException from '#exceptions/sensor_not_found_exception'
+import StationNotFoundException from '#exceptions/station_not_found_exception'
 import Record from '#models/record'
 import Sensor from '#models/sensor'
-import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
 import summary_creator_service from '#services/summary_creator_service'
 import { read_query_params_validator, write_validator } from '#validators/sensors'
 import { Exception } from '@adonisjs/core/exceptions'
 import { HttpContext } from '@adonisjs/core/http'
-import logger from '@adonisjs/core/services/logger'
-import { DateTime } from 'luxon'
+import { errors } from '@vinejs/vine'
 
 export default class SensorsController {
   async get_all_of_station(ctx: HttpContext) {
@@ -21,9 +20,7 @@ export default class SensorsController {
       .first()
 
     if (!weather_station) {
-      throw new NotFoundException(
-        `Cannot get sensors of unknown weather station '${ctx.params.slug}'`
-      )
+      throw new StationNotFoundException(ctx.params.slug);
     }
 
     return {
@@ -39,9 +36,7 @@ export default class SensorsController {
       .first()
 
     if (!weather_station) {
-      throw new NotFoundException(
-        `Cannot get sensor of unknown weather station '${ctx.params.slug}'`
-      )
+      throw new StationNotFoundException(ctx.params.slug);
     }
 
     const sensor = await Sensor.query()
@@ -51,9 +46,7 @@ export default class SensorsController {
       .first()
 
     if (!sensor) {
-      throw new NotFoundException(
-        `Cannot get unknown sensor '${ctx.params.sensor_slug}' of weather station '${ctx.params.slug}'`
-      )
+      throw new SensorNotFoundException(ctx.params.sensor_slug)
     }
 
     return {
@@ -71,9 +64,7 @@ export default class SensorsController {
       .first()
 
     if (!weather_station) {
-      throw new NotFoundException(
-        `Cannot read from sensor of unknown weather station '${ctx.params.slug}'`
-      )
+      throw new StationNotFoundException(ctx.params.slug);
     }
 
     const sensor = await Sensor.query()
@@ -83,9 +74,7 @@ export default class SensorsController {
       .first()
 
     if (!sensor) {
-      throw new NotFoundException(
-        `Cannot read from unknown sensor '${ctx.params.sensor_slug}' of weather station '${ctx.params.slug}'`
-      )
+      throw new SensorNotFoundException(ctx.params.sensor_slug)
     }
 
     const record = await Record.query()
@@ -121,9 +110,7 @@ export default class SensorsController {
       .first()
 
     if (!weather_station) {
-      throw new NotFoundException(
-        `Cannot write to sensor of unknown weather station '${ctx.params.slug}'`
-      )
+      throw new StationNotFoundException(ctx.params.slug);
     }
 
     const sensor = await Sensor.query()
@@ -133,9 +120,7 @@ export default class SensorsController {
       .first()
 
     if (!sensor) {
-      throw new NotFoundException(
-        `Cannot write to unknown sensor '${ctx.params.sensor_slug}' of weather station '${ctx.params.slug}'`
-      )
+      throw new SensorNotFoundException(ctx.params.sensor_slug)
     }
 
     const record = await Record.create({
@@ -145,17 +130,14 @@ export default class SensorsController {
       unit: payload.unit,
     })
 
-    
+
     const target_unit = weather_station.unit_config.of_type(sensor.unit_type);
-    if(record.unit === 'none' && target_unit !== 'none'  && record.value !== null || target_unit === 'none' && record.unit !== 'none'){
+    if (record.unit === 'none' && target_unit !== 'none' && record.value !== null || target_unit === 'none' && record.unit !== 'none') {
       await record.delete();
-      throw new Exception(`Invalid unit '${record.unit}'!`, {
-        code: 'validation-error',
-        status: 400,
-      });
+      throw new errors.E_VALIDATION_ERROR([`Invalid unit '${record.unit}'!`]);
     }
-    
-    if(weather_station.unit_config.of_type(sensor.unit_type) !== record.unit && target_unit !== 'none'){
+
+    if (weather_station.unit_config.of_type(sensor.unit_type) !== record.unit && target_unit !== 'none') {
       record.convert_to(target_unit);
       await record.save();
     }

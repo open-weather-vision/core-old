@@ -1,6 +1,5 @@
 // import type { HttpContext } from '@adonisjs/core/http'
 
-import NotFoundException from '#exceptions/not_found_exception'
 import Sensor from '#models/sensor'
 import Summary from '#models/summary'
 import SummaryRecord from '#models/summary_record'
@@ -18,6 +17,9 @@ import {
   get_one_query_params_validator,
   get_one_route_params_validator,
 } from '#validators/summaries'
+import StationNotFoundException from '#exceptions/station_not_found_exception'
+import SummaryNotFoundException from '#exceptions/summary_not_found_exception'
+import SensorNotFoundException from '#exceptions/sensor_not_found_exception'
 
 export default class SummariesController {
   async get_one_of_multiple_sensors(ctx: HttpContext) {
@@ -30,9 +32,7 @@ export default class SummariesController {
       .first()
 
     if (!weather_station) {
-      throw new NotFoundException(
-        `Cannot read from sensor of unknown weather station '${params.slug}'`
-      )
+      throw new StationNotFoundException(params.slug)
     }
 
     let type: TimeUnit
@@ -67,7 +67,7 @@ export default class SummariesController {
       .first()
 
     if (!summary) {
-      throw new NotFoundException(`There is no summary for the specified interval!`)
+      throw new SummaryNotFoundException()
     }
 
     const records = await SummaryRecord.query()
@@ -113,9 +113,7 @@ export default class SummariesController {
       .first()
 
     if (!weather_station) {
-      throw new NotFoundException(
-        `Cannot read from sensor of unknown weather station '${params.slug}'`
-      )
+      throw new StationNotFoundException(params.slug)
     }
 
     const summary = await Summary.query()
@@ -126,7 +124,7 @@ export default class SummariesController {
       .firstOrFail()
 
     if (!summary) {
-      throw new NotFoundException(`There is no summary for the specified interval!`)
+      throw new SummaryNotFoundException()
     }
 
     const records = await SummaryRecord.query()
@@ -171,11 +169,8 @@ export default class SummariesController {
       .first()
 
     if (!weather_station) {
-      throw new NotFoundException(
-        `Cannot read from sensor of unknown weather station '${params.slug}'`
-      )
+      throw new StationNotFoundException(params.slug)
     }
-
     const sensor = await Sensor.query()
       .where('weather_station_id', weather_station.id)
       .where('slug', params.sensor_slug)
@@ -183,9 +178,7 @@ export default class SummariesController {
       .first()
 
     if (!sensor) {
-      throw new NotFoundException(
-        `Cannot read from unknown sensor '${params.sensor_slug}' of weather station '${params.slug}'`
-      )
+      throw new SensorNotFoundException(params.sensor_slug);
     }
 
     let type: TimeUnit
@@ -220,7 +213,7 @@ export default class SummariesController {
       .first()
 
     if (!summary) {
-      throw new NotFoundException(`There is no summary for the specified interval!`)
+      throw new SummaryNotFoundException()
     }
 
     const record = await SummaryRecord.query()
@@ -259,9 +252,7 @@ export default class SummariesController {
       .first()
 
     if (!weather_station) {
-      throw new NotFoundException(
-        `Cannot read from sensor of unknown weather station '${params.slug}'`
-      )
+      throw new StationNotFoundException(params.slug)
     }
 
     const sensor = await Sensor.query()
@@ -271,9 +262,7 @@ export default class SummariesController {
       .first()
 
     if (!sensor) {
-      throw new NotFoundException(
-        `Cannot read from unknown sensor '${params.sensor_slug}' of weather station '${params.slug}'`
-      )
+      throw new SensorNotFoundException(params.sensor_slug);
     }
 
     const summary = await Summary.query()

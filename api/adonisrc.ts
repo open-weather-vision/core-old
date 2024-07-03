@@ -67,4 +67,10 @@ export default defineConfig({
     ],
     forceExit: false,
   },
+  metaFiles: [
+    {
+      pattern: 'interfaces/**',
+      reloadServer: false
+    }
+  ]
 })

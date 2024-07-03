@@ -1,6 +1,5 @@
 // import type { HttpContext } from '@adonisjs/core/http'
 
-import NotFoundException from '#exceptions/not_found_exception'
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
 import { initialize_weather_station_validator } from '#validators/weather_stations'
@@ -11,19 +10,20 @@ import recorder_service from '#services/recorder_service'
 import * as fs from 'fs'
 import { WeatherStationInterface } from '../other/weather_station_interface.js'
 import { Exception } from '@adonisjs/core/exceptions'
+import StationNotFoundException from '#exceptions/station_not_found_exception'
 
 export default class WeatherStationsController {
-  async pause(ctx: HttpContext){
+  async pause(ctx: HttpContext) {
     const station = await WeatherStation.query()
       .where('slug', ctx.params.slug)
       .first();
 
     if (station == null) {
-      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
+      throw new StationNotFoundException(ctx.params.slug)
     }
 
 
-    if(!station.remote_recorder && station.state === "active") {
+    if (!station.remote_recorder && station.state === "active") {
       await recorder_service.get_recorder(ctx.params.slug).stop();
     }
     station.state = 'inactive'
@@ -34,16 +34,16 @@ export default class WeatherStationsController {
     }
   }
 
-  async resume(ctx: HttpContext){
+  async resume(ctx: HttpContext) {
     const station = await WeatherStation.query()
-    .where('slug', ctx.params.slug)
-    .first();
+      .where('slug', ctx.params.slug)
+      .first();
 
     if (station == null) {
-      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
+      throw new StationNotFoundException(ctx.params.slug)
     }
 
-    if(!station.remote_recorder && station.state === "inactive") {
+    if (!station.remote_recorder && station.state === "inactive") {
       await recorder_service.get_recorder(ctx.params.slug).start();
     }
     station.state = 'active'
@@ -59,7 +59,7 @@ export default class WeatherStationsController {
     const station = await WeatherStation.query().where('slug', ctx.params.slug).first()
 
     if (station == null) {
-      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
+      throw new StationNotFoundException(ctx.params.slug)
     }
 
     const interface_name = station?.interface
@@ -71,10 +71,6 @@ export default class WeatherStationsController {
 
   async get_all(ctx: HttpContext) {
     const data = await WeatherStation.query().select('slug', 'name', 'interface', 'state')
-
-    if (data == null) {
-      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
-    }
 
     return {
       success: true,
@@ -91,7 +87,7 @@ export default class WeatherStationsController {
     const serializedData = station?.serialize()
 
     if (station == null) {
-      throw new NotFoundException(`No weather station with name '${ctx.params.slug}' exists!`)
+      throw new StationNotFoundException(ctx.params.slug)
     }
 
     return {

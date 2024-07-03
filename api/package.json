@@ -8,13 +8,14 @@
   "author": "Henri Hollmann (harrydehix)",
   "scripts": {
     "start": "node bin/server.js",
-    "build": "node ace build",
-    "fresh": "node ace migration:fresh && node ace db:seed weather_station_dummy",
+    "build": "node ace build --ignore-ts-errors",
+    "fresh": "node ace migration:fresh --force && node ace db:seed weather_station_dummy user_seeder",
     "dev": "node ace serve --watch",
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build-image": "docker build -t owvision-api ."
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
@@ -47,6 +48,7 @@
     "@types/long-timeout": "^0.1.2",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.12.12",
+    "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "hot-hook": "^0.2.6",
     "pino-pretty": "^11.1.0",
