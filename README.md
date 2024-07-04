@@ -50,7 +50,7 @@ It is recommended to change the password via `owvision auth change-password`.
 
 Now we are ready to create your weather station!
 
-```bash session
+```console
 foo@bar:~$ owvision station create
 √ please choose the station's interface:  » Davis Vantage Advanced
 √ please enter the station's name:  ... My cool station!
@@ -73,7 +73,7 @@ foo@bar:~$ owvision station create
 #### 4. Have fun 🥳
 
 That's it! Now you can read from your weather station via:
-```bash session
+```console
 foo@bar:~$ owvision station sensor read cool-station
 Inside temperature (tempIn) ❯ 23.27°C (1s ago)
 Outside temperature (tempOut) ❯ -8.26°C (1s ago)
