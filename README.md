@@ -22,8 +22,8 @@ _This image shows an overview of the open weather vision system_. Every red comp
 
 To install owvision run following command:
 
-```bash session
-wget https://https://open-weather-vision.github.io/core/simple-setup.sh -o -- | sh
+```console
+wget https://open-weather-vision.github.io/core/simple-setup.sh -o -- | sh
 ```
 
 Now you should be able to run `owvision` in your terminal. Try it out!
@@ -32,7 +32,7 @@ Now you should be able to run `owvision` in your terminal. Try it out!
 
 After that we are ready to initialize owvision.
 
-```bash session
+```console
 foo@bar:~$ owvision initialize
 ...
 ✓ Is owvision running on another host?  » no
