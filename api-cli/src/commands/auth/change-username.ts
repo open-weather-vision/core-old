@@ -40,7 +40,7 @@ const change_username_command = new Command("change-username")
                 }
             }
         ])
-        if(Object.keys(responses).length === 0){
+        if(responses.username_new === undefined){
             canceled_message();
         }else{
             console.log(`${chalk.magentaBright(`✓ Successfully changed the authenticated user's name`)}`)

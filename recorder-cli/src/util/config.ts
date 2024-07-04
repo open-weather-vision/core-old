@@ -23,7 +23,7 @@ const default_config: ConfigData = {
 
 class Config{
     private readonly folder = process.env.APPDATA  + "/owvision";
-    private readonly path = this.folder + "/config.json";
+    private readonly path = this.folder + "/recorder-config.json";
     private config_data: ConfigData = clone(default_config);
 
     constructor(){

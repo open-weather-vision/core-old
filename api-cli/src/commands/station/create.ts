@@ -47,9 +47,25 @@ const create_command = new Command("create")
                     if (valid) return true;
                     else return "Invalid slug entered, valid examples: my-station, cool_weather02";
                 }
+            },
+            {
+                message: `are you using a ${chalk.italic(`remote recorder`)}? `,
+                type: 'select',
+                name: 'remote_recorder',
+                choices: [{
+                    title: "yes",
+                    description: `${chalk.italic(`For advanced setups.`)} Your weather station is connected to another machine.`,
+                    value: true,
+                },
+                {
+                    title: "no",
+                    description: `${chalk.italic(`Recommended.`)} Your weather station has to be connected to the current machine.`,
+                    value: false,
+                    selected: true,
+                }]
             }
         ]);
-        if(Object.keys(responses).length === 0) return canceled_message();
+        if(responses.remote_recorder === undefined) return canceled_message();
 
         const units = await prompts([
             {
@@ -152,7 +168,7 @@ const create_command = new Command("create")
                 }))
             },
         ]);
-        if(Object.keys(units).length === 0) return canceled_message();
+        if(units.humidity === undefined) return canceled_message();
 
         const spinner = ora('Creating new weather station...').start();
         try {
@@ -168,7 +184,8 @@ const create_command = new Command("create")
                     interface: responses.station_interface,
                     interface_config: {},
                     units,
-                    remote_recorder: false,
+                    state: 'active',
+                    remote_recorder: responses.remote_recorder,
                 }
             });
             spinner.stop()

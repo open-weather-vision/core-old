@@ -9,7 +9,7 @@ export type HttpContextWithSession = HttpContext & { session: Session }
 export type AuthMiddlewareOptions = {min_role?: Role};
 
 export default class UserAuthenticationMiddleware {
-  async handle(ctx: HttpContextWithSession, next: NextFn, options: AuthMiddlewareOptions) {
+  async handle(ctx: HttpContext, next: NextFn, options?: AuthMiddlewareOptions) {
     /**
      * Middleware logic goes here (before the next call)
      */
@@ -27,7 +27,7 @@ export default class UserAuthenticationMiddleware {
       throw new AuthException(options?.min_role);
     }
     
-    ctx.session = session;
+    (ctx as HttpContextWithSession).session = session;
 
     /**
      * Call next method in the pipeline and return its output

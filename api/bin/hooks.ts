@@ -1,3 +1,4 @@
+import local_jobs_service from '#services/local_jobs_service'
 import summary_creator_service from '#services/summary_creator_service'
 
 /**
@@ -6,6 +7,8 @@ import summary_creator_service from '#services/summary_creator_service'
 export async function ready() {
   await summary_creator_service.loggerInit()
   await summary_creator_service.ready()
+  await local_jobs_service.loggerInit();
+  await local_jobs_service.ready();
 }
 
 /**
@@ -13,4 +16,5 @@ export async function ready() {
  */
 export async function terminating() {
   await summary_creator_service.terminating()
+  await local_jobs_service.terminating();
 }

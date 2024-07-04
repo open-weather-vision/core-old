@@ -6,6 +6,7 @@ import canceled_message from "../../util/canceled_message.js";
 import error_handling from "../../util/error_handling.js";
 import chalk from "chalk";
 import { password } from "promptly";
+import ora from "ora";
 
 const create_command = new Command("create")
     .description('create a new recorder job')
@@ -39,13 +40,16 @@ const create_command = new Command("create")
         ]);
         if(responses.password === undefined) return canceled_message();
 
+        const spinner = ora("Creating recorder job...").start()
         try{
             responses.api_url += "/v1"
+            
             const response = await axios({
                 url: `http://localhost:3334/v1/jobs`,
                 method: "post",
                 data: responses
             })
+            spinner.stop()
 
             if(!response.data.success){
                 return error_handling(response, { station_slug: responses.station_slug })
@@ -53,6 +57,7 @@ const create_command = new Command("create")
 
             console.log(`${chalk.green(`✓ Successfully created job for station '${responses.station_slug}'`)}`)
         }catch(err){
+            spinner.stop()
             return connection_failed_message();
         }
     })

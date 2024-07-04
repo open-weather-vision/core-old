@@ -1,7 +1,8 @@
 version: '3.9'
 services:
-  db:
-    container_name: owvision-postgres
+  # api on 5433 (internal 5432, database) and 3333 (api-demon)
+  db-api:
+    container_name: owvision-api-postgres
     image: postgres
     restart: always
     ports:
@@ -11,15 +12,42 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: owvision
     volumes:
-      - persistant_data:/data
+      - persistant_data_api:/data
   api:
     container_name: owvision-api
     image: owvision-api
     restart: always
     env_file: .docker.env
     depends_on:
-      - db
+      - db-api
+      - local-recorder
     ports:
       - "3333:3333"
+  # local recorder on 5435 (database) and 3335 (recorder-demon)
+  db-local-recorder:
+    container_name: owvision-local-recorder-postgres
+    image: postgres
+    restart: always
+    ports:
+      - "5435:5435"
+    expose:
+    - "5435"
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+      POSTGRES_DB: owvision_recorder
+    command: -p 5435
+    volumes:
+      - persistant_data_recorder:/data
+  local-recorder:
+    container_name: owvision-local-recorder
+    image: owvision-recorder
+    restart: always
+    env_file: ../recorder/.docker.local.env
+    depends_on:
+      - db-local-recorder
+    ports:
+      - "3335:3335"
 volumes:
-  persistant_data:
+  persistant_data_api:
+  persistant_data_recorder:

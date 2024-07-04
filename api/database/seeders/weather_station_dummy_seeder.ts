@@ -1,20 +1,25 @@
-import Record from '#models/record'
 import Sensor from '#models/sensor'
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
-import { DateTime } from 'luxon'
 
 export default class extends BaseSeeder {
   async run() {
+    await this.create_station("hueff-vp2", "Hüffelsheimer Vantage Pro 2", false);
+    await this.create_station("remote-station", "Aachen Station (remote)", true);
+  }
+
+
+ async create_station(slug: string, name: string, remote_recorder: boolean){
     const weather_station = await WeatherStation.create({
       interface: 'davis-vp2',
       interface_config: {
         path: 'COM3',
       },
-      state: 'active',
-      slug: 'hueff-vp2',
-      name: 'Hüffelsheimer Vantage Pro 2',
+      state: 'inactive',
+      slug,
+      name,
+      remote_recorder: remote_recorder
     })
 
     const unit_config = await UnitConfig.create({
@@ -51,37 +56,5 @@ export default class extends BaseSeeder {
       unit_type: 'temperature',
       weather_station_id: weather_station.id,
     })
-  }
-
-  randomRange(min: number, max: number) {
-    return min + Math.random() * (max - min)
-  }
-
-  async createRecordsForSensor(
-    sensor: Sensor,
-    unit_config: UnitConfig,
-    count: number,
-    min: number,
-    max: number,
-    nullPossibilty: number = 0,
-    floating_point_values: boolean = true
-  ) {
-    for (let i = 0; i < count; i++) {
-      let value: number | null = this.randomRange(min, max)
-      if (Math.random() > 1 - nullPossibilty) {
-        value = null
-      }
-
-      if (!floating_point_values && value !== null) {
-        value = Math.floor(value)
-      }
-
-      await Record.create({
-        sensor_id: sensor.id,
-        created_at: DateTime.now().minus({ [sensor.interval_unit]: sensor.interval * i }),
-        value,
-        unit: unit_config.of_type(sensor.unit_type),
-      })
-    }
   }
 }

@@ -17,11 +17,12 @@ const init_command = new Command("initialize").alias("init")
         console.log(chalk.gray(`─────────────────────────────────────────────────────────`));
 
         const spinner = ora("Starting the recorder demon...").start()
-        const cli_dir = path.resolve(import.meta.dirname + "/../../").toString();
+        const cli_dir = path.resolve(import.meta.dirname + "/../../../recorder").toString();
         try{
             await exec(`cd "${cli_dir}" && docker compose up -d --quiet-pull`);  spinner.stop();
             console.log(chalk.green(`✓ Successfully initialized the owvision recorder`));
         } catch (err) {
+            console.log(err)
             spinner.stop();
             return console.log(chalk.red(`✘ Failed to initialize the owvision recorder (failed to start the recorder demon)`));
         }

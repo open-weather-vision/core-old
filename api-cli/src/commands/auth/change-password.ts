@@ -38,7 +38,7 @@ const change_password_command = new Command("change-password")
                 }
             }
         ])
-        if(Object.keys(responses).length === 0){
+        if(responses.password_new_2 === undefined){
             canceled_message();
         }else{
             console.log(`${chalk.magentaBright(`✓ Successfully changed the authenticated user's password`)}`)

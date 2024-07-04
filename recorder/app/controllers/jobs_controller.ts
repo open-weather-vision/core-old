@@ -16,6 +16,31 @@ export default class JobsController {
         }
     }
 
+    async create_and_start_job(ctx: HttpContext){
+        const payload = await job_validator.validate(ctx.request.body())
+
+        let job = await RecorderJob.query().where('station_slug', payload.station_slug).first();
+
+        if(!job){
+            job = await RecorderJob.create({
+                ...payload,
+                state: "active"
+            });
+        }else{
+            job.state = "active";
+            job.api_url = payload.api_url;
+            job.password = payload.password;
+            job.username = payload.username;
+            await job.save();
+        }
+
+        await recorder_service.start_recorder_job(job);
+
+        return {
+            success: true,
+        }
+    }
+
     async create_job(ctx: HttpContext){
         const payload = await job_validator.validate(ctx.request.body())
 
@@ -23,7 +48,8 @@ export default class JobsController {
 
         if(!existing_job){
             await RecorderJob.create({
-                ...payload
+                ...payload,
+                state: "inactive"
             });
         }else{
             existing_job.api_url = payload.api_url;
@@ -61,16 +87,13 @@ export default class JobsController {
     async stop_job(ctx: HttpContext){
         const station_slug = ctx.params.station_slug;
         
+        const job = await RecorderJob.query().where('station_slug', station_slug).first();
+
+        if(!job) throw new JobNotFoundException(station_slug);
+
         await recorder_service.stop_recorder_job(station_slug);
-        const { length } = await RecorderJob.query().where('station_slug', station_slug).update({
-            state: 'inactive'
-        }).exec()
-
-        console.log(length)
-
-        if(length === 0){
-            throw new JobNotFoundException(station_slug)
-        }
+        job.state = "inactive";
+        await job.save();
 
         return {
             success: true,
@@ -79,11 +102,12 @@ export default class JobsController {
 
     async delete_job(ctx: HttpContext){
         const station_slug = ctx.params.station_slug;
-        const { length }  = await RecorderJob.query().where('station_slug', station_slug).delete();
 
-        if(length === 0){
-            throw new JobNotFoundException(station_slug)
-        }
+        const job = await RecorderJob.query().where('station_slug', station_slug).first();
+
+        if(!job) throw new JobNotFoundException(station_slug);
+
+        await job.delete();
         
         return {
             success: true,

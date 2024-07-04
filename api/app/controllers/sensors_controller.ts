@@ -98,7 +98,7 @@ export default class SensorsController {
     const payload = await write_validator.validate(ctx.request.all())
 
     const weather_station = await WeatherStation.query()
-      .select('id')
+      .select('id', 'state')
       .preload('unit_config')
       .where('slug', ctx.params.slug)
       .first()

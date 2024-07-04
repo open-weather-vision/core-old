@@ -25,7 +25,7 @@ const shutdown_command = new Command("shutdown")
             const spinner = ora('Stopping the api...').start();
             if(!config.get("remote_station")){
                 try{
-                    const cli_dir = path.resolve(import.meta.dirname + "/../../").toString();
+                    const cli_dir = path.resolve(import.meta.dirname + "/../../../api").toString();
                     await exec(`cd "${cli_dir}" && docker compose down`);
                     spinner.stop();
                     console.log(chalk.magentaBright(`✓ Successfully stopped the api`));

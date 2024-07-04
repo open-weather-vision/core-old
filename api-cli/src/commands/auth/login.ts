@@ -23,7 +23,7 @@ const login_command = new Command("login")
                 message: "please enter your password: "
             }
         ])
-        if(Object.keys(responses).length === 0) return canceled_message();
+        if(responses.password === undefined) return canceled_message();
 
         const spinner = ora('Logging in...').start();
         try{

@@ -1,5 +1,6 @@
 version: '3.9'
 services:
+  # recorder on 5434 (internal 5432, database) and 3334 (recorder-demon)
   db:
     container_name: owvision-recorder-postgres
     image: postgres

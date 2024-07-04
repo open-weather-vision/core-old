@@ -10,6 +10,10 @@ import * as fs from 'fs'
 import { WeatherStationInterface } from '../other/weather_station_interface.js'
 import { Exception } from '@adonisjs/core/exceptions'
 import StationNotFoundException from '#exceptions/station_not_found_exception'
+import axios from 'axios'
+import FailedToStartJobException from '#exceptions/failed_to_start_job_exception'
+import logger from '@adonisjs/core/services/logger'
+import local_jobs_service from '#services/local_jobs_service'
 
 export default class WeatherStationsController {
   async pause(ctx: HttpContext) {
@@ -21,10 +25,6 @@ export default class WeatherStationsController {
       throw new StationNotFoundException(ctx.params.slug)
     }
 
-
-    if (!station.remote_recorder && station.state === "active") {
-      //await recorder_service.get_recorder(ctx.params.slug).stop();
-    }
     station.state = 'inactive'
     await station.save();
 
@@ -42,14 +42,24 @@ export default class WeatherStationsController {
       throw new StationNotFoundException(ctx.params.slug)
     }
 
-    if (!station.remote_recorder && station.state === "inactive") {
-      //await recorder_service.get_recorder(ctx.params.slug).start();
-    }
     station.state = 'active'
     await station.save();
 
     return {
       success: true,
+    }
+  }
+
+  async get_station_state(ctx: HttpContext) {
+    const station = await WeatherStation.query().where('slug', ctx.params.slug).first()
+
+    if (station == null) {
+      throw new StationNotFoundException(ctx.params.slug)
+    }
+
+    return {
+      success: true,
+      data: station.state,
     }
   }
 
@@ -149,10 +159,13 @@ export default class WeatherStationsController {
 
     // Add station to summary creator / recorder service
     summary_creator_service.add_station(weather_station)
+
+
     if (!payload.remote_recorder) {
-      // recorder_service.add_station(weather_station)
+      await local_jobs_service.create_and_start_local_job(payload.slug);
     }
 
+    logger.info(`Created new station '${payload.slug}'!`)
     return {
       success: true,
     }

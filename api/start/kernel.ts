@@ -8,7 +8,6 @@
 |
 */
 
-import { AuthMiddlewareOptions } from '#middleware/user_authentication_middleware'
 import router from '@adonisjs/core/services/router'
 import server from '@adonisjs/core/services/server'
 
@@ -40,5 +39,5 @@ router.use([() => import('@adonisjs/core/bodyparser_middleware')])
  * the routes or the routes group.
  */
 export const middleware = router.named({
-  userAuthentication: () => import('#middleware/user_authentication_middleware' as any)
+  userAuthentication: () => import('#middleware/user_authentication_middleware')
 })

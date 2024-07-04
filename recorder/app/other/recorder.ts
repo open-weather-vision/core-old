@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import { Logger } from '@adonisjs/core/logger'
 import { Queue } from '@datastructures-js/queue';
 import RecorderJob from '#models/recorder_job'
-import FailedToStartJobException from '#exceptions/failed_to_register_job_exception'
+import FailedToStartJobException from '#exceptions/failed_to_start_job_exception'
 
 /**
  * The recorder records weather data for each configured sensor of a weather station and sends them to the api.
@@ -25,7 +25,7 @@ export class Recorder {
   private logger: Logger
 
   private queue: Queue<IRecord> = new Queue()
-  private running: boolean = false
+  private state: "running" | "waiting-until-active" | "stopped" = "stopped";
 
   private auth_token?: string
 
@@ -60,14 +60,51 @@ export class Recorder {
     }
   }
 
+  private async wait_until_active(){
+    const url = `${this.job.api_url}/weather-stations/${this.job.station_slug}/state`
+    try {
+      this.logger.info("Checking station state...");
+      const response = await axios({
+        method: 'get',
+        url,
+        headers: {
+          'content-type': 'application/json',
+          "OWVISION_AUTH_TOKEN": this.auth_token
+        },
+      })
+
+      if(!response.data.success){
+        return this.logger.error(`Error (${response.data.error?.code}) while checking station state: ${response.data.error?.message}`)
+      }
+
+      if(response.data.data === "active"){
+        this.state = "running";
+        this.logger.warn('Station is active again! Starting to record again...')
+      }
+    }catch(err){
+      this.logger.warn("Failed to connect to owvision demon (network error)! Trying later...")
+    }
+
+    if (this.state === "running") {
+      this.start_recording();
+      this.start_record_pusher();
+    }else if(this.state === "waiting-until-active"){
+      await this.sleep(1000);
+      this.wait_until_active();
+    }
+  }
+
   private async start_record_pusher() {
-    while (!this.queue.isEmpty() && this.running) {
+    while (!this.queue.isEmpty() && this.state === "running") {
       const sent_successfully = await this.post_oldest_record();
       if (!sent_successfully) break;
     }
-    await this.sleep(1000);
-    if (this.running) {
+    if (this.state === "running") {
+      await this.sleep(1000);
       this.start_record_pusher();
+    }else if(this.state === "waiting-until-active"){
+      this.stop_recording();
+      this.wait_until_active();
     }
   }
 
@@ -76,7 +113,7 @@ export class Recorder {
     const url = `${this.job.api_url}/weather-stations/${this.job.station_slug}/sensors/${record.sensor_slug}/`
     try {
       this.logger.info("Sending record...");
-      await axios({
+      const response = await axios({
         method: 'post',
         url,
         data: {
@@ -89,18 +126,26 @@ export class Recorder {
           "OWVISION_AUTH_TOKEN": this.auth_token
         },
       })
+
+      if(!response.data.success){
+        if (response.data.error?.code === 'E_VALIDATION_ERROR') {
+          this.logger.error(`Validation error: '${response?.data?.error?.message}'. Trying to send again later...`)
+        }
+        else if (response.data.error?.code === 'E_PLEASE_STOP') {
+          this.logger.warn('Received stop signal... waiting until station is active again!')
+          this.state = "waiting-until-active"
+          this.queue.clear()
+        }else{
+          this.logger.error(`Unknown error (${response.data.error?.code}): ${response.data.error?.message}. Trying to send again later...`)
+        }
+        return false;
+      }
+
       this.logger.info("Sent successfully!");
       this.queue.dequeue();
       return true;
     } catch (err) {
-      if (err?.response?.data?.error?.code === 'E_VALIDATION_ERROR') {
-        this.logger.error('Validation error: ' + err?.response?.data?.error?.message)
-      }
-      else if (err?.response?.data?.error?.code === 'E_PLEASE_STOP') {
-        this.logger.error('Please stop error!')
-        await this.stop();
-      }
-      this.logger.warn("Failed to sent! Trying later...")
+      this.logger.warn("Failed to connect to owvision demon (network error)! Trying later...")
       return false;
     }
   }
@@ -134,10 +179,8 @@ export class Recorder {
 
       interface_response.data.pipe(fs.createWriteStream(interface_path))
       
-      
-      console.log(interface_import_path);
+      await this.sleep(2000);
       const interface_class = (await import(interface_import_path)).default
-      console.log(interface_class)
       this.station_interface = new interface_class(config_response.data.interface_config)
 
       await this.station_interface.connect()
@@ -176,8 +219,20 @@ export class Recorder {
     for (const sensor_slug in this.sensor_schedules) {
       this.sensor_schedules[sensor_slug].start()
     }
+    this.state = "running";
     this.start_record_pusher();
-    this.running = true;
+  }
+
+  private stop_recording(){
+    for (const sensor_slug in this.sensor_schedules) {
+      this.sensor_schedules[sensor_slug].stop()
+    }
+  }
+
+  private start_recording(){
+    for (const sensor_slug in this.sensor_schedules) {
+      this.sensor_schedules[sensor_slug].start()
+    }
   }
 
   /**
@@ -185,10 +240,8 @@ export class Recorder {
    */
   async stop() {
     this.logger.info("Stopping recorder!");
-    for (const sensor_slug in this.sensor_schedules) {
-      this.sensor_schedules[sensor_slug].stop()
-    }
-    this.running = false;
+    this.stop_recording();
+    this.state = "stopped";
   }
 
   /**

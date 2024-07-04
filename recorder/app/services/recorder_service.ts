@@ -9,7 +9,7 @@ class RecorderService extends Service {
 
   async ready() {
     this.logger.info(`Starting recorder service`)
-    const recorder_jobs = await RecorderJob.query().exec()
+    const recorder_jobs = await RecorderJob.query().where('state', 'active').exec()
     for (const job of recorder_jobs) {
       try{
         await this.start_recorder_job(job)
@@ -20,17 +20,17 @@ class RecorderService extends Service {
   }
 
   /**
-   * Stops a recorder for the passed weather station. The weather station must have configured a valid interface.
+   * Starts a recorder for the passed weather station. The weather station must have configured a valid interface.
    * @param job
    */
   async start_recorder_job(job: RecorderJob) {
     this.recorder_jobs[job.station_slug] = await Recorder.create(job, this.logger)
     this.recorder_jobs[job.station_slug].start()
-    this.logger.info(`Registered recorder job for station '${job.station_slug}'`)
+    this.logger.info(`Started recorder job for station '${job.station_slug}'`)
   }
 
   /**
-   * Starts a recorder for the passed weather station. The weather station must have configured a valid interface.
+   * Stops the recorder for the passed weather station. The weather station must have configured a valid interface.
    * @param station
    */
   async stop_recorder_job(slug: string) {

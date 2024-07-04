@@ -24,7 +24,7 @@ const shutdown_command = new Command("shutdown")
             // TODO: Check if api is on remote
             const spinner = ora('Stopping the recorder demon...').start();
             try{
-                const cli_dir = path.resolve(import.meta.dirname + "/../../").toString();
+                const cli_dir = path.resolve(import.meta.dirname + "/../../../recorder").toString();
                 await exec(`cd "${cli_dir}" && docker compose down`);
                 spinner.stop();
                 console.log(chalk.magentaBright(`✓ Successfully stopped the recorder demon`));

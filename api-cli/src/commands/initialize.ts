@@ -10,6 +10,7 @@ import config from "../util/config.js";
 import axios from "axios";
 import connection_failed_message from "../util/connection_failed_message.js";
 import path from "path";
+import error_handling from "../util/error_handling.js";
 
 
 const initialize_command = new Command("initialize").alias("init")
@@ -25,11 +26,20 @@ const initialize_command = new Command("initialize").alias("init")
         console.log(chalk.gray(`─────────────────────────────────────────────────────────`));
         const { is_remote_api } = await prompts([
             {
-                message: "Is the owvision demon already running on another machine?",
-                type: "toggle",
-                inactive: chalk.red('no'),
-                active: chalk.green('yes'),
-                name: "is_remote_api"
+                message: `Is owvision running on another host? `,
+                type: 'select',
+                name: 'is_remote_api',
+                choices: [{
+                    title: "yes",
+                    description: `${chalk.italic(`For advanced setups.`)} Your owvision demon is running on another host.`,
+                    value: true,
+                },
+                {
+                    title: "no",
+                    description: `${chalk.italic(`Recommended.`)} Run the owvision demon on the current host.`,
+                    value: false,
+                    selected: true,
+                }]
             }
         ]);
         if(is_remote_api === undefined) return canceled_message();
@@ -67,7 +77,7 @@ const initialize_command = new Command("initialize").alias("init")
         }else{
             spinner = ora("Starting api...").start()
             
-            const cli_dir = path.resolve(import.meta.dirname + "/../../").toString();
+            const cli_dir = path.resolve(import.meta.dirname + "/../../../api").toString();
             try{
                 await exec(`cd "${cli_dir}" && docker compose up -d --quiet-pull`);
             }catch(err){
@@ -78,8 +88,52 @@ const initialize_command = new Command("initialize").alias("init")
         config.set("api_url", api_url_plain + "/v1");
         config.set("remote_station", is_remote_api)
         config.save()
+        await sleep(4000);
         spinner.stop();
         console.log(chalk.green(`✓ Successfully initialized owvision`));
+
+        const responses = await prompts([
+            {
+                name: "username",
+                type: "text",
+                message: "please enter your username: "
+            },
+            {
+                name: "password",
+                type: "password",
+                message: "please enter your password: "
+            }
+        ])
+        if(responses.password === undefined) return canceled_message("Cancelled authentification");
+
+        const auth_spinner = ora('Logging in...').start();
+        try{
+            const response = await axios({
+                url: `${config.get("api_url")}/auth/login`,
+                data: {
+                    username: responses.username,
+                    password: responses.password,  
+                },
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                method: "post"
+            })
+
+            if(!response.data.success){
+                auth_spinner.stop();
+                return error_handling(response, {});
+            }
+
+            config.set("auth_token", response.data.data.auth_token)
+            config.save()
+            
+            auth_spinner.stop();
+            console.log(`${chalk.green(`✓ Successfully logged in`)}`)
+        }catch(err){
+            auth_spinner.stop();
+            connection_failed_message();
+        }
     });
 
 export default initialize_command;

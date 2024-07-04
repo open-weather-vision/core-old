@@ -1,5 +1,5 @@
 import chalk from "chalk";
 
-export default function(){
-    console.log(`${chalk.red(`✘ Canceled`)}`)
+export default function(message?: string){
+    console.log(`${chalk.red(`✘ ${message ? message : `Cancelled`}`)}`)
 }
