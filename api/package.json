@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
+    "migrate": "node ace migration:run --force",
     "build-image": "docker build -t owvision-api ."
   },
   "imports": {

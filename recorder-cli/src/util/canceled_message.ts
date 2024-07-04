@@ -1,5 +1,5 @@
 import chalk from "chalk";
 
 export default function(){
-    console.log(`${chalk.red(`✘ Canceled`)}`)
+    console.log(`${chalk.redBright(`✘ Canceled`)}`)
 }

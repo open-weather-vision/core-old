@@ -5,10 +5,10 @@ import prompts from "prompts"
 import canceled_message from "../../util/canceled_message.js"
 
 const change_username_command = new Command("change-username")
-    .description("change the authenticated user's name")
+    .description("Change the authenticated user's name")
     .action(async () => {
         if(!config.get("auth_token")){
-            return console.log(`${chalk.red("✘ You are currently not logged in")}`)
+            return console.log(`${chalk.redBright("✘ You are currently not logged in")}`)
         }
 
         let username_new = "";

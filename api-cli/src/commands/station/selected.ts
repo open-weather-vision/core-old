@@ -3,7 +3,7 @@ import { Command } from "commander";
 import config from "../../util/config.js";
 
 const selected_command = new Command("selected")
-    .description("prints out the selected weather station")
+    .description("Print out the selected weather station")
     .action((station_name) => {
         console.log(chalk.bold(config.get("selected_station")))
     });

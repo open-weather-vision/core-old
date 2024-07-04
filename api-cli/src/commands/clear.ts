@@ -10,46 +10,32 @@ import canceled_message from "../util/canceled_message.js";
 import path from "path";
 
 
-const shutdown_command = new Command("shutdown")
-    .description("stops the owvision api - your data is not lost")
+const clear_command = new Command("clear")
+    .description("Stop the owvision demon and remove all your data")
     .action(async() => {
         const response = await prompts([{
             name: "confirm",
             type: "confirm",
-            message: chalk.red("Do you really want to stop the owvision api?")
+            message: chalk.redBright("Do you really want to clear owvision? All your data is lost!")
         }]);
         if(response.confirm === undefined) return canceled_message();
 
         if(response.confirm){
-            // TODO: Check if api is on remote
             const spinner = ora('Stopping the api...').start();
             if(!config.get("remote_station")){
                 try{
                     const cli_dir = path.resolve(import.meta.dirname + "/../../../api").toString();
                     await exec(`cd "${cli_dir}" && docker compose down`);
                     spinner.stop();
-                    console.log(chalk.magentaBright(`✓ Successfully stopped the api`));
+                    console.log(chalk.magentaBright(`✓ Successfully stopped the owvision demon and removed all your data.`));
                 }catch(err){
                     spinner.stop();
-                    console.log(chalk.yellow(`⚠️  Failed to stop the api`));
+                    console.log(chalk.yellow(`⚠️  Failed to stop the owvision demon`));
                 }
             }else{
-                try{
-                    const response = await axios({
-                        url: `${config.get("api_url")}/api/shutdown`,
-                        method: 'post',
-                        headers: {
-                            "OWVISION_AUTH_TOKEN": config.get("auth_token")
-                        },
-                    })
-                    spinner.stop();
-                    console.log(chalk.magentaBright(`✓ Successfully stopped the api`));
-                }catch(err){
-                    spinner.stop();
-                    return connection_failed_message();
-                }
+                console.log(chalk.yellow(`⚠️  Cannot stop a remote owvision demon. You have to stop it on the host machine.`));
             }
         }
     });
 
-export default shutdown_command;
+export default clear_command;

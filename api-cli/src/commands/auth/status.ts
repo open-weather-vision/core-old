@@ -7,7 +7,7 @@ import connection_failed_message from "../../util/connection_failed_message.js";
 import ora from "ora";
 
 const status_command = new Command("status")
-    .description("check if you are currently logged in")
+    .description("Check if you are currently logged in")
     .action(async () => {
         const spinner = ora('Checking connection...').start();
         if (config.get("auth_token") !== null) {
@@ -22,7 +22,7 @@ const status_command = new Command("status")
                 if(!response.data.success){
                     spinner.stop();
                     if(response.data.error.code === "E_AUTH"){
-                        return console.log(`${chalk.red(`✘ You are not logged in`)}`)
+                        return console.log(`${chalk.redBright(`✘ You are not logged in`)}`)
                     }
                     else return error_handling(response, {});
                 }
@@ -35,7 +35,7 @@ const status_command = new Command("status")
             console.log(`${chalk.green(`✓ You are logged in`)}`)
         } else {
             spinner.stop();
-            console.log(`${chalk.red(`✘ You are not logged in`)}`)
+            console.log(`${chalk.redBright(`✘ You are not logged in`)}`)
         }
     })
 

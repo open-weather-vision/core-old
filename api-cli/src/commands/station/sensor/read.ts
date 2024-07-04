@@ -11,7 +11,7 @@ import connection_failed_message from "../../../util/connection_failed_message.j
 
 const read_command = new Command("read")
     .alias("rd")
-    .description('retrieve the latest measured values from all or only the specified sensors of a weather station')
+    .description('Get the latest measured values from all or only the specified sensors of a weather station')
     .addArgument(station_name_argument)
     .addOption(sensors_only_option)
     .action(async (station_name, options) => {

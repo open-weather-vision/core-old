@@ -10,12 +10,26 @@ import * as fs from 'fs'
 import { WeatherStationInterface } from '../other/weather_station_interface.js'
 import { Exception } from '@adonisjs/core/exceptions'
 import StationNotFoundException from '#exceptions/station_not_found_exception'
-import axios from 'axios'
-import FailedToStartJobException from '#exceptions/failed_to_start_job_exception'
 import logger from '@adonisjs/core/services/logger'
 import local_jobs_service from '#services/local_jobs_service'
 
 export default class WeatherStationsController {
+  async delete(ctx: HttpContext) {
+    const station = await WeatherStation.query()
+      .where('slug', ctx.params.slug)
+      .first();
+
+    if (!station) {
+      throw new StationNotFoundException(ctx.params.slug);
+    }
+
+    await station.delete();
+
+    return {
+      success: true,
+    }
+  }
+  
   async pause(ctx: HttpContext) {
     const station = await WeatherStation.query()
       .where('slug', ctx.params.slug)
@@ -79,7 +93,7 @@ export default class WeatherStationsController {
   }
 
   async get_all(ctx: HttpContext) {
-    const data = await WeatherStation.query().select('slug', 'name', 'interface', 'state')
+    const data = await WeatherStation.query().select('slug', 'name', 'interface', 'state', 'remote_recorder')
 
     return {
       success: true,

@@ -16,7 +16,7 @@ const shutdown_command = new Command("shutdown")
         const response = await prompts([{
             name: "confirm",
             type: "confirm",
-            message: chalk.red("Do you really want to stop the recorder demon? All your jobs will be stopped!")
+            message: chalk.redBright("Do you really want to stop the recorder demon? All your jobs will be stopped!")
         }]);
         if(response.confirm === undefined) return canceled_message();
 

@@ -7,8 +7,9 @@ import { station_name_argument } from "../../../arguments_options.js";
 import error_handling from "../../../util/error_handling.js";
 import connection_failed_message from "../../../util/connection_failed_message.js";
 
-const ls_command = new Command("ls")
-    .description('list all sensors of a weather station')
+const ls_command = new Command("list")
+    .alias("ls")
+    .description('List all sensors of a weather station')
     .addArgument(station_name_argument)
     .action(async (station_name) => {
         const spinner = ora('Loading sensors...').start();

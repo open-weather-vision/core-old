@@ -9,7 +9,7 @@ import connection_failed_message from "../../util/connection_failed_message.js";
 
 const down_command = new Command("down")
     .addArgument(station_name_argument)
-    .description('stop the recorder of a weather station')
+    .description('Stop the recorder of a weather station')
     .action(async (station_name) => {
         const spinner = ora('Stopping station...').start();
         try {

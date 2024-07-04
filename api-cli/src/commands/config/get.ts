@@ -5,14 +5,14 @@ import output_config_value from "../../util/output_config_value.js";
 
 const get_command = new Command("get")
     .argument("[key]")
-    .description("gets a parameter's configuration, if no argument is passed the whole configuration is returned")
+    .description("Get a parameter's configuration, if no argument is passed the whole configuration is returned")
     .action((key) => {
         if(key){
             const value = config.get(key);
             if (value !== undefined) {
                 output_config_value(key, value);
             } else {
-                console.log(`${chalk.red(`✘Unknown setting '${key}'`)}`)
+                console.log(`${chalk.redBright(`✘Unknown setting '${key}'`)}`)
             }
         }else{
             const modifiable_config = config.modifiable_config;

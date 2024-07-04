@@ -12,7 +12,7 @@ const set_command = new Command("set")
             config.save();
             console.log(`${chalk.green(`✓ Successfully set '${key}'`)}`)
         } else {
-            console.log(`${chalk.red(`✘Unknown setting '${key}'`)}`)
+            console.log(`${chalk.redBright(`✘Unknown setting '${key}'`)}`)
         }
     })
 

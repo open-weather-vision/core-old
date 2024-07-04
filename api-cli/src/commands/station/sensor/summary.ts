@@ -11,7 +11,7 @@ import connection_failed_message from "../../../util/connection_failed_message.j
 
 const summary_command = new Command("summary")
     .alias("sm")
-    .description('get a summary of all sensors (max value measured, min value measured, etc)')
+    .description('Get a summary of all sensors (max value measured, min value measured, etc)')
     .addArgument(station_name_argument)
     .addOption(sensors_only_option)
     .addOption(new Option("-h, --hour [hour in dd.mm.yyyy:HH]", "get the summary of the passed hour, if no hour is passed the current one is taken"))
@@ -62,7 +62,7 @@ const summary_command = new Command("summary")
                         break;
                 }
             } catch (err) {
-                console.log(`${chalk.red(`✘ Invalid option argument for option '--${type}' has been passed`)}`)
+                console.log(`${chalk.redBright(`✘ Invalid option argument for option '--${type}' has been passed`)}`)
                 return;
             }
         } else {
@@ -88,7 +88,7 @@ const summary_command = new Command("summary")
                         case "month": example = "07.2024"; break;
                         case "year": example = "2024"; break;
                     }
-                    return console.log(`${chalk.red(`✘ Invalid ${type} format, valid example: ${chalk.italic(example)}`)}`)
+                    return console.log(`${chalk.redBright(`✘ Invalid ${type} format, valid example: ${chalk.italic(example)}`)}`)
                 }
                 return error_handling(response, {station_slug: station_name})
             }

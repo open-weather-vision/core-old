@@ -10,7 +10,7 @@ import error_handling from "../../util/error_handling.js";
 import connection_failed_message from "../../util/connection_failed_message.js";
 
 const create_command = new Command("create")
-    .description('create a new weather station')
+    .description('Create a new weather station')
     .action(async () => {
         const responses = await prompts([
             {

@@ -6,8 +6,9 @@ import config from "../../util/config.js";
 import error_handling from "../../util/error_handling.js";
 import connection_failed_message from "../../util/connection_failed_message.js";
 
-const ls_command = new Command("ls")
-    .description('list all weather stations')
+const ls_command = new Command("list")
+    .alias('ls')
+    .description('List all weather stations')
     .action(async () => {
         const spinner = ora('Loading stations...').start();
         try {
@@ -25,7 +26,8 @@ const ls_command = new Command("ls")
             const stations = response.data.data;
             for (const station of stations) {
                 const active = station.state === "active";
-                console.log(`${chalk.blueBright(station.name)} ${chalk.bold(`(${station.slug})`)} ❯ [${active ? chalk.green(station.state) : chalk.red(station.state)}]`)
+                const selected = config.get("selected_station") === station.slug;
+                console.log(`${station.remote_recorder ? `${chalk.bgMagenta.white(`remote`)} ` : ''}${chalk.blueBright(selected ? chalk.underline(station.name) : station.name)} ${chalk.bold(`(${station.slug})`)} ❯ [${active ? chalk.green(station.state) : chalk.redBright(station.state)}]`)
             }
 
         } catch (err) {

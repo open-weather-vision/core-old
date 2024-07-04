@@ -9,7 +9,7 @@ import ora from "ora";
 import canceled_message from "../../util/canceled_message.js";
 
 const login_command = new Command("login")
-    .description("login, neccessary before any communication with your weather stations")
+    .description("Login, neccessary before any communication with your weather stations")
     .action(async () => {
         const responses = await prompts([
             {

@@ -12,7 +12,7 @@ const get_command = new Command("get")
             if (value !== undefined) {
                 output_config_value(key, value);
             } else {
-                console.log(`${chalk.red(`✘Unknown setting '${key}'`)}`)
+                console.log(`${chalk.redBright(`✘Unknown setting '${key}'`)}`)
             }
         }else{
             const modifiable_config = config.modifiable_config;

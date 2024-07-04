@@ -13,7 +13,6 @@ import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
 import * as hooks from './hooks.js'
 import { ApplicationService } from '@adonisjs/core/types'
-import server from '@adonisjs/core/services/server'
 
 /**
  * URL to the application root. AdonisJS need it to resolve

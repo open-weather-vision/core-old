@@ -6,7 +6,5 @@ ADD package-lock.json package-lock.json
 RUN npm install
 ADD ./ ./
 RUN npm run build
-WORKDIR ./build
-RUN npm ci --omit="dev"
 EXPOSE 3334
-ENTRYPOINT npm run fresh && node bin/server.js
+ENTRYPOINT ./entrypoint.sh

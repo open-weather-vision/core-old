@@ -24,7 +24,7 @@ const init_command = new Command("initialize").alias("init")
         } catch (err) {
             console.log(err)
             spinner.stop();
-            return console.log(chalk.red(`✘ Failed to initialize the owvision recorder (failed to start the recorder demon)`));
+            return console.log(chalk.redBright(`✘ Failed to initialize the owvision recorder (failed to start the recorder demon)`));
         }
     })
 

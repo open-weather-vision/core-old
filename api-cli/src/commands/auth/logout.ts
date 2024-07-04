@@ -7,7 +7,7 @@ import connection_failed_message from "../../util/connection_failed_message.js";
 import error_handling from "../../util/error_handling.js";
 
 const logout_command = new Command("logout")
-    .description("log the current user out")
+    .description("Log the current user out")
     .action(async () => {
         if (config.get("auth_token") === null) {
             return console.log(`${chalk.magentaBright(`✓ You are already logged out`)}`)

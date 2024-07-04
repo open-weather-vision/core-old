@@ -23,7 +23,7 @@ const ls_command = new Command("ls")
             const jobs = response.data.data;
             for (const job of jobs) {
                 const active = job.state === "active";
-                console.log(`${chalk.blueBright(job.station_slug)} ${chalk.italic(`(${job.api_url})`)} ❯ [${active ? chalk.green(job.state) : chalk.red(job.state)}]`)
+                console.log(`${chalk.blueBright(job.station_slug)} ${chalk.italic(`(${job.api_url})`)} ❯ [${active ? chalk.green(job.state) : chalk.redBright(job.state)}]`)
             }
         }catch(err){
             spinner.stop()

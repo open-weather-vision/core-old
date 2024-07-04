@@ -19,6 +19,9 @@ router.get('/v1/weather-stations', [WeatherStationsController, 'get_all']).use(m
 router.post('/v1/weather-stations/', [WeatherStationsController, 'initialize']).use(middleware.userAuthentication({
   min_role: "admin"
 }))
+router.delete('/v1/weather-stations/:slug', [WeatherStationsController, 'delete']).use(middleware.userAuthentication({
+  min_role: "admin"
+}))
 router.get('/v1/weather-stations/:slug', [WeatherStationsController, 'get_one']).use(middleware.userAuthentication())
 router.get('/v1/weather-stations/:slug/state', [WeatherStationsController, 'get_station_state']).use(middleware.userAuthentication())
 router.post('/v1/weather-stations/:slug/up', [WeatherStationsController, 'resume']).use(middleware.userAuthentication({

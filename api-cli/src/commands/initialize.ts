@@ -14,7 +14,7 @@ import error_handling from "../util/error_handling.js";
 
 
 const initialize_command = new Command("initialize").alias("init")
-    .description("initializes owvision - start with this command if you are new")
+    .description("Intialize owvision - start with this command if you are new")
     .action(async() => {
 
         console.log(chalk.green(`◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼`));
@@ -72,7 +72,7 @@ const initialize_command = new Command("initialize").alias("init")
                 console.log(chalk.green(`✓ Connection test succeeded`));
             }catch(err){
                 spinner.stop()
-                return console.log(chalk.red(`✘ Connection test failed, is your demon running?`));
+                return console.log(chalk.redBright(`✘ Connection test failed, is your demon running?`));
             }
         }else{
             spinner = ora("Starting api...").start()
@@ -82,7 +82,7 @@ const initialize_command = new Command("initialize").alias("init")
                 await exec(`cd "${cli_dir}" && docker compose up -d --quiet-pull`);
             }catch(err){
                 spinner.stop();
-                return console.log(chalk.red(`✘ Failed to initialize owvision (failed to start owvision demon)`));
+                return console.log(chalk.redBright(`✘ Failed to initialize owvision (failed to start owvision demon)`));
             }
         }
         config.set("api_url", api_url_plain + "/v1");

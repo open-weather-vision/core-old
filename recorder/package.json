@@ -11,6 +11,7 @@
     "test": "node ace test",
     "lint": "eslint .",
     "fresh": "node ace migration:fresh --force",
+    "migrate": "node ace migration:run --force",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "build-image": "docker build -t owvision-recorder ."
