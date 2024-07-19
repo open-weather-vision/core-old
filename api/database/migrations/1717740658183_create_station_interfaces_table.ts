@@ -6,7 +6,8 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.string("repository_url", 200).primary(),
-      table.string("short_name").unique().nullable(),
+      table.string("slug").unique().notNullable(),
+      table.string("dirname").unique().notNullable()
       table.jsonb("meta_information").notNullable()
     })
   }

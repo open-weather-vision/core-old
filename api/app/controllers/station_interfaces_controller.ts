@@ -56,7 +56,7 @@ export default class StationInterfacesController {
         }
 
         // Read meta data
-        const short_name = result.stdOut;
+        const dirname = result.stdOut;
         const meta_file_path = app.makePath(`../${result.stdOut}/meta.json`);
         const raw_meta_information = JSON.parse(((await readFile(meta_file_path)).toString("utf-8")));
 
@@ -64,10 +64,11 @@ export default class StationInterfacesController {
 
         // Update meta data
         new_station_interface.meta_information = meta_information;
-        new_station_interface.short_name = short_name;
+        new_station_interface.dirname = dirname;
+        new_station_interface.slug = meta_information.slug;
         await new_station_interface.save();
 
-        logger.info(`Successfully installed interface '${short_name} (${payload.repository_url})!'`)
+        logger.info(`Successfully installed interface '${new_station_interface.slug} (${payload.repository_url})!'`)
 
         return {
             success: true,

@@ -8,7 +8,10 @@ export default class StationInterface extends BaseModel {
   declare repository_url: string
 
   @column()
-  declare short_name: string
+  declare slug: string
+
+  @column()
+  declare dirname: string
 
   @column()
   declare meta_information: InterfaceMetaInformation

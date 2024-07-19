@@ -51,5 +51,5 @@ export const install_interface_validator = vine.compile(vine.object({
 }));
 
 export const uninstall_interface_validator = vine.compile(vine.object({
-  repository_url: vine.string().url(),
+  slug: vine.string(),
 }));

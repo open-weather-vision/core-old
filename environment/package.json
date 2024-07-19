@@ -1,6 +1,6 @@
 {
   "name": "owvision-environment",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Common types and structures used across all owvision-packages.",
   "exports": {
     ".": {

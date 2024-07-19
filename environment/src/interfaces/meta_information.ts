@@ -2,6 +2,7 @@ import vine from "@vinejs/vine"
 import { SensorSummaryType, SensorSummaryTypes, SummaryTypes } from "../types/summary_types.js"
 
 export type InterfaceMetaInformation = {
+    slug: string,
     name: string,
     description: string,
     author?: string,
@@ -24,6 +25,15 @@ export type SensorInformation = {
 const interval = vine.string();
 
 const interface_meta_information_validator = vine.compile(vine.object({
+    slug: vine
+    .string()
+    .trim()
+    .alphaNumeric({
+      allowDashes: true,
+      allowSpaces: false,
+      allowUnderscores: true,
+    })
+    .maxLength(50),
     name: vine.string().maxLength(100).minLength(1),
     description: vine.string().maxLength(200),
     author: vine.string().optional(),
