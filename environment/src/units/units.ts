@@ -1,6 +1,6 @@
 import simple_units from 'simple-units'
 
-const units = simple_units.default
+const units = simple_units
 
 export type Unit =
   | PrecipationUnit
@@ -93,7 +93,7 @@ export interface UnitConfiguration {
   elevation: ElevationUnit
 }
 
-export type UnitType = keyof UnitConfiguration | 'none'
+export type UnitType = keyof UnitConfiguration | 'none' | 'UV' | 'LWI'
 
 export const UnitTypes: UnitType[] = [
   'precipation',

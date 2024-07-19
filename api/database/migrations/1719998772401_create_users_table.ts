@@ -1,4 +1,4 @@
-import { Roles } from '#models/user'
+import { Roles } from 'owvision-environment/types'
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {

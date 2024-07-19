@@ -1,25 +1,11 @@
-import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { belongsTo, column } from '@adonisjs/lucid/orm'
 import Summary from './summary.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import AppBaseModel from './app_base_model.js'
-import { Unit, convert } from '../other/units/units.js'
+import { Unit, convert } from 'owvision-environment/units'
 import { Exception } from '@adonisjs/core/exceptions'
 import Sensor from './sensor.js'
-
-export type SummaryRecordData = {
-  min_time?: DateTime | null
-  min_value?: number | null
-  max_time?: DateTime | null
-  max_value?: number | null
-  avg_value?: number | null
-  time?: DateTime | null
-  value?: number | null
-  record_count: number
-  valid_record_count: number
-  latest_update: DateTime | null
-  latest_valid_update: DateTime | null
-}
+import type { SummaryRecordData } from 'owvision-environment/types'
 
 export default class SummaryRecord extends AppBaseModel {
   @column({ isPrimary: true })

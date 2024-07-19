@@ -1,10 +1,10 @@
-import { column, computed, hasMany, hasOne } from '@adonisjs/lucid/orm'
-import type { HasMany, HasOne } from '@adonisjs/lucid/types/relations'
+import { belongsTo, column, hasMany, hasOne } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, HasOne } from '@adonisjs/lucid/types/relations'
 import UnitConfig from './unit_config.js'
 import Sensor from './sensor.js'
 import Summary from './summary.js'
-import { WeatherStationInterface } from '../other/weather_station_interface.js'
 import AppBaseModel from './app_base_model.js'
+import StationInterface from './station_interface.js'
 
 export type WeatherStationState = 'active' | 'inactive'
 
@@ -21,7 +21,12 @@ export default class WeatherStation extends AppBaseModel {
   declare name: string
 
   @column()
-  declare interface: string
+  declare interface_slug: string
+
+  @belongsTo(() => StationInterface, {
+    foreignKey: 'interface'
+  })
+  declare interface: BelongsTo<typeof StationInterface>
 
   @column()
   declare interface_config: object
@@ -49,13 +54,4 @@ export default class WeatherStation extends AppBaseModel {
 
   @column()
   declare state: WeatherStationState
-
-  @computed({
-    serializeAs: null,
-  })
-  get interface_class(): Promise<typeof WeatherStationInterface> {
-    return import(`../../interfaces/${this.interface}.js`).then((value) => {
-      return value?.default
-    })
-  }
 }

@@ -1,4 +1,4 @@
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { belongsTo, column } from '@adonisjs/lucid/orm'
 import type {
   ElevationUnit,
   HumidityUnit,
@@ -10,7 +10,7 @@ import type {
   Unit,
   UnitType,
   WindUnit,
-} from '../other/units/units.js'
+} from 'owvision-environment/units'
 import WeatherStation from './weather_station.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import AppBaseModel from './app_base_model.js'
@@ -62,7 +62,7 @@ export default class UnitConfig extends AppBaseModel {
   declare weather_station: BelongsTo<typeof WeatherStation>
 
   of_type(type: UnitType): Unit | 'none' {
-    if (type === 'none') return 'none'
+    if (type === 'none' || type === "LWI" || type === "UV") return 'none' // TODO: Units for LWI and UV
     else {
       const result = this[`${type}_unit`];
       if(result === undefined){

@@ -1,10 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
-import type { SummaryType } from '../other/summaries/summary_types.js'
+import { belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import type { SummaryType } from 'owvision-environment/types'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import SummaryRecord from './summary_record.js'
 import WeatherStation from './weather_station.js'
-import { TimeUnit } from '../other/scheduler.js'
+import { TimeUnit } from 'owvision-environment/scheduler'
 import AppBaseModel from './app_base_model.js'
 
 export default class Summary extends AppBaseModel {

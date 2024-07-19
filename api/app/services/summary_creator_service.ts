@@ -1,6 +1,6 @@
 import WeatherStation from '#models/weather_station'
 import { Exception } from '@adonisjs/core/exceptions'
-import { SummaryCreator } from '../other/summary_creator.js'
+import { SummaryCreator } from './base/summary_creator.js'
 import Service from './service.js'
 import Record from '#models/record'
 
@@ -29,7 +29,8 @@ class SummaryCreatorService extends Service {
    * @param station
    */
   async add_station(station: WeatherStation) {
-    const StationInterface = await station.interface_class
+    await station.load('interface')
+    const StationInterface = await station.interface.ClassConstructor
 
     if (!StationInterface) {
       throw new Exception(

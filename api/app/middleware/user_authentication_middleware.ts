@@ -1,6 +1,6 @@
 import AuthException from '#exceptions/auth_exception';
 import Session from '#models/session';
-import { Role, Roles } from '#models/user';
+import { Role, Roles } from 'owvision-environment/types';
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 

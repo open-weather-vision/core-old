@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node bin/server.js",
     "build": "node ace build --ignore-ts-errors",
-    "fresh": "node ace migration:fresh --force && node ace db:seed weather_station_dummy user_seeder",
+    "fresh": "node ace migration:fresh --force --seed",
     "dev": "node ace serve --watch",
     "test": "node ace test",
     "lint": "eslint .",
@@ -67,6 +67,7 @@
     "axios": "^1.7.2",
     "long-timeout": "^0.1.1",
     "luxon": "^3.4.4",
+    "owvision-environment": "^1.0.0",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
     "simple-units": "^1.0.6"

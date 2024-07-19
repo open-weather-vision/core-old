@@ -2,10 +2,11 @@ import { DateTime } from 'luxon'
 import { belongsTo, column } from '@adonisjs/lucid/orm'
 import Sensor from './sensor.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
-import { TimeUnit } from '../other/scheduler.js'
+import { TimeUnit } from 'owvision-environment/scheduler'
 import AppBaseModel from './app_base_model.js'
-import { Unit, convert } from '../other/units/units.js'
+import { Unit, convert } from 'owvision-environment/units'
 import { Exception } from '@adonisjs/core/exceptions'
+import type { MetaInformation } from 'owvision-environment/types'
 
 export default class Record extends AppBaseModel {
   @column({ isPrimary: true })
@@ -16,6 +17,9 @@ export default class Record extends AppBaseModel {
 
   @column()
   declare value: number | null
+
+  @column()
+  declare meta_information: MetaInformation
 
   @column()
   declare unit: Unit | 'none'

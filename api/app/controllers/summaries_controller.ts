@@ -6,7 +6,7 @@ import SummaryRecord from '#models/summary_record'
 import WeatherStation from '#models/weather_station'
 import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
-import { TimeUnit } from '../other/scheduler.js'
+import { TimeUnit } from "owvision-environment/scheduler"
 import {
   get_latest_of_multiple_sensors_query_params_validator,
   get_latest_of_multiple_sensors_route_params_validator,
@@ -77,7 +77,7 @@ export default class SummariesController {
 
     for (const record of records) {
       const unit_type = record.sensor.unit_type;
-      if (unit_type !== "none") {
+      if (unit_type !== "none" && unit_type !== "LWI" && unit_type !== "UV") {
         const target_unit = query[`${unit_type}_unit`];
         const record_unit = record.unit;
 
@@ -134,7 +134,7 @@ export default class SummariesController {
 
     for (const record of records) {
       const unit_type = record.sensor.unit_type;
-      if (unit_type !== "none") {
+      if (unit_type !== "none" && unit_type !== "LWI" && unit_type !== "UV") {
         const target_unit = query[`${unit_type}_unit`];
         const record_unit = record.unit;
 
@@ -152,7 +152,7 @@ export default class SummariesController {
           sensor_slug: record.sensor.slug,
           sensor_name: record.sensor.name,
           summary_type: record.sensor.summary_type,
-          unit: record.unit
+          unit: record.unit,
         })),
         created_at: summary.created_at,
       },

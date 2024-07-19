@@ -1,4 +1,4 @@
-import { TimeUnit } from '../scheduler.js'
+import { TimeUnit } from '../scheduler/scheduler.js'
 
 export type SensorSummaryType =
   | 'max'
@@ -11,6 +11,7 @@ export type SensorSummaryType =
   | 'latest'
   | 'oldest'
   | 'sum'
+  | 'wind-dir-avg'
   | 'custom'
 
 export const SensorSummaryTypes: SensorSummaryType[] = [
@@ -24,6 +25,7 @@ export const SensorSummaryTypes: SensorSummaryType[] = [
   'latest',
   'oldest',
   'sum',
+  'wind-dir-avg',
   'custom',
 ]
 

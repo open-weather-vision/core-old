@@ -14,6 +14,7 @@ import SummariesController from '#controllers/summaries_controller'
 import WeatherStationsController from '#controllers/weather_stations_controller'
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+import StationInterfacesController from '#controllers/station_interfaces_controller'
 
 router.get('/v1/weather-stations', [WeatherStationsController, 'get_all']).use(middleware.userAuthentication())
 router.post('/v1/weather-stations/', [WeatherStationsController, 'initialize']).use(middleware.userAuthentication({
@@ -32,6 +33,15 @@ router.post('/v1/weather-stations/:slug/down', [WeatherStationsController, 'paus
 }))
 router.get('/v1/weather-stations/:slug/interface', [WeatherStationsController, 'get_interface']).use(middleware.userAuthentication({
   min_role: "recorder",
+}))
+router.get('/v1/interfaces', [StationInterfacesController, 'get_all_interfaces']).use(middleware.userAuthentication({
+  min_role: "admin",
+}))
+router.post('/v1/interfaces', [StationInterfacesController, 'install_interface']).use(middleware.userAuthentication({
+  min_role: "admin",
+}))
+router.delete('/v1/interfaces/:slug', [StationInterfacesController, 'uninstall_interface']).use(middleware.userAuthentication({
+  min_role: "admin",
 }))
 
 router.get('/v1/weather-stations/:slug/sensors', [SensorsController, 'get_all_of_station']).use(middleware.userAuthentication())

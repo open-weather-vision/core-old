@@ -66,6 +66,7 @@
     "better-sqlite3": "^11.1.2",
     "long-timeout": "^0.1.1",
     "luxon": "^3.4.4",
+    "owvision-environment": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "simple-units": "^1.0.6"
   },

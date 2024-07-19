@@ -1,5 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
-import { SummaryTypes } from '../../app/other/summaries/summary_types.js'
+import { SummaryTypes } from 'owvision-environment/types'
 
 export default class extends BaseSchema {
   protected tableName = 'summaries'

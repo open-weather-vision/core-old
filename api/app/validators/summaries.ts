@@ -1,6 +1,6 @@
 import vine from '@vinejs/vine'
-import { SummaryTypes } from '../other/summaries/summary_types.js'
-import { ElevationUnits, HumidityUnits, PrecipationUnits, PressureUnits, SoilMoistureUnits, SolarRadiationUnits, TemperatureUnits, Units, WindUnits } from '../other/units/units.js'
+import { SummaryTypes } from 'owvision-environment/types'
+import { ElevationUnits, HumidityUnits, PrecipationUnits, PressureUnits, SoilMoistureUnits, SolarRadiationUnits, TemperatureUnits, Units, WindUnits } from 'owvision-environment/units'
 export const get_latest_route_params_validator = vine.compile(
   vine.object({
     slug: vine.string(),

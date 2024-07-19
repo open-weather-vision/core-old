@@ -1,5 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
-import { Units } from '../../app/other/units/units.js'
+import { Units } from 'owvision-environment/units'
 
 export default class extends BaseSchema {
   protected tableName = 'records'
@@ -14,6 +14,7 @@ export default class extends BaseSchema {
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
       table.jsonb('value')
+      table.jsonb('meta_information')
       table.timestamp('created_at')
       table.enum('unit', [...Units, 'none']).notNullable()
     })

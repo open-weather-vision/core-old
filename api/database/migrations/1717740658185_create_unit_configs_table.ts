@@ -8,7 +8,7 @@ import {
   SolarRadiationUnits,
   SoilMoistureUnits,
   HumidityUnits,
-} from '../../app/other/units/units.js'
+} from 'owvision-environment/units'
 
 export default class extends BaseSchema {
   protected tableName = 'unit_configs'

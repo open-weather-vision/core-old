@@ -1,5 +1,5 @@
 import Service from './service.js'
-import { Recorder } from '../other/recorder.js'
+import { Recorder } from '../recorder.js'
 import RecorderJob from '#models/recorder_job';
 
 class RecorderService extends Service {

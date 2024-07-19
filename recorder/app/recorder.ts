@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { Schedule, schedule } from './scheduler.js'
-import { IRecord, WeatherStationInterface } from './weather_station_interface.js'
+import { Schedule, schedule } from 'owvision-environment/scheduler'
+import { IRecord, WeatherStationInterface } from 'owvision-environment/interfaces'
 import * as fs from 'fs'
 import { Logger } from '@adonisjs/core/logger'
 import { Queue } from '@datastructures-js/queue';
@@ -37,7 +37,7 @@ export class Recorder {
     })
   }
 
-  private async login(username: string, password: string) {
+  private async api_login(username: string, password: string) {
     try {
       const response = await axios({
         method: 'post',
@@ -150,7 +150,7 @@ export class Recorder {
     }
   }
 
-  private async load_station_interface() {
+  private async load_station_interface_from_api() {
     try {
       const interface_response = await axios({
         method: 'get',
@@ -189,10 +189,6 @@ export class Recorder {
     }
   }
 
-  private async load_config_from_api() {
-    await this.load_station_interface()
-  }
-
   private async create_schedules() {
     for (const sensor_slug in this.station_interface.sensors) {
       const sensor_config = this.station_interface.sensors[sensor_slug]
@@ -203,7 +199,7 @@ export class Recorder {
           `Created record $(${this.job.station_slug}/${sensor_slug}): ${record.value} ${record.unit.toString()} [${record.created_at}]$`
         )
         this.queue.push(record);
-      }).every(sensor_config.interval, sensor_config.interval_unit)
+      }).every(sensor_config.interval_config.configured_interval?.value!, sensor_config.interval_config.configured_interval?.unit!)
     }
   }
 
@@ -257,8 +253,8 @@ export class Recorder {
   ): Promise<Recorder> {
     try {
       const recorder = new Recorder(job, logger)
-      await recorder.login("recorder", "recorder")
-      await recorder.load_config_from_api()
+      await recorder.api_login("recorder", "recorder")
+      await recorder.load_station_interface_from_api()
       await recorder.create_schedules()
       return recorder
     } catch (err) {

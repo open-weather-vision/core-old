@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "npx tsc --watch"
+    "watch": "npx tsc --watch",
+    "build": "npx tsc"
   },
   "bin": {
     "owvision": "./dist/owvision.js"

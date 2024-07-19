@@ -10,6 +10,7 @@ import clear_command from "./commands/clear.js";
 import pause_command from "./commands/pause.js";
 import resume_command from "./commands/resume.js";
 import logs_command from "./commands/logs.js";
+import interfaces_command from "./commands/interface/index.js"
 
 
 axios.defaults.validateStatus = () => true;
@@ -22,5 +23,6 @@ program.addCommand(clear_command);
 program.addCommand(pause_command);
 program.addCommand(resume_command);
 program.addCommand(logs_command);
+program.addCommand(interfaces_command);
 
 program.parse();

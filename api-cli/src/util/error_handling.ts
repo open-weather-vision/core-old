@@ -4,7 +4,8 @@ import config from "./config.js"
 
 export default function(response: AxiosResponse, params: {
     station_slug?: string,
-    sensor_slug?: string
+    sensor_slug?: string,
+    station_interface_slug?: string
 }){
     if (response.data.error.code === "E_AUTH") {
         console.log(chalk.redBright(`✘ ${response.data.error.message}`))
@@ -20,6 +21,8 @@ export default function(response: AxiosResponse, params: {
         }
     }else if (params.sensor_slug !== undefined && response.data.error.code === "E_SENSOR_NOT_FOUND") {
         console.log(chalk.redBright(`✘ Unknown sensor '${params.sensor_slug}'`))
+    }else if (params.station_interface_slug !== undefined && response.data.error.code === "E_INTERFACE_NOT_FOUND") {
+        console.log(chalk.redBright(`✘ Unknown station interface '${params.station_interface_slug}'`))
     }else if (response.data.error.code === "E_SUMMARY_NOT_FOUND") {
         console.log(chalk.redBright(`✘ There is no summary in the specified interval!`))
     }else{

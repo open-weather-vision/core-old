@@ -7,7 +7,7 @@ import { HttpContext } from '@adonisjs/core/http'
 import Sensor from '#models/sensor'
 import summary_creator_service from '../services/summary_creator_service.js'
 import * as fs from 'fs'
-import { WeatherStationInterface } from '../other/weather_station_interface.js'
+import { WeatherStationInterface } from "owvision-environment/interfaces"
 import { Exception } from '@adonisjs/core/exceptions'
 import StationNotFoundException from '#exceptions/station_not_found_exception'
 import logger from '@adonisjs/core/services/logger'
@@ -92,7 +92,7 @@ export default class WeatherStationsController {
     ctx.response.stream(interface_file)
   }
 
-  async get_all(ctx: HttpContext) {
+  async get_all() {
     const data = await WeatherStation.query().select('slug', 'name', 'interface', 'state', 'remote_recorder')
 
     return {
@@ -125,7 +125,7 @@ export default class WeatherStationsController {
 
 
     const weather_station = await WeatherStation.create({
-      interface: payload.interface,
+      interface_slug: payload.interface_slug,
       interface_config: payload.interface_config,
       name: payload.name,
       slug: payload.slug,
@@ -150,17 +150,16 @@ export default class WeatherStationsController {
 
     let StationInterface
     try {
-      StationInterface = await weather_station.interface_class
+      await weather_station.load('interface')
+      StationInterface = await weather_station.interface.ClassConstructor
     } catch (err) {
       await weather_station.delete()
-      throw new Exception(`Passed interface '${payload.interface}' is not installed!`, {
+      throw new Exception(`Passed interface '${payload.interface_slug}' is not installed!`, {
         status: 400,
         code: 'unkown-interface-error',
       })
     }
-    const station_interface: WeatherStationInterface = new StationInterface(
-      payload.interface_config
-    )
+    const station_interface: WeatherStationInterface = new StationInterface(payload.interface_config)
 
     for (const sensor_slug in station_interface.sensors) {
       const sensor = station_interface.sensors[sensor_slug]

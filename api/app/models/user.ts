@@ -1,9 +1,8 @@
 import { BaseModel, column, computed, hasMany } from '@adonisjs/lucid/orm'
 import Session from './session.js';
 import type { HasMany } from '@adonisjs/lucid/types/relations';
-
-export type Role = 'admin' | 'recorder' | 'viewer';
-export const Roles : Role[] = ['viewer', 'recorder', 'admin'];
+import type { Role } from 'owvision-environment/types';
+import { Roles } from 'owvision-environment/types';
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })

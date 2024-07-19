@@ -1,0 +1,53 @@
+{
+  "name": "owvision-environment",
+  "version": "1.1.0",
+  "description": "Common types and structures used across all owvision-packages.",
+  "exports": {
+    ".": "./dist/index.js",
+    "./interfaces": "./dist/interfaces/index.js",
+    "./scheduler": "./dist/scheduler/index.js",
+    "./types": "./dist/types/index.js",
+    "./units": "./dist/units/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "interfaces": [
+        "dist/interfaces"
+      ],
+      "scheduler": [
+        "dist/scheduler"
+      ],
+      "types": [
+        "dist/types"
+      ],
+      "units": [
+        "dist/units"
+      ]
+    }
+  },
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "start": "cd ./dist && node ",
+    "build": "npx tsc",
+    "dev": "npx tsc --watch"
+  },
+  "keywords": [
+    "owvision"
+  ],
+  "author": "Henri Hollmann",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/long-timeout": "^0.1.2",
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^20.14.11",
+    "typescript": "^5.5.3"
+  },
+  "dependencies": {
+    "@vinejs/vine": "^2.1.0",
+    "long-timeout": "^0.1.1",
+    "luxon": "^3.4.4",
+    "simple-units": "^1.0.6",
+    "vantjs": "^2.0.2"
+  }
+}
