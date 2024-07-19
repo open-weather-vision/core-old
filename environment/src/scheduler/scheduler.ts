@@ -23,6 +23,56 @@ export function previous(interval: Exclude<TimeUnit, 'second'> | 'alltime'): Tim
   }
 }
 
+export type TimeInterval = { value: number, unit: TimeUnit }
+
+export function fromIntervalString(interval: string): TimeInterval {
+  interval = interval.trim();
+
+  let number = "";
+  let unit = "";
+  let mode = 0;
+  const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  for(let i=0; i<interval.length; i++){
+    const char = interval[i];
+    if(mode === 0){
+      if(numbers.includes(char)){
+        number += char;
+      }else{
+        mode = 1;
+        i--;
+      }
+    }else{
+      unit += char;
+    }
+  }
+
+  unit = unit.trim();
+
+  let parsed_unit: TimeUnit;
+  if(["second", "seconds", "s"].includes(unit)){
+    parsed_unit = "second";
+  }else if(["minute", "minutes", "min"].includes(unit)){
+    parsed_unit = "minute";
+  }else if(["hour", "hours", "h"].includes(unit)){
+    parsed_unit = "hour";
+  }else if(["week", "weeks", "w"].includes(unit)){
+    parsed_unit = "week";
+  }else if(["month", "months", "m"].includes(unit)){
+    parsed_unit = "month";
+  }else if(["year", "years", "year", "a"].includes(unit)){
+    parsed_unit = "year";
+  }else{
+    throw new Error(`Invalid interval: Unknown time unit '${unit}'!`);
+  }
+
+  const parsed_number = Number.parseInt(number.trim());
+
+  return {
+    value: parsed_number,
+    unit: parsed_unit,
+  }
+}
+
 export class Schedule {
   interval: number = 1
   unit: TimeUnit = 'second'
@@ -36,10 +86,14 @@ export class Schedule {
     this.align = options.align ?? true
   }
 
-  every(interval: number, unit: TimeUnit) {
-    this.interval = interval
-    this.unit = unit
-
+  every(interval: TimeInterval | number, unit: TimeUnit = "second"){
+    if(typeof interval === "object"){
+      this.interval = interval.value;
+      this.unit = interval.unit;
+    }else{
+      this.interval = interval;
+      this.unit = unit;
+    }
     return this
   }
 
