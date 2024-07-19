@@ -1,6 +1,6 @@
 import simple_units from 'simple-units'
 
-const units = simple_units
+const units = simple_units.default
 
 export type Unit =
   | PrecipationUnit
