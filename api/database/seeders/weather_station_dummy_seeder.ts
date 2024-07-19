@@ -1,5 +1,4 @@
 import Sensor from '#models/sensor'
-import StationInterface from '#models/station_interface'
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
@@ -8,10 +7,7 @@ export default class extends BaseSeeder {
   public static environment = ['development', 'testing']
   
   async run() {
-    await StationInterface.create({
-      "slug": "davis-vp2",
-      "description": "An interface to the davis vantage pro!",
-    })
+    // TODO: Install sample interface
     await this.create_station("hueff-vp2", "Hüffelsheimer Vantage Pro 2", false);
     await this.create_station("remote-station", "Aachen Station (remote)", true);
   }
@@ -19,7 +15,7 @@ export default class extends BaseSeeder {
 
  async create_station(slug: string, name: string, remote_recorder: boolean){
     const weather_station = await WeatherStation.create({
-      interface_slug: 'davis-vp2',
+      interface_url: 'davis-vp2', // TODO: Fix url
       interface_config: {
         path: 'COM3',
       },

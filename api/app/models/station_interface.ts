@@ -1,7 +1,7 @@
 import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import WeatherStation from './weather_station.js';
 import type { HasMany } from '@adonisjs/lucid/types/relations';
-import { InterfaceMetaInformation } from 'owvision-environment/interfaces';
+import type { InterfaceMetaInformation } from 'owvision-environment/interfaces';
 
 export default class StationInterface extends BaseModel {
   @column({ isPrimary: true })

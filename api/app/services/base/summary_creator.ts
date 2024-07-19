@@ -5,8 +5,6 @@ import { DateTime } from 'luxon'
 import { SummaryType, SummaryTypes } from 'owvision-environment/types'
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
-import { WeatherStationInterface } from 'owvision-environment/interfaces'
-import Sensor from '#models/sensor'
 import { Logger } from '@adonisjs/core/logger'
 
 /**
@@ -31,10 +29,8 @@ export class SummaryCreator {
   private current_year_summary?: Summary
   private current_alltime_summary?: Summary
 
-  private weather_station_id: number
+  private weather_station: WeatherStation
   private unit_config?: UnitConfig
-  private station_interface: WeatherStationInterface
-
   private logger: Logger
 
   /**
@@ -44,22 +40,16 @@ export class SummaryCreator {
    * @param logger the logger
    */
   constructor(
-    weather_station_id: number,
-    station_interface: WeatherStationInterface,
+    weather_station: WeatherStation,
     logger: Logger
   ) {
-    this.weather_station_id = weather_station_id
-    this.station_interface = station_interface
+    this.weather_station = weather_station
     this.logger = logger
   }
 
   private async load_unit_config() {
-    const result = await WeatherStation.query()
-      .where('id', this.weather_station_id)
-      .preload('unit_config')
-      .firstOrFail()
-
-    this.unit_config = result.unit_config!;
+    await this.weather_station.load('unit_config');
+    this.unit_config = this.weather_station.unit_config!;
   }
 
   /**
@@ -87,7 +77,7 @@ export class SummaryCreator {
     type: SummaryType,
     interval_start: DateTime
   ) {
-    const latest_summary = await Summary.latest(type, this.weather_station_id)
+    const latest_summary = await Summary.latest(type, this.weather_station.id)
     if (
       latest_summary !== null &&
       (+latest_summary.created_at === +interval_start || type === 'alltime')
@@ -97,13 +87,11 @@ export class SummaryCreator {
       this[`current_${type}_summary`] = await Summary.create({
         created_at: interval_start,
         type,
-        weather_station_id: this.weather_station_id,
+        weather_station_id: this.weather_station.id,
       })
-      for (const sensor_slug in this.station_interface.sensors) {
-        const sensor = await Sensor.query()
-          .where('weather_station_id', this.weather_station_id)
-          .andWhere('slug', sensor_slug)
-          .firstOrFail()
+
+      await this.weather_station.load('sensors');
+      for (const sensor of this.weather_station.sensors) {
         await SummaryRecord.createForSensor(
           sensor,
           this[`current_${type}_summary`]!.id,
@@ -119,18 +107,16 @@ export class SummaryCreator {
   ) {
     if (+interval_start !== +this[`current_${type}_summary`]!.created_at) {
       this.logger.info(
-        `New '${type}' for weather station '${(await WeatherStation.find(this.weather_station_id))?.slug}': Created new summary!`
+        `New '${type}' for weather station '${(await WeatherStation.find(this.weather_station.id))?.slug}': Created new summary!`
       )
       this[`current_${type}_summary`] = await Summary.create({
         created_at: interval_start,
         type: type,
-        weather_station_id: this.weather_station_id,
+        weather_station_id: this.weather_station.id,
       })
-      for (const sensor_slug in this.station_interface.sensors) {
-        const sensor = await Sensor.query()
-          .where('weather_station_id', this.weather_station_id)
-          .andWhere('slug', sensor_slug)
-          .firstOrFail()
+
+      await this.weather_station.load('sensors');
+      for (const sensor of this.weather_station.sensors) {
         await SummaryRecord.createForSensor(
           sensor,
           this[`current_${type}_summary`]!.id,

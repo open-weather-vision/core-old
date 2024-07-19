@@ -7,13 +7,12 @@ import { HttpContext } from '@adonisjs/core/http'
 import Sensor from '#models/sensor'
 import summary_creator_service from '../services/summary_creator_service.js'
 import * as fs from 'fs'
-import { WeatherStationInterface } from "owvision-environment/interfaces"
-import { Exception } from '@adonisjs/core/exceptions'
 import StationNotFoundException from '#exceptions/station_not_found_exception'
 import logger from '@adonisjs/core/services/logger'
 import local_jobs_service from '#services/local_jobs_service'
 import StationInterface from '#models/station_interface'
 import InterfaceNotFoundException from '#exceptions/interface_not_found_exception'
+import { fromIntervalString } from 'owvision-environment/scheduler'
 
 export default class WeatherStationsController {
   async delete(ctx: HttpContext) {
@@ -154,13 +153,18 @@ export default class WeatherStationsController {
       weather_station_id: weather_station.id,
     })
 
-    
-
     for (const sensor of station_interface.meta_information.sensors) {
+      let record_interval;
+      if(typeof sensor.record_interval === "string"){
+        record_interval = fromIntervalString(sensor.record_interval)
+      }else{
+        record_interval = fromIntervalString(sensor.record_interval.default)
+      }
       await Sensor.create({
         name: sensor.name,
         summary_type: sensor.summary_type,
-        
+        interval: record_interval.value,
+        interval_unit: record_interval.unit,
         weather_station_id: weather_station.id,
         slug: sensor.slug,
       })

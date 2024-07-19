@@ -1,5 +1,4 @@
 import WeatherStation from '#models/weather_station'
-import { Exception } from '@adonisjs/core/exceptions'
 import { SummaryCreator } from './base/summary_creator.js'
 import Service from './service.js'
 import Record from '#models/record'
@@ -29,19 +28,10 @@ class SummaryCreatorService extends Service {
    * @param station
    */
   async add_station(station: WeatherStation) {
-    await station.load('interface')
-    const StationInterface = await station.interface.ClassConstructor
-
-    if (!StationInterface) {
-      throw new Exception(
-        `Unknown interface '${station.interface}'! Failed to initialize a summary creator`
-      )
-    }
     this.summary_creators[station.slug] = {
       station,
       summary_creator: new SummaryCreator(
-        station.id,
-        new StationInterface(station.interface_config),
+        station,
         this.logger
       ),
     }
