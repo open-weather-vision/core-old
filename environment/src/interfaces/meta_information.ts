@@ -1,7 +1,6 @@
 import vine from "@vinejs/vine"
-import { TimeUnit } from "../scheduler/scheduler.js"
 
-export type MetaInformation = {
+export type InterfaceMetaInformation = {
     name: string,
     description: string,
     author?: string,
@@ -22,7 +21,7 @@ export type SensorInformation = {
   
 const interval = vine.string();
 
-const meta_information_validator = vine.compile(vine.object({
+const interface_meta_information_validator = vine.compile(vine.object({
     name: vine.string().maxLength(100).minLength(1),
     description: vine.string().maxLength(200),
     author: vine.string().optional(),
@@ -41,6 +40,6 @@ const meta_information_validator = vine.compile(vine.object({
         ])
 }))}));
 
-export async function validate_meta_information(payload: any){
-    return meta_information_validator.validate(payload);
+export async function validate_interface_meta_information(payload: any){
+    return interface_meta_information_validator.validate(payload);
 }
