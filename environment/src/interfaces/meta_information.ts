@@ -1,5 +1,5 @@
 import vine from "@vinejs/vine"
-import { SensorSummaryTypes, SummaryTypes } from "../types/summary_types.js"
+import { SensorSummaryType, SensorSummaryTypes, SummaryTypes } from "../types/summary_types.js"
 
 export type InterfaceMetaInformation = {
     name: string,
@@ -11,6 +11,7 @@ export type InterfaceMetaInformation = {
 export type SensorInformation = {
     slug: string,
     name: string,
+    summary_type: SensorSummaryType,
     description?: string,
     record_interval: string | {
         configurable?: boolean,
