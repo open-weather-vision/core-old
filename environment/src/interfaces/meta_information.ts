@@ -1,4 +1,5 @@
 import vine from "@vinejs/vine"
+import { SensorSummaryTypes, SummaryTypes } from "../types/summary_types.js"
 
 export type InterfaceMetaInformation = {
     name: string,
@@ -29,6 +30,7 @@ const interface_meta_information_validator = vine.compile(vine.object({
         slug: vine.string(),
         name: vine.string(),
         description: vine.string().optional(),
+        summary_type: vine.enum(SensorSummaryTypes),
         record_interval: vine.union([
             vine.union.if((record_interval) => vine.helpers.isString(record_interval), interval.clone()),
             vine.union.else(vine.object({

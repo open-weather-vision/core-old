@@ -12,6 +12,8 @@ import { Exception } from '@adonisjs/core/exceptions'
 import StationNotFoundException from '#exceptions/station_not_found_exception'
 import logger from '@adonisjs/core/services/logger'
 import local_jobs_service from '#services/local_jobs_service'
+import StationInterface from '#models/station_interface'
+import InterfaceNotFoundException from '#exceptions/interface_not_found_exception'
 
 export default class WeatherStationsController {
   async delete(ctx: HttpContext) {
@@ -123,9 +125,13 @@ export default class WeatherStationsController {
     const data = ctx.request.all()
     const payload = await initialize_weather_station_validator.validate(data)
 
+    const station_interface = await StationInterface.query().where("repository_url", payload.interface_url).first();
+    if(!station_interface){
+      throw new InterfaceNotFoundException(payload.interface_url);
+    }
 
     const weather_station = await WeatherStation.create({
-      interface_slug: payload.interface_slug,
+      interface_url: payload.interface_url,
       interface_config: payload.interface_config,
       name: payload.name,
       slug: payload.slug,
@@ -148,25 +154,15 @@ export default class WeatherStationsController {
       weather_station_id: weather_station.id,
     })
 
-    let StationInterface
-    try {
-      await weather_station.load('interface')
-      StationInterface = await weather_station.interface.ClassConstructor
-    } catch (err) {
-      await weather_station.delete()
-      throw new Exception(`Passed interface '${payload.interface_slug}' is not installed!`, {
-        status: 400,
-        code: 'unkown-interface-error',
-      })
-    }
-    const station_interface: WeatherStationInterface = new StationInterface(payload.interface_config)
+    
 
-    for (const sensor_slug in station_interface.sensors) {
-      const sensor = station_interface.sensors[sensor_slug]
+    for (const sensor of station_interface.meta_information.sensors) {
       await Sensor.create({
-        ...sensor,
+        name: sensor.name,
+        summary_type: sensor.summary_type,
+        
         weather_station_id: weather_station.id,
-        slug: sensor_slug,
+        slug: sensor.slug,
       })
     }
 

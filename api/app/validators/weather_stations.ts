@@ -37,7 +37,7 @@ export const initialize_weather_station_validator = vine.compile(
         soil_moisture: vine.enum(SoilMoistureUnits),
         humidity: vine.enum(HumidityUnits),
       }),
-    interface_slug: vine.string().trim().minLength(1).maxLength(50),
+    interface_url: vine.string().trim().url(),
     interface_config: vine.object({
       
     }).allowUnknownProperties(),
@@ -45,16 +45,6 @@ export const initialize_weather_station_validator = vine.compile(
     state: vine.enum(WeatherStationStates).optional()
   })
 )
-
-export const interface_slug_validator = vine.compile(vine
-  .string()
-  .trim()
-  .alphaNumeric({
-    allowDashes: true,
-    allowSpaces: false,
-    allowUnderscores: true,
-  })
-  .maxLength(50));
 
 export const install_interface_validator = vine.compile(vine.object({
   repository_url: vine.string().url(),
