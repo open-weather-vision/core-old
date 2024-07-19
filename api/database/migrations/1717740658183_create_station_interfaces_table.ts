@@ -5,8 +5,8 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.string("slug", 50).primary(),
-      table.string("description", 200).notNullable().defaultTo("This interface has no description.")
+      table.string("repository_url", 200).primary(),
+      table.jsonb("meta_information").notNullable()
     })
   }
 

@@ -57,16 +57,9 @@ export const interface_slug_validator = vine.compile(vine
   .maxLength(50));
 
 export const install_interface_validator = vine.compile(vine.object({
-  interface: vine.file({
-    extnames: ['js'],
-    size: "2mb",
-  }),
-  slug: vine.string()
-    .trim()
-    .alphaNumeric({
-      allowDashes: true,
-      allowSpaces: false,
-      allowUnderscores: true,
-    })
-    .maxLength(50)
+  repository_url: vine.string().url(),
+}));
+
+export const uninstall_interface_validator = vine.compile(vine.object({
+  repository_url: vine.string().url(),
 }));
