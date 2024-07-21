@@ -1,5 +1,5 @@
 import StationInterface from "#models/station_interface";
-import { ChildProcess, ChildProcessWithoutNullStreams, spawn } from "child_process";
+import { ChildProcess, spawn } from "child_process";
 import Service from "./service.js";
 import { MessageRequestCreator, server_message_validator } from "owvision-environment/interfaces";
 import { Unit } from "owvision-environment/units";
@@ -72,7 +72,7 @@ export class StationInterfaceCommunicator{
                         rej(new Error(`Failed to disconnect from '${station_slug}': ${message.message}!`)); // TODO: error feedback
                     }
                 }else{
-                    rej(new Error(`Failed to disconnect from '${station_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));
+                    rej(new Error(`Failed to disconnect from '${station_slug}': ${error ? error.messages[0].message : `Received unexpected response type (${message.type})!`}`));
                 }
             });
         });
@@ -91,7 +91,7 @@ export class StationInterfaceCommunicator{
                 if(!error && message.type === "record-response"){
                     res(message.data);
                 }else{
-                    rej(new Error(`Failed to create record for '${station_slug}/${sensor_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));
+                    rej(new Error(`Failed to create record for '${station_slug}/${sensor_slug}': ${error ? error.messages[0].message : `Received unexpected response type (${message.type})!`}`));
                 }
             });
         });
@@ -115,7 +115,7 @@ export class StationInterfaceCommunicator{
                         message: message.message,
                     });
                 }else{
-                    rej(new Error(`Failed to execute command '${command}' on station '${station_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));
+                    rej(new Error(`Failed to execute command '${command}' on station '${station_slug}': ${error ? error.messages[0].message : `Received unexpected response type (${message.type})!`}`));
                 }
             });
         });
