@@ -16,6 +16,7 @@ services:
   recorder:
     container_name: owvision-recorder
     image: owvision-recorder
+    privileged: true
     restart: always
     env_file: ./.docker.env
     depends_on:

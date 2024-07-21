@@ -71,7 +71,8 @@
     "owvision-environment": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "simple-units": "^1.0.6",
-    "sleep-await": "^1.0.2"
+    "sleep-await": "^1.0.2",
+    "vantjs": "^2.1.1"
   },
   "hotHook": {
     "boundaries": [

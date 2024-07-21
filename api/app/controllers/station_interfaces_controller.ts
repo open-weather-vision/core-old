@@ -54,11 +54,11 @@ export default class StationInterfacesController {
         }
 
         // Delete folder and zip
-        await rm(app.makePath(`../interfaces/${station_interface.dirname}`), {
+        await rm(`/interfaces/${station_interface.dirname}`, {
             recursive: true,
             force: true
         });
-        await rm(app.makePath(`../interfaces/${station_interface.dirname}.zip`), {
+        await rm(`/interfaces/${station_interface.dirname}.zip`, {
             force: true
         });
 

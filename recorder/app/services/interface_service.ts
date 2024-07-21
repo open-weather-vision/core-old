@@ -48,7 +48,7 @@ export class StationInterfaceCommunicator{
                         this.connected_stations.push(station_slug);
                         res();
                     }else{
-                        rej(new Error(`Failed to connect to '${station_slug}': Unknown reason!`)); // TODO: error feedback
+                        rej(new Error(`Failed to connect to '${station_slug}': ${message.message}!`)); // TODO: error feedback
                     }
                 }else{
                     rej(new Error(`Failed to connect to '${station_slug}': ${error ? `${error.message}: ${error.messages[0].message}`: `Received unexpected response type (${message.type})!`}`));
@@ -69,7 +69,7 @@ export class StationInterfaceCommunicator{
                         this.connected_stations = this.connected_stations.filter(slug => slug != station_slug);
                         res();
                     }else{
-                        rej(new Error(`Failed to disconnect from '${station_slug}': Unknown reason!`)); // TODO: error feedback
+                        rej(new Error(`Failed to disconnect from '${station_slug}': ${message.message}!`)); // TODO: error feedback
                     }
                 }else{
                     rej(new Error(`Failed to disconnect from '${station_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));

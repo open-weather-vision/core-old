@@ -16,6 +16,7 @@ import { ApplicationService } from '@adonisjs/core/types'
 import axios from 'axios'
 import { loadEnvFile } from 'process'
 import path from 'path'
+import { getSerialPortList } from "vantjs/util";
 
 // loadEnvFile(path.resolve(import.meta.dirname + "/../../.env"));
 
