@@ -1,7 +1,7 @@
 import vine from "@vinejs/vine";
 import { Unit, Units } from "../units/units.js";
 
-export default class WeatherStationInterface<T>{
+export class WeatherStationInterface<T>{
     protected config: T;
 
     constructor(config: T){
