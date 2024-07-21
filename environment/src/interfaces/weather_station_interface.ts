@@ -8,12 +8,12 @@ export class WeatherStationInterface<T>{
         this.config = config;
     }
 
-    public async connect(): Promise<boolean>{
-        return true;
+    public async connect(): Promise<void>{
+        
     }
 
-    public async disconnect(): Promise<boolean>{
-        return true;
+    public async disconnect(): Promise<void>{
+
     }
 
     public async record(sensor_slug: string): Promise<Record>{

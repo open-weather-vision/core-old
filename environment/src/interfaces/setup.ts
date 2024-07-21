@@ -58,9 +58,11 @@ export type ResponseMessage = ({
 } | {
     type: "connect-response",
     success: boolean,
+    message?: string
 } | {
     type: "disconnect-response",
     success: boolean
+    message?: string
 })
 
 const server_message_types = vine.group([
@@ -82,10 +84,12 @@ const server_message_types = vine.group([
     vine.group.if((data) => data.type === "connect-response", {
         type: vine.literal("connect-response"),
         success: vine.boolean(),
+        message: vine.string().optional()
     }),
     vine.group.if((data) => data.type === "disconnect-response", {
         type: vine.literal("disconnect-response"),
         success: vine.boolean(),
+        message: vine.string().optional()
     }),
 ])
 
@@ -161,20 +165,22 @@ export class InterfaceManager<T extends typeof WeatherStationInterface> {
             }
 
             if (message.type === "connect-request") {
-                const success = await this.connect(message.station_slug, message.config);
+                const result = await this.connect(message.station_slug, message.config);
                 const response: ResponseMessage = {
                     type: "connect-response",
                     station_slug: message.station_slug,
-                    success,
+                    success: result === true,
+                    message: result !== true ? result.message : undefined,
                     id: message.id,
                 }
                 process.send!(response);
             } else if (message.type === "disconnect-request") {
-                const success = await this.delete(message.station_slug);
+                const result = await this.disconnect(message.station_slug);
                 const response: ResponseMessage = {
                     type: "disconnect-response",
                     station_slug: message.station_slug,
-                    success,
+                    success: result === true,
+                    message: result !== true ? result.message : undefined,
                     id: message.id,
                 }
                 process.send!(response);
@@ -197,15 +203,31 @@ export class InterfaceManager<T extends typeof WeatherStationInterface> {
         });
     }
 
-    private async connect(station_slug: string, config: any) {
+    private async connect(station_slug: string, config: any): Promise<true | Error> {
         this.interfaces[station_slug] = new this.interface_class(config);
-        return await this.interfaces[station_slug].connect();
+        try{
+            await this.interfaces[station_slug].connect();
+            return true;
+        }catch(err: any){
+            if(err instanceof Error){
+                return err;
+            }else{
+                return new Error("Unknown error!");
+            }
+        }
     }
 
-    private async delete(station_slug: string) {
-        const success = await this.interfaces[station_slug]?.disconnect() ?? false;
-        this.interfaces[station_slug] = undefined;
-        return success;
+    private async disconnect(station_slug: string) {
+        try{
+            await this.interfaces[station_slug]?.disconnect();
+            return true;
+        }catch(err: any){
+            if(err instanceof Error){
+                return err;
+            }else{
+                return new Error("Unknown error!");
+            }
+        }
     }
 }
 
