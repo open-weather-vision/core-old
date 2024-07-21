@@ -25,11 +25,15 @@ const ls_command = new Command("list")
             }
             const interfaces = response.data.data;
             for (const station_interface of interfaces) {
-                console.log(`${chalk.blueBright(station_interface.slug)} ❯ ${chalk.grey(station_interface.description)}`)
+                console.log(`${chalk.blueBright(station_interface.slug)} ❯ ${chalk.grey(station_interface?.meta_information?.description)}`)
+            }
+            if(interfaces.length === 0){
+                console.log(chalk.grey(chalk.italic(`There are no interfaces installed currently!`)));
             }
 
         } catch (err) {
             spinner.stop()
+            console.error(err);
             connection_failed_message()
         }
     })

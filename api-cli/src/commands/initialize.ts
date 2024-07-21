@@ -3,7 +3,7 @@ import { Command } from "commander";
 import rainbow from "../util/rainbow.js";
 import sleep from "../util/sleep.js";
 import prompts from "prompts";
-import canceled_message from "../util/canceled_message.js";
+import canceled_message from "../util/cancelled_message.js";
 import ora, { Ora } from "ora";
 import exec from "await-exec";
 import config from "../util/config.js";
@@ -15,7 +15,7 @@ import error_handling from "../util/error_handling.js";
 
 const initialize_command = new Command("initialize").alias("init")
     .description("Intialize owvision - start with this command if you are new")
-    .action(async() => {
+    .action(async () => {
 
         console.log(chalk.green(`◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼◼`));
         console.log(chalk.green(`◼                  Welcome to ${rainbow("owvision")}                 ◼`));
@@ -29,24 +29,25 @@ const initialize_command = new Command("initialize").alias("init")
                 message: `Is owvision running on another host? `,
                 type: 'select',
                 name: 'is_remote_api',
-                choices: [{
-                    title: "yes",
-                    description: `${chalk.italic(`For advanced setups.`)} Your owvision demon is running on another host.`,
-                    value: true,
-                },
-                {
-                    title: "no",
-                    description: `${chalk.italic(`Recommended.`)} Run the owvision demon on the current host.`,
-                    value: false,
-                    selected: true,
-                }]
+                choices: [
+                    {
+                        title: "no",
+                        description: `${chalk.italic(`Recommended.`)} Run the owvision demon on the current host.`,
+                        value: false,
+                        selected: true,
+                    },
+                    {
+                        title: "yes",
+                        description: `${chalk.italic(`For advanced setups.`)} Your owvision demon is running on another host.`,
+                        value: true,
+                    }]
             }
         ]);
-        if(is_remote_api === undefined) return canceled_message();
+        if (is_remote_api === undefined) return canceled_message();
 
         let api_url_plain = "http://localhost:3333";
         let spinner: Ora;
-        if(is_remote_api){
+        if (is_remote_api) {
             const api_host_response = await prompts([
                 {
                     message: `Where is the owvision demon running? `,
@@ -54,33 +55,33 @@ const initialize_command = new Command("initialize").alias("init")
                     name: "api_url_plain",
                     validate: (val) => {
                         const valid = val.match(/^((https?:)(\/\/\/?)([\w]*(?::[\w]*)?@)?([\d\w\.-]+)(?::(\d+))?)?$/) && val.length > 0;
-                        if(valid) return true;
+                        if (valid) return true;
                         else return "Invalid url entered, valid examples: http://localhost:3000, https://192.168.92.1:90"
                     }
                 }
             ]);
-            if(api_host_response.api_url_plain === undefined) return canceled_message();
+            if (api_host_response.api_url_plain === undefined) return canceled_message();
 
             api_url_plain = api_host_response.api_url_plain;
             spinner = ora("Connecting to remote demon...").start()
-            try{
+            try {
                 const response = await axios({
                     url: `${api_url_plain}/v1/test`,
                     method: "get",
                 });
                 spinner.stop()
                 console.log(chalk.green(`✓ Connection test succeeded`));
-            }catch(err){
+            } catch (err) {
                 spinner.stop()
                 return console.log(chalk.redBright(`✘ Connection test failed, is your demon running?`));
             }
-        }else{
+        } else {
             spinner = ora("Starting api...").start()
-            
+
             const cli_dir = path.resolve(import.meta.dirname + "/../../../api").toString();
-            try{
+            try {
                 await exec(`cd "${cli_dir}" && docker compose up -d --quiet-pull`);
-            }catch(err){
+            } catch (err) {
                 spinner.stop();
                 return console.log(chalk.redBright(`✘ Failed to initialize owvision (failed to start owvision demon)`));
             }
@@ -104,15 +105,15 @@ const initialize_command = new Command("initialize").alias("init")
                 message: "please enter your password: "
             }
         ])
-        if(responses.password === undefined) return canceled_message("Cancelled authentification");
+        if (responses.password === undefined) return canceled_message("Cancelled authentification");
 
         const auth_spinner = ora('Logging in...').start();
-        try{
+        try {
             const response = await axios({
                 url: `${config.get("api_url")}/auth/login`,
                 data: {
                     username: responses.username,
-                    password: responses.password,  
+                    password: responses.password,
                 },
                 headers: {
                     "Content-Type": "application/json"
@@ -120,17 +121,17 @@ const initialize_command = new Command("initialize").alias("init")
                 method: "post"
             })
 
-            if(!response.data.success){
+            if (!response.data.success) {
                 auth_spinner.stop();
                 return error_handling(response, {});
             }
 
             config.set("auth_token", response.data.data.auth_token)
             config.save()
-            
+
             auth_spinner.stop();
             console.log(`${chalk.green(`✓ Successfully logged in`)}`)
-        }catch(err){
+        } catch (err) {
             auth_spinner.stop();
             connection_failed_message();
         }

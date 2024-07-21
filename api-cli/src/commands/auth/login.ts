@@ -6,7 +6,7 @@ import axios from "axios";
 import error_handling from "../../util/error_handling.js";
 import connection_failed_message from "../../util/connection_failed_message.js";
 import ora from "ora";
-import canceled_message from "../../util/canceled_message.js";
+import canceled_message from "../../util/cancelled_message.js";
 
 const login_command = new Command("login")
     .description("Login, neccessary before any communication with your weather stations")

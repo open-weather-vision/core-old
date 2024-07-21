@@ -1,10 +1,12 @@
 import vine from "@vinejs/vine"
 import { SensorSummaryType, SensorSummaryTypes, SummaryTypes } from "../types/summary_types.js"
+import { UnitType, UnitTypes } from "../units/units.js"
 
 export type InterfaceMetaInformation = {
     slug: string,
     name: string,
     description: string,
+    entrypoint: string,
     author?: string,
     sensors: SensorInformation[],
 }
@@ -13,6 +15,7 @@ export type SensorInformation = {
     slug: string,
     name: string,
     summary_type: SensorSummaryType,
+    unit_type: UnitType,
     description?: string,
     record_interval: string | {
         configurable?: boolean,
@@ -34,12 +37,14 @@ const interface_meta_information_validator = vine.compile(vine.object({
       allowUnderscores: true,
     })
     .maxLength(50),
+    entrypoint: vine.string().trim(),
     name: vine.string().maxLength(100).minLength(1),
     description: vine.string().maxLength(200),
     author: vine.string().optional(),
     sensors: vine.array(vine.object({
         slug: vine.string(),
         name: vine.string(),
+        unit_type: vine.enum(UnitTypes),
         description: vine.string().optional(),
         summary_type: vine.enum(SensorSummaryTypes),
         record_interval: vine.union([

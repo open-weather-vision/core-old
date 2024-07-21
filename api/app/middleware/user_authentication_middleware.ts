@@ -9,7 +9,10 @@ export type HttpContextWithSession = HttpContext & { session: Session }
 export type AuthMiddlewareOptions = {min_role?: Role};
 
 export default class UserAuthenticationMiddleware {
+  static disabled = false;
+  
   async handle(ctx: HttpContext, next: NextFn, options?: AuthMiddlewareOptions) {
+    if(UserAuthenticationMiddleware.disabled) return await next();
     /**
      * Middleware logic goes here (before the next call)
      */

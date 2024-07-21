@@ -1,5 +1,5 @@
 import StationInterface from "#models/station_interface";
-import { ChildProcessWithoutNullStreams, spawn } from "child_process";
+import { ChildProcess, ChildProcessWithoutNullStreams, spawn } from "child_process";
 import Service from "./service.js";
 import { MessageRequestCreator, server_message_validator } from "owvision-environment/interfaces";
 import { Unit } from "owvision-environment/units";
@@ -9,12 +9,17 @@ import logger from "@adonisjs/core/services/logger";
 
 export class StationInterfaceCommunicator{
     public station_interface: StationInterface;
-    private process?: ChildProcessWithoutNullStreams;
+    private process?: ChildProcess;
     private connected_stations: string[] = [];
 
     constructor(station_interface: StationInterface){
         this.station_interface = station_interface;
-        this.process = spawn(`cd /interfaces/${this.station_interface.slug} && npm run start`);
+        logger.info(`Spawning interface child process...`)
+        this.process = spawn("node", [station_interface.meta_information.entrypoint], {
+            cwd: `/interfaces/${station_interface.slug}`,
+            stdio: ['inherit', 'inherit', 'inherit', 'ipc']
+        });
+        logger.info(`Spawned interface child process!`)
         this.process.on("error", (err) => {
             logger.error(`Error on interface '${station_interface.slug}': ${err.message}`);
         });
@@ -34,6 +39,7 @@ export class StationInterfaceCommunicator{
     }
 
     public connect_to_station(station_slug: string, config: any){
+        logger.info(`Connecting to station '${station_slug}'...`)
         const promise = new Promise<void>((res, rej) => {
             this.process?.once("message", async (raw_message) => {
                 const [error, message] = await server_message_validator.tryValidate(raw_message);
@@ -45,7 +51,7 @@ export class StationInterfaceCommunicator{
                         rej(new Error(`Failed to connect to '${station_slug}': Unknown reason!`)); // TODO: error feedback
                     }
                 }else{
-                    rej(new Error(`Failed to connect to '${station_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));
+                    rej(new Error(`Failed to connect to '${station_slug}': ${error ? `${error.message}: ${error.messages[0].message}`: `Received unexpected response type (${message.type})!`}`));
                 }
             });
         });
@@ -54,6 +60,7 @@ export class StationInterfaceCommunicator{
     }
 
     public disconnect_from_station(station_slug: string){
+        logger.info(`Disconnecting from station '${station_slug}'...`)
         const promise = new Promise<void>((res, rej) => {
             this.process?.once("message", async (raw_message) => {
                 const [error, message] = await server_message_validator.tryValidate(raw_message);
@@ -74,6 +81,7 @@ export class StationInterfaceCommunicator{
     }
 
     public record(station_slug: string, sensor_slug: string){
+        logger.info(`Requesting record '${station_slug}/${sensor_slug}'`)
         const promise = new Promise<{
             unit: Unit | 'none',
             value: number | null
@@ -92,6 +100,7 @@ export class StationInterfaceCommunicator{
     }
 
     public command(station_slug: string, command: string, params: any[]){
+        logger.info(`Sending command '${station_slug}/${command}'`)
         const promise = new Promise<{
             success: boolean,
             data: any,

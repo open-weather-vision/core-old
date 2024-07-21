@@ -5,28 +5,47 @@ import ora from "ora";
 import prompts from "prompts";
 import { TemperatureUnits, PrecipationUnits, PressureUnits, ElevationUnits, WindUnits, SolarRadiationUnits, SoilMoistureUnits, HumidityUnits } from "../../units.js";
 import config from "../../util/config.js";
-import canceled_message from "../../util/canceled_message.js";
+import cancelled_message from "../../util/cancelled_message.js";
 import error_handling from "../../util/error_handling.js";
 import connection_failed_message from "../../util/connection_failed_message.js";
 
 const create_command = new Command("create")
     .description('Create a new weather station')
     .action(async () => {
+
+        let interfaces: any[] = [];
+        let spinner = ora('Loading interfaces...').start();
+        try{
+            const response = await axios({
+                url: `${config.get("api_url")}/interfaces`,
+                method: "get",
+                headers: {
+                    "OWVISION_AUTH_TOKEN": config.get("auth_token")
+                },
+            });
+            spinner.stop()
+            if (!response.data.success) {
+                return error_handling(response, {})
+            }
+            interfaces = response.data.data;
+            if(interfaces.length === 0){
+                return cancelled_message(`There are no interfaces installed. Please install one using ${chalk.italic(`owvision interface install`)}`)
+            }
+        }catch(err){
+            spinner.stop();
+            return connection_failed_message();
+        }
+
         const responses = await prompts([
             {
                 message: `please choose the station's ${chalk.italic("interface")}: `,
                 type: 'select',
-                name: 'station_interface',
-                choices: [{
-                    title: "Davis Vantage Basic",
-                    description: "An interface to the davis vantage vue, pro and pro 2 with limited functionality",
-                    value: "davis-vp-old",
-                },
-                {
-                    title: "Davis Vantage Advanced",
-                    description: "An interface to the davis vantage vue and pro 2 with more functionality, only works with a firmware dated after 02.08.2004",
-                    value: "davis-vp2",
-                }]
+                name: 'interface_slug',
+                choices: interfaces.map((station_interface: any) => ({
+                    title: station_interface.meta_information.name,
+                    description: station_interface.meta_information.description,
+                    value: station_interface.slug
+                }))
             },
             {
                 message: `please enter the station's ${chalk.italic("name")}: `,
@@ -65,7 +84,7 @@ const create_command = new Command("create")
                 }]
             }
         ]);
-        if(responses.remote_recorder === undefined) return canceled_message();
+        if(responses.remote_recorder === undefined) return cancelled_message();
 
         const units = await prompts([
             {
@@ -168,9 +187,9 @@ const create_command = new Command("create")
                 }))
             },
         ]);
-        if(units.humidity === undefined) return canceled_message();
+        if(units.humidity === undefined) return cancelled_message();
 
-        const spinner = ora('Creating new weather station...').start();
+        spinner = ora('Creating new weather station...').start();
         try {
             const response = await axios({
                 url: `${config.get("api_url")}/weather-stations`,
@@ -181,7 +200,7 @@ const create_command = new Command("create")
                 data: {
                     name: responses.name,
                     slug: responses.slug,
-                    interface: responses.station_interface,
+                    interface_slug: responses.interface_slug,
                     interface_config: {},
                     units,
                     state: 'active',

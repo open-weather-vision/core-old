@@ -2,7 +2,7 @@ import chalk from "chalk"
 import { Command } from "commander"
 import config from "../../util/config.js"
 import prompts from "prompts"
-import canceled_message from "../../util/canceled_message.js"
+import canceled_message from "../../util/cancelled_message.js"
 
 const change_password_command = new Command("change-password")
     .description("Change the authenticated user's password")

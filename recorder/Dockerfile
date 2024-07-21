@@ -1,5 +1,7 @@
 FROM "node:20-alpine"
 
+WORKDIR /
+RUN mkdir -p /interfaces
 WORKDIR api
 ADD package.json package.json
 ADD package-lock.json package-lock.json

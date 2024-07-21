@@ -6,7 +6,7 @@ import exec from "await-exec";
 import config from "../util/config.js";
 import axios from "axios";
 import connection_failed_message from "../util/connection_failed_message.js";
-import canceled_message from "../util/canceled_message.js";
+import canceled_message from "../util/cancelled_message.js";
 import path from "path";
 
 

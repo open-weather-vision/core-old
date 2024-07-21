@@ -29,6 +29,9 @@ const ls_command = new Command("list")
                 const selected = config.get("selected_station") === station.slug;
                 console.log(`${station.remote_recorder ? `${chalk.bgMagenta.white(`remote`)} ` : ''}${chalk.blueBright(selected ? chalk.underline(station.name) : station.name)} ${chalk.bold(`(${station.slug})`)} ❯ [${active ? chalk.green(station.state) : chalk.redBright(station.state)}]`)
             }
+            if(stations.length === 0){
+                console.log(chalk.grey(chalk.italic(`There are no weather stations configured currently!`)));
+            }
 
         } catch (err) {
             spinner.stop()

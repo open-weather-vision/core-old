@@ -1,10 +1,11 @@
-import { BaseModel, column, computed, hasMany } from '@adonisjs/lucid/orm'
+import { column, computed, hasMany } from '@adonisjs/lucid/orm'
 import Session from './session.js';
 import type { HasMany } from '@adonisjs/lucid/types/relations';
 import type { Role } from 'owvision-environment/types';
 import { Roles } from 'owvision-environment/types';
+import AppBaseModel from './app_base_model.js';
 
-export default class User extends BaseModel {
+export default class User extends AppBaseModel {
   @column({ isPrimary: true })
   declare id: number
 

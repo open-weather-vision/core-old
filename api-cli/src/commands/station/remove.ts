@@ -5,7 +5,7 @@ import ora from "ora";
 import prompts from "prompts";
 import { TemperatureUnits, PrecipationUnits, PressureUnits, ElevationUnits, WindUnits, SolarRadiationUnits, SoilMoistureUnits, HumidityUnits } from "../../units.js";
 import config from "../../util/config.js";
-import canceled_message from "../../util/canceled_message.js";
+import canceled_message from "../../util/cancelled_message.js";
 import error_handling from "../../util/error_handling.js";
 import connection_failed_message from "../../util/connection_failed_message.js";
 import { station_name_argument } from "../../arguments_options.js";

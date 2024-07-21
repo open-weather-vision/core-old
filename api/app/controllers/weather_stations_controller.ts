@@ -148,6 +148,7 @@ export default class WeatherStationsController {
         interval: record_interval.value,
         interval_unit: record_interval.unit,
         weather_station_id: weather_station.id,
+        unit_type: sensor.unit_type,
         slug: sensor.slug,
       })
     }

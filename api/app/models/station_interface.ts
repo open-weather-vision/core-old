@@ -1,9 +1,10 @@
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import { column, hasMany } from '@adonisjs/lucid/orm'
 import WeatherStation from './weather_station.js';
 import type { HasMany } from '@adonisjs/lucid/types/relations';
 import type { InterfaceMetaInformation } from 'owvision-environment/interfaces';
+import AppBaseModel from './app_base_model.js';
 
-export default class StationInterface extends BaseModel {
+export default class StationInterface extends AppBaseModel {
   @column()
   declare repository_url: string
 
