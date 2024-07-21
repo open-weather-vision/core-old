@@ -1,53 +1,148 @@
 import StationInterface from "#models/station_interface";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import Service from "./service.js";
+import { MessageRequestCreator, server_message_validator } from "owvision-environment/interfaces";
+import { Unit } from "owvision-environment/units";
+import { sleepAwait } from "sleep-await";
+import { Logger } from "@adonisjs/core/logger";
+import logger from "@adonisjs/core/services/logger";
 
 export class StationInterfaceCommunicator{
-    private station_interface: StationInterface;
+    public station_interface: StationInterface;
     private process?: ChildProcessWithoutNullStreams;
+    private connected_stations: string[] = [];
 
     constructor(station_interface: StationInterface){
         this.station_interface = station_interface;
-    }
-
-    private async start_process(){
         this.process = spawn(`cd /interfaces/${this.station_interface.slug} && npm run start`);
-
-        this.process.on("message", (raw_message) => {
-            const message = server_message_validator.
+        this.process.on("error", (err) => {
+            logger.error(`Error on interface '${station_interface.slug}': ${err.message}`);
         });
     }
 
-    private async connect_to_station(station_slug: string, config: any){
-
+    public static async create(station_interface: StationInterface){
+        const communicator = new StationInterfaceCommunicator(station_interface);
+        await sleepAwait(5000);
+        return communicator;
     }
 
-    private async disconnect_from_station(station_slug: string){
-
+    public async terminate(){
+        for(const station_slug of this.connected_stations){
+            await this.disconnect_from_station(station_slug);
+        }
+        return this.process?.kill();
     }
 
-    private async record(station_slug: string, sensor_slug: string){
+    public connect_to_station(station_slug: string, config: any){
+        const promise = new Promise<void>((res, rej) => {
+            this.process?.once("message", async (raw_message) => {
+                const [error, message] = await server_message_validator.tryValidate(raw_message);
+                if(!error && message.type === "connect-response"){
+                    if(message.success){
+                        this.connected_stations.push(station_slug);
+                        res();
+                    }else{
+                        rej(new Error(`Failed to connect to '${station_slug}': Unknown reason!`)); // TODO: error feedback
+                    }
+                }else{
+                    rej(new Error(`Failed to connect to '${station_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));
+                }
+            });
+        });
+        this.process?.send(MessageRequestCreator.ConnectRequest(station_slug, config));
+        return promise;
+    }
 
+    public disconnect_from_station(station_slug: string){
+        const promise = new Promise<void>((res, rej) => {
+            this.process?.once("message", async (raw_message) => {
+                const [error, message] = await server_message_validator.tryValidate(raw_message);
+                if(!error && message.type === "disconnect-response"){
+                    if(message.success){
+                        this.connected_stations = this.connected_stations.filter(slug => slug != station_slug);
+                        res();
+                    }else{
+                        rej(new Error(`Failed to disconnect from '${station_slug}': Unknown reason!`)); // TODO: error feedback
+                    }
+                }else{
+                    rej(new Error(`Failed to disconnect from '${station_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));
+                }
+            });
+        });
+        this.process?.send(MessageRequestCreator.DisconnectRequest(station_slug));
+        return promise;
+    }
+
+    public record(station_slug: string, sensor_slug: string){
+        const promise = new Promise<{
+            unit: Unit | 'none',
+            value: number | null
+        }>((res, rej) => {
+            this.process?.once("message", async (raw_message) => {
+                const [error, message] = await server_message_validator.tryValidate(raw_message);
+                if(!error && message.type === "record-response"){
+                    res(message.data);
+                }else{
+                    rej(new Error(`Failed to create record for '${station_slug}/${sensor_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));
+                }
+            });
+        });
+        this.process?.send(MessageRequestCreator.RecordRequest(station_slug, sensor_slug));
+        return promise;
+    }
+
+    public command(station_slug: string, command: string, params: any[]){
+        const promise = new Promise<{
+            success: boolean,
+            data: any,
+            message: string
+        }>((res, rej) => {
+            this.process?.once("message", async (raw_message) => {
+                const [error, message] = await server_message_validator.tryValidate(raw_message);
+                if(!error && message.type === "command-response"){
+                    res({
+                        success: message.success,
+                        data: message.data,
+                        message: message.message,
+                    });
+                }else{
+                    rej(new Error(`Failed to execute command '${command}' on station '${station_slug}': ${error ? error.messages[0] : `Received unexpected response type (${message.type})!`}`));
+                }
+            });
+        });
+        this.process?.send(MessageRequestCreator.CommandRequest(station_slug, command, params));
+        return promise;
     }
 }
 
 class InterfaceService extends Service {
-    private interfaces : { [Property in string] : StationInterfaceCommunicator }
+    private interfaces : { [Property in string] : StationInterfaceCommunicator } = {}
 
     async ready() {
-        this.logger.info(`Starting interface service`)
+        logger.info(`Starting interface service`)
         const interfaces = await StationInterface.query().exec()
         for (const station_interface of interfaces) {
           try{
             await this.start_interface(station_interface)
           }catch(err){
-            this.logger.error(err.message);
+            logger.error(err.message);
           }
         }
       }
     
     async start_interface(station_interface: StationInterface){
+        logger.info(`Starting station interface '${station_interface.slug}'...`)
+        this.interfaces[station_interface.slug] = await StationInterfaceCommunicator.create(station_interface);
+    }
 
+    get_interface_communicator(interface_slug: string): StationInterfaceCommunicator | undefined{
+        return interface_slug in this.interfaces ? this.interfaces[interface_slug] : undefined;
+    }
+
+    async terminating(): Promise<void> {
+        for(const slug in this.interfaces){
+            await this.interfaces[slug].terminate();
+        }
     }
 }
 

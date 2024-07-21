@@ -1,3 +1,4 @@
+import interface_service from "#services/interface_service"
 import recorder_service from "#services/recorder_service"
 
 
@@ -5,7 +6,7 @@ import recorder_service from "#services/recorder_service"
  * This function is executed after the api has been booted
  */
 export async function ready() {
-  await recorder_service.loggerInit()
+  await interface_service.ready()
   await recorder_service.ready()
 }
 
@@ -14,4 +15,5 @@ export async function ready() {
  */
 export async function terminating() {
   await recorder_service.terminating()
+  await interface_service.terminating()
 }

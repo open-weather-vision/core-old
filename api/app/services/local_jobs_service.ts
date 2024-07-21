@@ -4,7 +4,7 @@ import axios from 'axios';
 import Service from './service.js'
 
 export class LocalJobsService extends Service {
-  disabled: boolean = true;
+  disabled: boolean = false;
 
   async ready() {
     if(this.disabled){

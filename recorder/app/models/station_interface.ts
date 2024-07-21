@@ -10,6 +10,7 @@ import { pipeline } from 'stream';
 import decompress from 'decompress';
 import awaitExec from 'await-exec';
 import logger from '@adonisjs/core/services/logger';
+import interface_service from '#services/interface_service';
 
 export default class StationInterface extends BaseModel {
   @column({ isPrimary: true })
@@ -19,7 +20,7 @@ export default class StationInterface extends BaseModel {
   declare meta_information: InterfaceMetaInformation
 
 
-  static async install_interface_from_api(api_url: string, auth_token: string, interface_slug: string){
+  static async install_and_start_interface_from_api(api_url: string, auth_token: string, interface_slug: string){
     logger.info(`Installing interface '${interface_slug}' from api '${api_url}'...`)
     try{
       const response = await axios({
@@ -55,11 +56,14 @@ export default class StationInterface extends BaseModel {
         meta_information,
         slug: interface_slug,
       })
+
+      // Start interface on service
+      await interface_service.start_interface(installed_interface);
       logger.info(`Installed interface successfully!`);
-      return installed_interface;
+      return true;
     }catch(err){
       logger.error(`Failed to install interface: ` + err.message);
-      return null;
+      return false;
     }
   }
 }

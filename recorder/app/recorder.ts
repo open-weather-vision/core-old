@@ -1,11 +1,14 @@
 import axios from 'axios'
-import { Schedule, schedule } from 'owvision-environment/scheduler'
+import { fromIntervalString, Schedule, schedule } from 'owvision-environment/scheduler'
 import * as fs from 'fs'
 import { Logger } from '@adonisjs/core/logger'
 import { Queue } from '@datastructures-js/queue';
 import RecorderJob from '#models/recorder_job'
 import FailedToStartJobException from '#exceptions/failed_to_start_job_exception'
 import StationInterface from '#models/station_interface';
+import interface_service, { StationInterfaceCommunicator } from '#services/interface_service';
+import { Unit } from 'owvision-environment/units';
+import { DateTime } from 'luxon';
 
 /**
  * The recorder records weather data for each configured sensor of a weather station and sends them to the api.
@@ -23,12 +26,17 @@ export class Recorder {
   private sensor_schedules: { [T in string]: Schedule } = {}
   private logger: Logger
 
-  private queue: Queue<IRecord> = new Queue()
+  private queue: Queue<{
+    unit: Unit | 'none',
+    value: number | null,
+    created_at: DateTime,
+    sensor_slug: string
+  }> = new Queue()
   private state: "running" | "waiting-until-active" | "stopped" = "stopped";
 
-  private auth_token?: string
+  private interface_communicator?: StationInterfaceCommunicator;
 
-  private station_interface?: StationInterface | null
+  private auth_token?: string
 
   private sleep(time_milliseconds: number) {
     return new Promise<void>((resolve) => {
@@ -167,17 +175,18 @@ export class Recorder {
 
       const station = station_response.data.data;
 
-      // Make sure interface is installed properly
-      this.station_interface = await StationInterface.query().where('interface_slug', station.interface_slug).first();
-      if(this.station_interface === null){
-        this.station_interface = await StationInterface.install_interface_from_api(this.job.api_url, this.auth_token!, station.interface_slug);
-        if(this.station_interface === null){
+      // Make sure interface is installed and started properly
+      this.interface_communicator = interface_service.get_interface_communicator(station.interface_slug);
+      if(!this.interface_communicator){
+        const success = await StationInterface.install_and_start_interface_from_api(this.job.api_url, this.auth_token!, station.interface_slug);
+        if(!success){
           throw new Error("Aborting recorder start (interface install failed)...");
+        }else{
+          this.interface_communicator = interface_service.get_interface_communicator(station.interface_slug);
         }
       }
 
-      // TODO: Start interface as child process
-
+      // Get interface config for station
       const config_response = await axios({
         method: 'get',
         url: `${this.job.api_url}/weather-stations/${this.job.station_slug}`,
@@ -191,24 +200,32 @@ export class Recorder {
       }
 
       const config = config_response.data.data;
-      // Interface is installed and config is available
-      // TODO: send connect to station message to interface
+
+      // Connect to weather station
+      await this.interface_communicator!.connect_to_station(this.job.station_slug, config);
     } catch (err) {
       throw new Error(err?.message);
     }
   }
 
   private async create_schedules() {
-    for (const sensor_slug in this.station_interface.sensors) {
-      const sensor_config = this.station_interface.sensors[sensor_slug]
-      this.sensor_schedules[sensor_slug] = schedule(async (time) => {
-        const record_raw = await this.station_interface.record(sensor_slug)
-        const record = { ...record_raw, created_at: time, sensor_slug };
+    if(!this.interface_communicator) return;
+    for (const sensor of this.interface_communicator.station_interface.meta_information.sensors) {
+      let parsed_interval;
+      if(typeof sensor.record_interval === "string"){
+        parsed_interval = fromIntervalString(sensor.record_interval);
+      }else{
+        parsed_interval = fromIntervalString(sensor.record_interval.default);
+      }
+      
+      this.sensor_schedules[sensor.slug] = schedule(async (time) => {
+        const record_raw = await this.interface_communicator!.record(this.job.station_slug, sensor.slug);
+        const record = { ...record_raw, created_at: time, sensor_slug: sensor.slug };
         this.logger.info(
-          `Created record $(${this.job.station_slug}/${sensor_slug}): ${record.value} ${record.unit.toString()} [${record.created_at}]$`
+          `Created record $(${this.job.station_slug}/${sensor.slug}): ${record.value} ${record.unit !== "none" ? record.unit : ''} [${record.created_at}]$`
         )
         this.queue.push(record);
-      }).every(sensor_config.interval_config.configured_interval?.value!, sensor_config.interval_config.configured_interval?.unit!)
+      }).every(parsed_interval)
     }
   }
 

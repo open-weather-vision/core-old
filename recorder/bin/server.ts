@@ -46,13 +46,11 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
     app.listen('SIGTERM', () => app.terminate())
     app.listenIf(app.managedByPm2, 'SIGINT', () => app.terminate())
 
-    // Register hooks
-    for (const hook in hooks) {
-      if (hook in app) {
-        const confirmed_hook = hook as keyof ApplicationService
-        app[confirmed_hook](hooks[hook as keyof typeof hooks])
-      }
-    }
+    app.ready(async () => {
+      const hooks = await import("./hooks.js");
+      hooks.ready();
+      app.terminating(hooks.terminating);
+    });
   })
   .httpServer()
   .start()
