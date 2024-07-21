@@ -4,10 +4,10 @@ import type { HasMany } from '@adonisjs/lucid/types/relations';
 import type { InterfaceMetaInformation } from 'owvision-environment/interfaces';
 
 export default class StationInterface extends BaseModel {
-  @column({ isPrimary: true })
+  @column()
   declare repository_url: string
 
-  @column()
+  @column({ isPrimary: true })
   declare slug: string
 
   @column()
@@ -17,7 +17,7 @@ export default class StationInterface extends BaseModel {
   declare meta_information: InterfaceMetaInformation
 
   @hasMany(() => WeatherStation, {
-    foreignKey: "interface",
+    foreignKey: "interface_slug",
   })
   declare stations: HasMany<typeof WeatherStation>
 

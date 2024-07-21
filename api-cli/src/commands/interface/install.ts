@@ -8,27 +8,25 @@ import connection_failed_message from "../../util/connection_failed_message.js";
 import prompts from "prompts";
 import { createReadStream, ReadStream, existsSync } from "fs";
 import path from "path";
+import vine from "@vinejs/vine";
+
+const url_validator = vine.compile(vine.string().url());
 
 const install_command = new Command("install")
     .description("Install a new interface")
     .action(async () => {
         let file: ReadStream | undefined;
         const responses = await prompts({
-            name: "file_path",
+            name: "repository_url",
             type: "text",
-            message: "Please enter the interfaces full absolute file path: ",
-            validate: (value) => {
-                try{
-                    const validPath = existsSync(value);
-                    if(!validPath) return "Invalid file path entered!";
-                    file = createReadStream(value);
-                }catch(err){
-                    return "Error while creating a read stream to the passed file.";
-                }
-                return true;
+            message: "Please enter the interface's repository url: ",
+            validate: async (value) => {
+                const [error] = await url_validator.tryValidate(value);
+
+                if(error) return error.messages[0];
+                else return true;
             }
         });
-        const slug = path.basename(responses.file_path, '.js');
 
         const spinner = ora('Installing interface...').start();
         try {
@@ -36,8 +34,7 @@ const install_command = new Command("install")
                 url: `${config.get("api_url")}/interfaces`,
                 method: "post",
                 data: {
-                    interface: file,
-                    slug,
+                    repository_url: responses.repository_url,
                 },
                 headers: {
                     "OWVISION_AUTH_TOKEN": config.get("auth_token"),
@@ -49,7 +46,7 @@ const install_command = new Command("install")
             if (!response.data.success) {
                 return error_handling(response, {})
             }
-            console.log(`${chalk.green(`✓ Sucessfully installed interface '${slug}'`)}`);
+            console.log(`${chalk.green(`✓ Sucessfully installed interface ${chalk.italic(response.data.data.name)} (${response.data.data.slug})`)}`);
         } catch (err) {
             spinner.stop()
             connection_failed_message()

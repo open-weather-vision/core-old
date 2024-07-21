@@ -15,7 +15,7 @@ export default class extends BaseSeeder {
 
  async create_station(slug: string, name: string, remote_recorder: boolean){
     const weather_station = await WeatherStation.create({
-      interface_url: 'davis-vp2', // TODO: Fix url
+      interface_slug: 'davis-vp2', // TODO: Fix url
       interface_config: {
         path: 'COM3',
       },

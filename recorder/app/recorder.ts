@@ -1,11 +1,11 @@
 import axios from 'axios'
 import { Schedule, schedule } from 'owvision-environment/scheduler'
-import { IRecord, WeatherStationInterface } from 'owvision-environment/interfaces'
 import * as fs from 'fs'
 import { Logger } from '@adonisjs/core/logger'
 import { Queue } from '@datastructures-js/queue';
 import RecorderJob from '#models/recorder_job'
 import FailedToStartJobException from '#exceptions/failed_to_start_job_exception'
+import StationInterface from '#models/station_interface';
 
 /**
  * The recorder records weather data for each configured sensor of a weather station and sends them to the api.
@@ -20,7 +20,6 @@ import FailedToStartJobException from '#exceptions/failed_to_start_job_exception
 export class Recorder {
   public job: RecorderJob;
 
-  private station_interface!: WeatherStationInterface
   private sensor_schedules: { [T in string]: Schedule } = {}
   private logger: Logger
 
@@ -28,6 +27,8 @@ export class Recorder {
   private state: "running" | "waiting-until-active" | "stopped" = "stopped";
 
   private auth_token?: string
+
+  private station_interface?: StationInterface | null
 
   private sleep(time_milliseconds: number) {
     return new Promise<void>((resolve) => {
@@ -150,16 +151,32 @@ export class Recorder {
     }
   }
 
-  private async load_station_interface_from_api() {
+  private async configure_station_interface() {
     try {
-      const interface_response = await axios({
+      const station_response = await axios({
         method: 'get',
-        url: `${this.job.api_url}/weather-stations/${this.job.station_slug}/interface`,
-        responseType: 'stream',
+        url: `${this.job.api_url}/weather-stations/${this.job.station_slug}`,
         headers: {
           "OWVISION_AUTH_TOKEN": this.auth_token
         }
       })
+
+      if(!station_response.data.success){
+        throw new Error(station_response.data.error?.message)
+      }
+
+      const station = station_response.data.data;
+
+      // Make sure interface is installed properly
+      this.station_interface = await StationInterface.query().where('interface_slug', station.interface_slug).first();
+      if(this.station_interface === null){
+        this.station_interface = await StationInterface.install_interface_from_api(this.job.api_url, this.auth_token!, station.interface_slug);
+        if(this.station_interface === null){
+          throw new Error("Aborting recorder start (interface install failed)...");
+        }
+      }
+
+      // TODO: Start interface as child process
 
       const config_response = await axios({
         method: 'get',
@@ -170,20 +187,12 @@ export class Recorder {
       })
 
       if (!config_response.data.success) {
-
         throw new Error(config_response.data.error?.message)
       }
 
-      const interface_path = `./interfaces/${config_response.data.data.interface}.js`
-      const interface_import_path = `../.${interface_path}`
-
-      interface_response.data.pipe(fs.createWriteStream(interface_path))
-      
-      await this.sleep(2000);
-      const interface_class = (await import(interface_import_path)).default
-      this.station_interface = new interface_class(config_response.data.interface_config)
-
-      await this.station_interface.connect()
+      const config = config_response.data.data;
+      // Interface is installed and config is available
+      // TODO: send connect to station message to interface
     } catch (err) {
       throw new Error(err?.message);
     }
@@ -254,7 +263,7 @@ export class Recorder {
     try {
       const recorder = new Recorder(job, logger)
       await recorder.api_login("recorder", "recorder")
-      await recorder.load_station_interface_from_api()
+      await recorder.configure_station_interface()
       await recorder.create_schedules()
       return recorder
     } catch (err) {

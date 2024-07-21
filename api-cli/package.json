@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@vinejs/vine": "^2.1.0",
     "await-exec": "^0.1.2",
     "axios": "^1.7.2",
     "chalk": "^5.3.0",

@@ -1,18 +1,15 @@
-// import type { HttpContext } from '@adonisjs/core/http'
-
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
 import { initialize_weather_station_validator } from '#validators/weather_stations'
-import { HttpContext } from '@adonisjs/core/http'
+import type { HttpContext } from '@adonisjs/core/http'
 import Sensor from '#models/sensor'
 import summary_creator_service from '../services/summary_creator_service.js'
-import * as fs from 'fs'
 import StationNotFoundException from '#exceptions/station_not_found_exception'
 import logger from '@adonisjs/core/services/logger'
 import local_jobs_service from '#services/local_jobs_service'
-import StationInterface from '#models/station_interface'
 import InterfaceNotFoundException from '#exceptions/interface_not_found_exception'
 import { fromIntervalString } from 'owvision-environment/scheduler'
+import StationInterface from '#models/station_interface'
 
 export default class WeatherStationsController {
   async delete(ctx: HttpContext) {
@@ -78,23 +75,8 @@ export default class WeatherStationsController {
     }
   }
 
-
-  async get_interface(ctx: HttpContext) {
-    const station = await WeatherStation.query().where('slug', ctx.params.slug).first()
-
-    if (station == null) {
-      throw new StationNotFoundException(ctx.params.slug)
-    }
-
-    const interface_name = station?.interface
-
-    const interface_file = fs.createReadStream(`./interfaces/${interface_name}.js`)
-
-    ctx.response.stream(interface_file)
-  }
-
   async get_all() {
-    const data = await WeatherStation.query().select('slug', 'name', 'interface', 'state', 'remote_recorder')
+    const data = await WeatherStation.query().select('slug', 'name', 'interface_slug', 'state', 'remote_recorder')
 
     return {
       success: true,
@@ -124,13 +106,13 @@ export default class WeatherStationsController {
     const data = ctx.request.all()
     const payload = await initialize_weather_station_validator.validate(data)
 
-    const station_interface = await StationInterface.query().where("repository_url", payload.interface_url).first();
+    const station_interface = await StationInterface.query().where('slug', payload.interface_slug).first();
     if(!station_interface){
-      throw new InterfaceNotFoundException(payload.interface_url);
+      throw new InterfaceNotFoundException(payload.interface_slug);
     }
 
     const weather_station = await WeatherStation.create({
-      interface_url: payload.interface_url,
+      interface_slug: payload.interface_slug,
       interface_config: payload.interface_config,
       name: payload.name,
       slug: payload.slug,
@@ -169,16 +151,16 @@ export default class WeatherStationsController {
         slug: sensor.slug,
       })
     }
-
+    
     // Add station to summary creator / recorder service
     summary_creator_service.add_station(weather_station)
 
-
+    // Start local recorder
     if (!payload.remote_recorder) {
       await local_jobs_service.create_and_start_local_job(payload.slug);
     }
 
-    logger.info(`Created new station '${payload.slug}'!`)
+   logger.info(`Created new station '${payload.slug}' with interface '${station_interface.slug}'!`)
     return {
       success: true,
     }

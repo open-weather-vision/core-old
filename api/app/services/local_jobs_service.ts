@@ -4,8 +4,13 @@ import axios from 'axios';
 import Service from './service.js'
 
 export class LocalJobsService extends Service {
+  disabled: boolean = true;
 
   async ready() {
+    if(this.disabled){
+      this.logger.warn("Local jobs service is disabled!");
+      return;
+    }
     const local_stations = await WeatherStation.query().where('remote_recorder', false).exec();
 
     for(const station of local_stations){
@@ -18,6 +23,7 @@ export class LocalJobsService extends Service {
   }
 
   async create_and_start_local_job(slug: string){
+    if(this.disabled) return;
     try{
       const response = await axios({
         url: `http://owvision-local-recorder:3335/v1/jobs/local`,

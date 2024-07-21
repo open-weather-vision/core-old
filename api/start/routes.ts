@@ -31,11 +31,13 @@ router.post('/v1/weather-stations/:slug/up', [WeatherStationsController, 'resume
 router.post('/v1/weather-stations/:slug/down', [WeatherStationsController, 'pause']).use(middleware.userAuthentication({
   min_role: "admin"
 }))
-router.get('/v1/weather-stations/:slug/interface', [WeatherStationsController, 'get_interface']).use(middleware.userAuthentication({
-  min_role: "recorder",
-}))
+
+// INTERFACES
 router.get('/v1/interfaces', [StationInterfacesController, 'get_all_interfaces']).use(middleware.userAuthentication({
   min_role: "admin",
+}))
+router.get('/v1/interfaces/:slug', [StationInterfacesController, 'get_interface_zip']).use(middleware.userAuthentication({
+  min_role: "recorder",
 }))
 router.post('/v1/interfaces', [StationInterfacesController, 'install_interface']).use(middleware.userAuthentication({
   min_role: "admin",

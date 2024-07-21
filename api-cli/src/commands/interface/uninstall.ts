@@ -8,7 +8,7 @@ import connection_failed_message from "../../util/connection_failed_message.js";
 
 const uninstall_command = new Command("uninstall")
     .description("Uninstall an interface")
-    .addArgument(new Argument("<interface_repository_url>", "The interface to delete"))
+    .addArgument(new Argument("<slug>", "The interface's slug"))
     .action(async (interface_slug) => {
         const spinner = ora('Uninstalling interface...').start();
         try {

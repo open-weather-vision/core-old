@@ -21,10 +21,10 @@ export default class WeatherStation extends AppBaseModel {
   declare name: string
 
   @column()
-  declare interface_url: string
+  declare interface_slug: string
 
   @belongsTo(() => StationInterface, {
-    foreignKey: 'interface_url'
+    foreignKey: 'interface_slug'
   })
   declare interface: BelongsTo<typeof StationInterface>
 

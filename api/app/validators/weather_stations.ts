@@ -37,7 +37,7 @@ export const initialize_weather_station_validator = vine.compile(
         soil_moisture: vine.enum(SoilMoistureUnits),
         humidity: vine.enum(HumidityUnits),
       }),
-    interface_url: vine.string().trim().url(),
+    interface_slug: vine.string(),
     interface_config: vine.object({
       
     }).allowUnknownProperties(),
@@ -50,6 +50,6 @@ export const install_interface_validator = vine.compile(vine.object({
   repository_url: vine.string().url(),
 }));
 
-export const uninstall_interface_validator = vine.compile(vine.object({
+export const interface_slug_validator = vine.compile(vine.object({
   slug: vine.string(),
 }));
