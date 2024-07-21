@@ -1,5 +1,5 @@
 import vine from "@vinejs/vine";
-import WeatherStationInterface from "./weather_station_interface.js";
+import {WeatherStationInterface} from "./weather_station_interface.js";
 import { Units } from "../units/index.js";
 import { randomUUID } from "crypto";
 
