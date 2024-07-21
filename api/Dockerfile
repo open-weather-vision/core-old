@@ -9,4 +9,6 @@ RUN npm install
 ADD ./ ./
 RUN npm run build
 EXPOSE 3333
+RUN chmod 777 ./entrypoint.sh
+RUN chmod 777 ./install_interface.sh
 ENTRYPOINT ./entrypoint.sh
