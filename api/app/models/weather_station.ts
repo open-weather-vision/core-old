@@ -5,6 +5,7 @@ import Sensor from './sensor.js'
 import Summary from './summary.js'
 import AppBaseModel from './app_base_model.js'
 import StationInterface from './station_interface.js'
+import { Config } from 'owvision-environment/interfaces'
 
 export type WeatherStationState = 'active' | 'inactive'
 
@@ -29,7 +30,7 @@ export default class WeatherStation extends AppBaseModel {
   declare interface: BelongsTo<typeof StationInterface>
 
   @column()
-  declare interface_config: object
+  declare interface_config: Config
 
   @column()
   declare remote_recorder: boolean

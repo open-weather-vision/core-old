@@ -29,6 +29,7 @@ export type SensorInformation = {
   
 const interval = vine.string();
 
+
 const interface_meta_information_validator = vine.compile(vine.object({
     slug: vine
     .string()
@@ -43,7 +44,7 @@ const interface_meta_information_validator = vine.compile(vine.object({
     name: vine.string().maxLength(100).minLength(1),
     description: vine.string().maxLength(200),
     author: vine.string().optional(),
-    config: vine.array(argument_vine_object).optional(),
+    config: vine.record(argument_vine_object).optional(),
     sensors: vine.array(vine.object({
         slug: vine.string(),
         name: vine.string(),

@@ -10,6 +10,7 @@ import {
   WindUnits,
 } from 'owvision-environment/units'
 import { WeatherStationStates } from '#models/weather_station'
+import { argument_vine_object } from 'owvision-environment/interfaces';
 
 export const initialize_weather_station_validator = vine.compile(
   vine.object({
@@ -38,9 +39,7 @@ export const initialize_weather_station_validator = vine.compile(
         humidity: vine.enum(HumidityUnits),
       }),
     interface_slug: vine.string(),
-    interface_config: vine.object({
-      
-    }).allowUnknownProperties(),
+    interface_config: vine.record(argument_vine_object).optional(),
     remote_recorder: vine.boolean(),
     state: vine.enum(WeatherStationStates).optional()
   })

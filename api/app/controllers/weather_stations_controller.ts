@@ -111,6 +111,19 @@ export default class WeatherStationsController {
       throw new InterfaceNotFoundException(payload.interface_slug);
     }
 
+    // Validate config
+    if(payload.interface_config){
+      for(const key in station_interface.meta_information.config){
+        const argument_default = station_interface.meta_information.config[key];
+        if(!(key in payload.interface_config)){
+          payload.interface_config[key] = argument_default as any;
+        } 
+      }
+    }else{
+      payload.interface_config = station_interface.meta_information.config as any;
+    }
+    
+
     const weather_station = await WeatherStation.create({
       interface_slug: payload.interface_slug,
       interface_config: payload.interface_config,

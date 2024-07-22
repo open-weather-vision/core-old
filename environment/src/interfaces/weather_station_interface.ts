@@ -51,6 +51,31 @@ export type Config = {
     [Property in string]: Argument<any> 
 }
 
+export function validate_config(config_schema: Config, config: Config){
+    for(const key in config_schema){
+        const schema_argument = config_schema[key];
+        if(!(key in config)){
+            config[key] = schema_argument;
+        }else{
+            const configured_argument = config[key];
+            if(configured_argument.description !== schema_argument.description) throw new Error(`Description of argument '${key}' has been damaged!`);
+            if(configured_argument.message !== schema_argument.message)throw new Error(`Message of argument '${key}' has been damaged!`);
+            if(configured_argument.name !== schema_argument.name) throw new Error(`Name of argument '${key}' has been damaged!`);
+            if(configured_argument.type !== schema_argument.type) throw new Error(`Type of argument '${key}' has been damaged!`);
+            if(schema_argument.type === "select" && !schema_argument.choices?.includes(configured_argument.value)){
+                throw new Error(`Argument '${key}': Invalid value '${configured_argument.value}' selected!`);
+            }
+            else if((schema_argument.type === "text" || schema_argument.type === "password") && typeof configured_argument.value !== "string"){
+                throw new Error(`Argument '${key}': Value must be of type string!`);
+            }else if((schema_argument.type === "number") && typeof configured_argument.value !== "number"){
+                throw new Error(`Argument '${key}': Value must be of type number!`);
+            }else if((schema_argument.type === "toggle") && typeof configured_argument.value !== "boolean"){
+                throw new Error(`Argument '${key}': Value must be of type boolean!`);
+            }
+        }
+    }
+}
+
 export class WeatherStationInterface<T extends Config>{
     protected config: T;
 
