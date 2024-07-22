@@ -142,8 +142,10 @@ export class Recorder {
       if (!response.data.success) {
         if (response.data.error?.code === 'E_VALIDATION_ERROR') {
           this.logger.error(
-            `Validation error: '${response?.data?.error?.message}'. Trying to send again later...`
+            `Validation error: '${response?.data?.error?.message}'. Deleting record: `
           )
+          this.logger.error(record)
+          this.queue.dequeue()
         } else if (response.data.error?.code === 'E_PLEASE_STOP') {
           this.logger.warn('Received stop signal... waiting until station is active again!')
           this.state = 'waiting-until-active'

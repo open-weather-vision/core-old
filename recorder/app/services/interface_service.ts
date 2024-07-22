@@ -2,8 +2,14 @@ import StationInterface from '#models/station_interface'
 import { ChildProcess, spawn } from 'child_process'
 import Service from './service.js'
 import {
+  CommandResponseMessage,
+  ConnectResponseMessage,
+  DisconnectResponseMessage,
   InterfaceConfig,
   MessageRequestCreator,
+  RecordResponseMessage,
+  RequestMessage,
+  ResponseMessage,
   server_message_validator,
 } from 'owvision-environment/interfaces'
 import { Unit } from 'owvision-environment/units'
@@ -35,6 +41,26 @@ export class StationInterfaceCommunicator {
     return communicator
   }
 
+  private send_request_and_wait_for_response(request: RequestMessage): Promise<ResponseMessage> {
+    const promise = new Promise<ResponseMessage>((res, rej) => {
+      const on_message = async (raw_message: any) => {
+        const [error, message] = await server_message_validator.tryValidate(raw_message)
+        if (message && message.id === request.id) {
+          this.process?.removeListener('message', on_message)
+          res(message)
+        } else if (error && raw_message.id === request.id) {
+          this.process?.removeListener('message', on_message)
+          rej(
+            new Error(`Validation error (request-id: ${request.id}): ${error.messages[0].message}`)
+          )
+        }
+      }
+      this.process?.on('message', on_message)
+    })
+    this.process?.send(request)
+    return promise
+  }
+
   public async terminate() {
     for (const station_slug of this.connected_stations) {
       await this.disconnect_from_station(station_slug)
@@ -42,105 +68,46 @@ export class StationInterfaceCommunicator {
     return this.process?.kill()
   }
 
-  public connect_to_station(station_slug: string, config: InterfaceConfig) {
+  public async connect_to_station(station_slug: string, config: InterfaceConfig) {
     logger.info(`Connecting to station '${station_slug}'...`)
-    const promise = new Promise<void>((res, rej) => {
-      this.process?.once('message', async (raw_message) => {
-        const [error, message] = await server_message_validator.tryValidate(raw_message)
-        if (!error && message.type === 'connect-response') {
-          if (message.success) {
-            this.connected_stations.push(station_slug)
-            res()
-          } else {
-            rej(new Error(`Failed to connect to '${station_slug}': ${message.message}!`)) // TODO: error feedback
-          }
-        } else {
-          rej(
-            new Error(
-              `Failed to connect to '${station_slug}': ${error ? `${error.message}: ${error.messages[0].message}` : `Received unexpected response type (${message.type})!`}`
-            )
-          )
-        }
-      })
-    })
-    this.process?.send(MessageRequestCreator.ConnectRequest(station_slug, config))
-    return promise
+    const response = (await this.send_request_and_wait_for_response(
+      MessageRequestCreator.ConnectRequest(station_slug, config)
+    )) as ConnectResponseMessage
+
+    if (!response.success) {
+      throw new Error(`Failed to connect to station '${station_slug}': ${response.message}`)
+    }
   }
 
-  public disconnect_from_station(station_slug: string) {
+  public async disconnect_from_station(station_slug: string) {
     logger.info(`Disconnecting from station '${station_slug}'...`)
-    const promise = new Promise<void>((res, rej) => {
-      this.process?.once('message', async (raw_message) => {
-        const [error, message] = await server_message_validator.tryValidate(raw_message)
-        if (!error && message.type === 'disconnect-response') {
-          if (message.success) {
-            this.connected_stations = this.connected_stations.filter((slug) => slug != station_slug)
-            res()
-          } else {
-            rej(new Error(`Failed to disconnect from '${station_slug}': ${message.message}!`)) // TODO: error feedback
-          }
-        } else {
-          rej(
-            new Error(
-              `Failed to disconnect from '${station_slug}': ${error ? error.messages[0].message : `Received unexpected response type (${message.type})!`}`
-            )
-          )
-        }
-      })
-    })
-    this.process?.send(MessageRequestCreator.DisconnectRequest(station_slug))
-    return promise
+    const response = (await this.send_request_and_wait_for_response(
+      MessageRequestCreator.DisconnectRequest(station_slug)
+    )) as DisconnectResponseMessage
+
+    if (!response.success) {
+      throw new Error(`Failed to disconnect from station '${station_slug}': ${response.message}`)
+    }
   }
 
-  public record(station_slug: string, sensor_slug: string) {
+  public async record(station_slug: string, sensor_slug: string) {
     logger.info(`Requesting record '${station_slug}/${sensor_slug}'`)
-    const promise = new Promise<{
-      unit: Unit | 'none'
-      value: number | null
-    }>((res, rej) => {
-      this.process?.once('message', async (raw_message) => {
-        const [error, message] = await server_message_validator.tryValidate(raw_message)
-        if (!error && message.type === 'record-response') {
-          res(message.data)
-        } else {
-          rej(
-            new Error(
-              `Failed to create record for '${station_slug}/${sensor_slug}': ${error ? error.messages[0].message : `Received unexpected response type (${message.type})!`}`
-            )
-          )
-        }
-      })
-    })
-    this.process?.send(MessageRequestCreator.RecordRequest(station_slug, sensor_slug))
-    return promise
+    const response = (await this.send_request_and_wait_for_response(
+      MessageRequestCreator.RecordRequest(station_slug, sensor_slug)
+    )) as RecordResponseMessage
+    return response.data
   }
 
-  public command(station_slug: string, command: string, params: any[]) {
+  public async command(station_slug: string, command: string, params: any[]) {
     logger.info(`Sending command '${station_slug}/${command}'`)
-    const promise = new Promise<{
-      success: boolean
-      data: any
-      message: string
-    }>((res, rej) => {
-      this.process?.once('message', async (raw_message) => {
-        const [error, message] = await server_message_validator.tryValidate(raw_message)
-        if (!error && message.type === 'command-response') {
-          res({
-            success: message.success,
-            data: message.data,
-            message: message.message,
-          })
-        } else {
-          rej(
-            new Error(
-              `Failed to execute command '${command}' on station '${station_slug}': ${error ? error.messages[0].message : `Received unexpected response type (${message.type})!`}`
-            )
-          )
-        }
-      })
-    })
-    this.process?.send(MessageRequestCreator.CommandRequest(station_slug, command, params))
-    return promise
+    const response = (await this.send_request_and_wait_for_response(
+      MessageRequestCreator.CommandRequest(station_slug, command, params)
+    )) as CommandResponseMessage
+    return {
+      success: response.success,
+      message: response.message,
+      data: response.data,
+    }
   }
 }
 
