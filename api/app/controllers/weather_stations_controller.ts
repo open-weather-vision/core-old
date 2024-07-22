@@ -72,13 +72,10 @@ export default class WeatherStationsController {
   }
 
   async get_all() {
-    const data = await WeatherStation.query().select(
-      'slug',
-      'name',
-      'interface_slug',
-      'state',
-      'remote_recorder'
-    )
+    const data = await WeatherStation.query()
+      .select('slug', 'name', 'interface_slug', 'state', 'remote_recorder')
+      .orderBy('name')
+      .exec()
 
     return {
       success: true,

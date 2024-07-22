@@ -9,58 +9,67 @@ import { password } from "promptly";
 import ora from "ora";
 
 const create_command = new Command("create")
-    .description('create a new recorder job')
-    .action(async() => {
+    .description("create a new recorder job")
+    .action(async () => {
         const responses = await prompts([
             {
-                name: 'station_slug',
+                name: "station_slug",
                 message: "What's the station's name? ",
-                type: 'text',
+                type: "text",
             },
             {
-                name: 'api_url',
-                message: 'Where is the api running? ',
-                type: 'text',
+                name: "api_url",
+                message: "Where is the owvision demon running? ",
+                type: "text",
                 validate: (val) => {
-                    const valid = val.match(/^((https?:)(\/\/\/?)([\w]*(?::[\w]*)?@)?([\d\w\.-]+)(?::(\d+))?)?$/) && val.length > 0;
-                    if(valid) return true;
-                    else return "Invalid url entered, valid examples: http://localhost:3000, https://192.168.92.1:90"
-                }
+                    const valid =
+                        val.match(
+                            /^((https?:)(\/\/\/?)([\w]*(?::[\w]*)?@)?([\d\w\.-]+)(?::(\d+))?)?$/
+                        ) && val.length > 0;
+                    if (valid) return true;
+                    else
+                        return "Invalid url entered, valid examples: http://localhost:3000, https://192.168.92.1:90";
+                },
             },
             {
-                name: 'username',
+                name: "username",
                 message: "What's the recorder's username? ",
-                type: 'text',
+                type: "text",
             },
             {
-                name: 'password',
+                name: "password",
                 message: "What's the recorder's password? ",
-                type: 'password',
-            }
+                type: "password",
+            },
         ]);
-        if(responses.password === undefined) return canceled_message();
+        if (responses.password === undefined) return canceled_message();
 
-        const spinner = ora("Creating recorder job...").start()
-        try{
-            responses.api_url += "/v1"
-            
+        const spinner = ora("Creating recorder job...").start();
+        try {
+            responses.api_url += "/v1";
+
             const response = await axios({
                 url: `http://localhost:3334/v1/jobs`,
                 method: "post",
-                data: responses
-            })
-            spinner.stop()
+                data: responses,
+            });
+            spinner.stop();
 
-            if(!response.data.success){
-                return error_handling(response, { station_slug: responses.station_slug })
+            if (!response.data.success) {
+                return error_handling(response, {
+                    station_slug: responses.station_slug,
+                });
             }
 
-            console.log(`${chalk.green(`✓ Successfully created job for station '${responses.station_slug}'`)}`)
-        }catch(err){
-            spinner.stop()
+            console.log(
+                `${chalk.green(
+                    `✓ Successfully created job for station '${responses.station_slug}'`
+                )}`
+            );
+        } catch (err) {
+            spinner.stop();
             return connection_failed_message();
         }
-    })
-
+    });
 
 export default create_command;

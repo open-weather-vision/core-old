@@ -6,7 +6,7 @@ import SummaryRecord from '#models/summary_record'
 import WeatherStation from '#models/weather_station'
 import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
-import { TimeUnit } from "owvision-environment/scheduler"
+import { TimeUnit } from 'owvision-environment/scheduler'
 import {
   get_latest_of_multiple_sensors_query_params_validator,
   get_latest_of_multiple_sensors_route_params_validator,
@@ -23,8 +23,12 @@ import SensorNotFoundException from '#exceptions/sensor_not_found_exception'
 
 export default class SummariesController {
   async get_one_of_multiple_sensors(ctx: HttpContext) {
-    const params = await get_one_of_multiple_sensors_route_params_validator.validate(ctx.request.params())
-    const query = await get_one_of_multiple_sensors_query_params_validator.validate(ctx.request.qs())
+    const params = await get_one_of_multiple_sensors_route_params_validator.validate(
+      ctx.request.params()
+    )
+    const query = await get_one_of_multiple_sensors_query_params_validator.validate(
+      ctx.request.qs()
+    )
 
     const weather_station = await WeatherStation.query()
       .select('id')
@@ -73,30 +77,30 @@ export default class SummariesController {
     const records = await SummaryRecord.query()
       .where('summary_id', summary.id)
       .preload('sensor')
+      .orderBy('sensor_id')
       .exec()
 
     for (const record of records) {
-      const unit_type = record.sensor.unit_type;
-      if (unit_type !== "none" && unit_type !== "LWI" && unit_type !== "UV") {
-        const target_unit = query[`${unit_type}_unit`];
-        const record_unit = record.unit;
+      const unit_type = record.sensor.unit_type
+      if (unit_type !== 'none' && unit_type !== 'LWI' && unit_type !== 'UV') {
+        const target_unit = query[`${unit_type}_unit`]
+        const record_unit = record.unit
 
-        if (target_unit && record_unit !== "none") {
-          record.convert_to(target_unit);
+        if (target_unit && record_unit !== 'none') {
+          record.convert_to(target_unit)
         }
-
       }
     }
 
     return {
       success: true,
       data: {
-        records: records.map(record => ({
+        records: records.map((record) => ({
           ...record.data,
           sensor_slug: record.sensor.slug,
           sensor_name: record.sensor.name,
           summary_type: record.sensor.summary_type,
-          unit: record.unit
+          unit: record.unit,
         })),
         created_at: summary.created_at,
       },
@@ -104,8 +108,12 @@ export default class SummariesController {
   }
 
   async get_latest_of_multiple_sensors(ctx: HttpContext) {
-    const params = await get_latest_of_multiple_sensors_route_params_validator.validate(ctx.request.params())
-    const query = await get_latest_of_multiple_sensors_query_params_validator.validate(ctx.request.qs())
+    const params = await get_latest_of_multiple_sensors_route_params_validator.validate(
+      ctx.request.params()
+    )
+    const query = await get_latest_of_multiple_sensors_query_params_validator.validate(
+      ctx.request.qs()
+    )
 
     const weather_station = await WeatherStation.query()
       .select('id')
@@ -130,16 +138,17 @@ export default class SummariesController {
     const records = await SummaryRecord.query()
       .where('summary_id', summary.id)
       .preload('sensor')
+      .orderBy('sensor_id')
       .exec()
 
     for (const record of records) {
-      const unit_type = record.sensor.unit_type;
-      if (unit_type !== "none" && unit_type !== "LWI" && unit_type !== "UV") {
-        const target_unit = query[`${unit_type}_unit`];
-        const record_unit = record.unit;
+      const unit_type = record.sensor.unit_type
+      if (unit_type !== 'none' && unit_type !== 'LWI' && unit_type !== 'UV') {
+        const target_unit = query[`${unit_type}_unit`]
+        const record_unit = record.unit
 
-        if (target_unit && record_unit !== "none") {
-          record.convert_to(target_unit);
+        if (target_unit && record_unit !== 'none') {
+          record.convert_to(target_unit)
         }
       }
     }
@@ -147,7 +156,7 @@ export default class SummariesController {
     return {
       success: true,
       data: {
-        records: records.map(record => ({
+        records: records.map((record) => ({
           ...record.data,
           sensor_slug: record.sensor.slug,
           sensor_name: record.sensor.name,
@@ -178,7 +187,7 @@ export default class SummariesController {
       .first()
 
     if (!sensor) {
-      throw new SensorNotFoundException(params.sensor_slug);
+      throw new SensorNotFoundException(params.sensor_slug)
     }
 
     let type: TimeUnit
@@ -223,7 +232,7 @@ export default class SummariesController {
 
     if (!record) {
       return {
-        success: false
+        success: false,
       }
     }
 
@@ -262,7 +271,7 @@ export default class SummariesController {
       .first()
 
     if (!sensor) {
-      throw new SensorNotFoundException(params.sensor_slug);
+      throw new SensorNotFoundException(params.sensor_slug)
     }
 
     const summary = await Summary.query()
@@ -277,15 +286,13 @@ export default class SummariesController {
       .where('summary_id', summary.id)
       .first()
 
-
     if (!record) {
       return {
-        success: false
+        success: false,
       }
     }
 
     if (query.unit) record.convert_to(query.unit)
-
 
     return {
       success: true,

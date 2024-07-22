@@ -24,7 +24,7 @@ const clear_command = new Command("reset")
         if (response.confirm === undefined) return canceled_message();
 
         if (response.confirm) {
-            const spinner = ora("Stopping the api...").start();
+            const spinner = ora("Stopping the owvision demon...").start();
             if (!config.get("remote_station")) {
                 try {
                     const cli_dir = path

@@ -38,9 +38,28 @@ export default class Record extends AppBaseModel {
       .andWhere('created_at', '<', time.endOf(interval).toString())
   }
 
+  static async create_with_target_unit(
+    raw_record: {
+      sensor_id: number
+      value: number | null
+      meta_information?: MetaInformation
+      unit: Unit | 'none'
+      created_at: DateTime
+    },
+    target_unit: Unit | 'none'
+  ) {
+    if (target_unit === 'none' && raw_record.unit !== 'none')
+      throw new Exception(`Invalid unit '${raw_record.unit}': Expected 'none'!`, { status: 400 })
+    if (target_unit !== 'none' && raw_record.unit !== 'none' && target_unit !== raw_record.unit) {
+      raw_record.value = convert(raw_record.value, raw_record.unit, target_unit)
+      raw_record.unit = target_unit
+    }
+    return await this.create(raw_record)
+  }
+
   convert_to(unit: Unit) {
     if (this.unit === 'none') {
-      throw new Exception('Cannot change unit of an record not having any unit!')
+      throw new Exception('Cannot change unit of an record not having any unit!', { status: 400 })
     }
 
     this.value = convert(this.value, this.unit, unit)

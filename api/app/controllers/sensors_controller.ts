@@ -122,30 +122,22 @@ export default class SensorsController {
       throw new SensorNotFoundException(ctx.params.sensor_slug)
     }
 
-    const record = await Record.create({
+    const raw_record = {
       created_at: payload.created_at,
       sensor_id: sensor.id,
       value: payload.value,
       unit: payload.unit,
-    })
+    }
 
     const target_unit = weather_station.unit_config.of_type(sensor.unit_type)
     if (
-      (record.unit === 'none' && target_unit !== 'none' && record.value !== null) ||
-      (target_unit === 'none' && record.unit !== 'none')
+      (raw_record.unit === 'none' && target_unit !== 'none' && raw_record.value !== null) ||
+      (target_unit === 'none' && raw_record.unit !== 'none')
     ) {
-      await record.delete()
-      throw new errors.E_VALIDATION_ERROR([`Invalid unit '${record.unit}'!`])
+      throw new errors.E_VALIDATION_ERROR([`Invalid unit '${raw_record.unit}'!`])
     }
 
-    if (
-      weather_station.unit_config.of_type(sensor.unit_type) !== record.unit &&
-      target_unit !== 'none' &&
-      record.unit !== 'none'
-    ) {
-      record.convert_to(target_unit)
-      await record.save()
-    }
+    const record = await Record.create_with_target_unit(raw_record, target_unit)
 
     const result = await summary_creator_service.process_record(ctx.params.slug, record)
 
