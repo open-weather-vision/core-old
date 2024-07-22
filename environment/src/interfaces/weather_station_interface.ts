@@ -47,11 +47,11 @@ export type Argument<T> = {
     type: T extends number ? "number" : T extends string ? "text" | "password" : never
 })
 
-export type Config = {
+export type InterfaceConfig = {
     [Property in string]: Argument<any> 
 }
 
-export function validate_config(config_schema: Config, config: Config){
+export function validate_config(config_schema: InterfaceConfig, config: InterfaceConfig){
     for(const key in config_schema){
         const schema_argument = config_schema[key];
         if(!(key in config)){
@@ -62,7 +62,7 @@ export function validate_config(config_schema: Config, config: Config){
             if(configured_argument.message !== schema_argument.message)throw new Error(`Message of argument '${key}' has been damaged!`);
             if(configured_argument.name !== schema_argument.name) throw new Error(`Name of argument '${key}' has been damaged!`);
             if(configured_argument.type !== schema_argument.type) throw new Error(`Type of argument '${key}' has been damaged!`);
-            if(schema_argument.type === "select" && !schema_argument.choices?.includes(configured_argument.value)){
+            if(schema_argument.type === "select" && !schema_argument.choices?.map(choice => choice.value).includes(configured_argument.value)){
                 throw new Error(`Argument '${key}': Invalid value '${configured_argument.value}' selected!`);
             }
             else if((schema_argument.type === "text" || schema_argument.type === "password") && typeof configured_argument.value !== "string"){
@@ -76,7 +76,7 @@ export function validate_config(config_schema: Config, config: Config){
     }
 }
 
-export class WeatherStationInterface<T extends Config>{
+export class WeatherStationInterface<T extends InterfaceConfig>{
     protected config: T;
 
     constructor(config: T){

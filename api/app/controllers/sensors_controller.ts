@@ -20,7 +20,7 @@ export default class SensorsController {
       .first()
 
     if (!weather_station) {
-      throw new StationNotFoundException(ctx.params.slug);
+      throw new StationNotFoundException(ctx.params.slug)
     }
 
     return {
@@ -36,7 +36,7 @@ export default class SensorsController {
       .first()
 
     if (!weather_station) {
-      throw new StationNotFoundException(ctx.params.slug);
+      throw new StationNotFoundException(ctx.params.slug)
     }
 
     const sensor = await Sensor.query()
@@ -64,7 +64,7 @@ export default class SensorsController {
       .first()
 
     if (!weather_station) {
-      throw new StationNotFoundException(ctx.params.slug);
+      throw new StationNotFoundException(ctx.params.slug)
     }
 
     const sensor = await Sensor.query()
@@ -82,7 +82,7 @@ export default class SensorsController {
       .orderBy('created_at', 'desc')
       .first()
 
-    if (query_params.unit) record?.convert_to(query_params.unit)
+    if (query_params.unit && record?.unit !== 'none') record?.convert_to(query_params.unit)
 
     return {
       success: true,
@@ -105,11 +105,11 @@ export default class SensorsController {
       .first()
 
     if (!weather_station) {
-      throw new StationNotFoundException(ctx.params.slug);
+      throw new StationNotFoundException(ctx.params.slug)
     }
 
-    if(weather_station.state === "inactive"){
-      throw new PleaseStopException();
+    if (weather_station.state === 'inactive') {
+      throw new PleaseStopException()
     }
 
     const sensor = await Sensor.query()
@@ -129,18 +129,23 @@ export default class SensorsController {
       unit: payload.unit,
     })
 
-
-    const target_unit = weather_station.unit_config.of_type(sensor.unit_type);
-    if (record.unit === 'none' && target_unit !== 'none' && record.value !== null || target_unit === 'none' && record.unit !== 'none') {
-      await record.delete();
-      throw new errors.E_VALIDATION_ERROR([`Invalid unit '${record.unit}'!`]);
+    const target_unit = weather_station.unit_config.of_type(sensor.unit_type)
+    if (
+      (record.unit === 'none' && target_unit !== 'none' && record.value !== null) ||
+      (target_unit === 'none' && record.unit !== 'none')
+    ) {
+      await record.delete()
+      throw new errors.E_VALIDATION_ERROR([`Invalid unit '${record.unit}'!`])
     }
 
-    if (weather_station.unit_config.of_type(sensor.unit_type) !== record.unit && target_unit !== 'none') {
-      record.convert_to(target_unit);
-      await record.save();
+    if (
+      weather_station.unit_config.of_type(sensor.unit_type) !== record.unit &&
+      target_unit !== 'none' &&
+      record.unit !== 'none'
+    ) {
+      record.convert_to(target_unit)
+      await record.save()
     }
-
 
     const result = await summary_creator_service.process_record(ctx.params.slug, record)
 

@@ -26,6 +26,7 @@
     "jsonfile": "^6.1.0",
     "luxon": "^3.4.4",
     "ora": "^8.0.1",
+    "owvision-environment": "^1.2.19",
     "prompts": "^2.4.2",
     "simple-units": "^1.0.6"
   },

@@ -16,6 +16,8 @@ export default function(response: AxiosResponse, params: {
         console.log(chalk.redBright(`✘ Validation error: ${response.data.error.message}`))
     }else if (response.data.error.code === "E_LOGIN") {
         console.log(chalk.redBright(`✘ Failed to login: invalid username and password combination!`))
+    }else if(response.data.error.code === "E_CONFIG_VALIDATION"){
+        console.log(chalk.redBright(`✘ ${response.data.error.message}`))
     }else if (response.data.error.code === "E_STATION_NOT_FOUND") {
         if(params.station_slug){
             console.log(chalk.redBright(`✘ Unknown station '${params.station_slug}'`))
