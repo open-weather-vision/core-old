@@ -1,6 +1,7 @@
 import vine from "@vinejs/vine"
 import { SensorSummaryType, SensorSummaryTypes, SummaryTypes } from "../types/summary_types.js"
 import { UnitType, UnitTypes } from "../units/units.js"
+import { Argument, argument_vine_object } from "./weather_station_interface.js"
 
 export type InterfaceMetaInformation = {
     slug: string,
@@ -9,6 +10,7 @@ export type InterfaceMetaInformation = {
     entrypoint: string,
     author?: string,
     sensors: SensorInformation[],
+    config?: { [Property in string] : Argument<any> }
 }
 
 export type SensorInformation = {
@@ -41,6 +43,7 @@ const interface_meta_information_validator = vine.compile(vine.object({
     name: vine.string().maxLength(100).minLength(1),
     description: vine.string().maxLength(200),
     author: vine.string().optional(),
+    config: vine.array(argument_vine_object).optional(),
     sensors: vine.array(vine.object({
         slug: vine.string(),
         name: vine.string(),

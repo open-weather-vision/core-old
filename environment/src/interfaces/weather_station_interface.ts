@@ -1,7 +1,57 @@
 import vine from "@vinejs/vine";
 import { Unit, Units } from "../units/units.js";
 
-export class WeatherStationInterface<T>{
+const argument_vine_group = vine.group([
+    vine.group.if(val => val.type === "select", {
+        type: vine.literal("select"),
+        choices: vine.array(vine.object({
+            title: vine.string(),
+            description: vine.string().optional(),
+            value: vine.any(),
+        })).optional()
+    }),
+    vine.group.if(val => val.type === "toggle", {
+        type: vine.literal("toggle"),
+        active: vine.string().optional(),
+        inactive: vine.string().optional(),
+    }),
+    vine.group.else({
+        type: vine.enum(["text", "number", "password"])
+    })
+])
+
+export const argument_vine_object = vine.object({
+    value: vine.any(),
+    name: vine.string(),
+    message: vine.string(),
+    description: vine.string().optional()
+}).merge(argument_vine_group);
+
+export type Argument<T> = {
+    value: T,
+    name: string,
+    message: string,
+    description?: string,
+} & ({
+    type: "select",
+    choices?: {
+        title: string
+        description?: string
+        value: T,
+    }[],
+} | {
+    type: "toggle",
+    active?: string,
+    inactive?: string
+} | {
+    type: T extends number ? "number" : T extends string ? "text" | "password" : never
+})
+
+export type Config = {
+    [Property in string]: Argument<any> 
+}
+
+export class WeatherStationInterface<T extends Config>{
     protected config: T;
 
     constructor(config: T){
@@ -17,20 +67,19 @@ export class WeatherStationInterface<T>{
     }
 
     public async record(sensor_slug: string): Promise<Record>{
-        return Record.nullRecord(sensor_slug);
+        return Record.null_record(sensor_slug);
     }
 
     public async command(command: string, params: any[]): Promise<CommandResponse>{
-        return CommandResponse.unknownCommand(command); 
+        return CommandResponse.unknown_command(command); 
     }
 }
 
 export class Record{
-    private type = "record-response";
+    private type = "record-response" as const;
     private sensor_slug: string;
     private value: number | null;
     private unit: Unit | "none";
-    private id?: string;
 
     constructor(sensor_slug: string, value: number | null, unit: Unit | "none"){
         this.sensor_slug = sensor_slug;
@@ -38,23 +87,30 @@ export class Record{
         this.unit = unit;
     }
 
-    static nullRecord(sensor_slug: string){
+    static null_record(sensor_slug: string){
         return new Record(sensor_slug, null, "none");
     }
 
-    withId(id: string){
-        this.id = id;
-        return this;
+    get(id: string, station_slug: string){
+        return {
+            type: this.type,
+            id,
+            sensor_slug: this.sensor_slug,
+            station_slug,
+            data: {
+                value: this.value,
+                unit: this.unit,
+            }
+        }
     }
 }
 
 export class CommandResponse{
-    private type = "command-response";
+    private type = "command-response" as const;
     private command: string;
     private message: string;
     private success: boolean;
     private data?: any;
-    private id?: string;
 
     constructor(command: string, message: string, success: boolean, data?: any){
         this.command = command;
@@ -63,12 +119,20 @@ export class CommandResponse{
         this.data = data;
     }
 
-    static unknownCommand(command: string){
+    static unknown_command(command: string){
         return new CommandResponse(command, `Unknown command '${command}'!`, false);
     }
 
-    withId(id: string){
-        this.id = id;
-        return this;
+
+    get(id: string, station_slug: string){
+        return {
+            type: this.type,
+            id,
+            command: this.command,
+            success: this.success,
+            message: this.message,
+            station_slug,
+            data: this.data,
+        }
     }
 }

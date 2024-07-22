@@ -1,6 +1,6 @@
 {
   "name": "owvision-environment",
-  "version": "1.2.14",
+  "version": "1.2.16",
   "description": "Common types and structures used across all owvision-packages.",
   "exports": {
     ".": {
@@ -11,9 +11,9 @@
       "types": "./dist/interfaces/index.d.ts",
       "import": "./dist/interfaces/index.js"
     },
-    "./scheduler":{
-      "types":  "./dist/scheduler/index.d.ts",
-      "import":  "./dist/scheduler/index.js"
+    "./scheduler": {
+      "types": "./dist/scheduler/index.d.ts",
+      "import": "./dist/scheduler/index.js"
     },
     "./types": {
       "types": "./dist/types/index.d.ts",
@@ -39,13 +39,13 @@
     "@types/long-timeout": "^0.1.2",
     "@types/luxon": "^3.4.2",
     "@types/node": "^20.14.11",
+    "@types/prompts": "^2.4.9",
     "typescript": "^5.5.3"
   },
   "dependencies": {
     "@vinejs/vine": "^2.1.0",
     "long-timeout": "^0.1.1",
     "luxon": "^3.4.4",
-    "simple-units": "^1.0.6",
-    "vantjs": "^2.0.2"
+    "simple-units": "^1.0.6"
   }
 }

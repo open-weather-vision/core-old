@@ -190,14 +190,13 @@ export class InterfaceManager<T extends typeof WeatherStationInterface> {
                     return console.error(`Received message for unknown station interface '${message.station_slug}'!`);
                 }
 
-                let data;
                 if (message.type === "command-request") {
-                    data = (await station_interface.command(message.command, message.params)).withId(message.id);
+                    const command_response : ResponseMessage = (await station_interface.command(message.command, message.params)).get(message.id, message.station_slug);
+                    process.send!(command_response);
                 } else if (message.type === "record-request") {
-                    data = (await station_interface.record(message.sensor_slug)).withId(message.id);
+                    const record_response : ResponseMessage = (await station_interface.record(message.sensor_slug)).get(message.id, message.station_slug);
+                    process.send!(record_response);
                 }
-
-                process.send!(data);
             }
 
         });
