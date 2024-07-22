@@ -16,9 +16,9 @@ import { Logger } from '@adonisjs/core/logger'
  *  - monthly
  *  - yearly
  *  - alltime
- * 
+ *
  * summaries. It is part of the api.
- * 
+ *
  */
 export class SummaryCreator {
   private latest_record_time?: DateTime
@@ -39,17 +39,14 @@ export class SummaryCreator {
    * @param station_interface the station's interface
    * @param logger the logger
    */
-  constructor(
-    weather_station: WeatherStation,
-    logger: Logger
-  ) {
+  constructor(weather_station: WeatherStation, logger: Logger) {
     this.weather_station = weather_station
     this.logger = logger
   }
 
   private async load_unit_config() {
-    await this.weather_station.load('unit_config');
-    this.unit_config = this.weather_station.unit_config!;
+    await this.weather_station.load('unit_config')
+    this.unit_config = this.weather_station.unit_config!
   }
 
   /**
@@ -90,7 +87,7 @@ export class SummaryCreator {
         weather_station_id: this.weather_station.id,
       })
 
-      await this.weather_station.load('sensors');
+      await this.weather_station.load('sensors')
       for (const sensor of this.weather_station.sensors) {
         await SummaryRecord.createForSensor(
           sensor,
@@ -115,7 +112,8 @@ export class SummaryCreator {
         weather_station_id: this.weather_station.id,
       })
 
-      await this.weather_station.load('sensors');
+      // Create null summary records
+      await this.weather_station.load('sensors')
       for (const sensor of this.weather_station.sensors) {
         await SummaryRecord.createForSensor(
           sensor,
@@ -172,70 +170,71 @@ export class SummaryCreator {
       .andWhere('summary_id', this[`current_${type}_summary`]!.id)
       .firstOrFail()
 
-    if (
-      summary_type_info.max_summary ||
-      summary_type_info.min_summary ||
-      summary_type_info.avg_summary
-    ) {
-      if (summary_type_info.max_summary) {
-        if (
-          summary_record.data.max_value === null ||
-          summary_record.data.max_value === undefined ||
-          (record.value !== null && record.value > summary_record.data.max_value)
-        ) {
-          summary_record.data.max_value = record.value
-          summary_record.data.max_time = record.created_at
-          summary_record.data.max_meta_information = record.meta_information
-        }
-      }
-
-      if (summary_type_info.min_summary) {
-        if (
-          summary_record.data.min_value === null ||
-          summary_record.data.min_value === undefined ||
-          (record.value !== null && record.value < summary_record.data.min_value)
-        ) {
-          summary_record.data.min_value = record.value
-          summary_record.data.min_time = record.created_at
-          summary_record.data.min_meta_information = record.meta_information
-        }
-      }
-
-      if (summary_type_info.avg_summary) {
-        if (summary_record.data.avg_value === null || summary_record.data.avg_value === undefined) {
-          summary_record.data.avg_value = record.value
-        } else if (record.value !== null) {
-          summary_record.data.avg_value =
-            (summary_record.data.avg_value * summary_record.data.valid_record_count +
-              record.value) /
-            (summary_record.data.valid_record_count + 1)
-        }
-      }
-    } else if (summary_type_info.sum_summary) {
-      if (summary_record.data.value === null || summary_record.data.value === undefined) {
-        summary_record.data.value = record.value
-        summary_record.data.meta_information = record.meta_information
-      } else if (record.value !== null) {
-        summary_record.data.value += record.value
-      }
-    } else if (summary_type_info.latest_summary) {
+    if (record.value !== null) {
       if (
-        summary_record.data.value === null ||
-        summary_record.data.value === undefined ||
-        record.value !== null
+        summary_type_info.max_summary ||
+        summary_type_info.min_summary ||
+        summary_type_info.avg_summary
       ) {
-        summary_record.data.value = record.value
-        summary_record.data.time = record.created_at
-        summary_record.data.meta_information = record.meta_information
+        if (summary_type_info.max_summary) {
+          if (
+            summary_record.data.max_value === null ||
+            summary_record.data.max_value === undefined ||
+            record.value > summary_record.data.max_value
+          ) {
+            summary_record.data.max_value = record.value
+            summary_record.data.max_time = record.created_at
+            summary_record.data.max_meta_information = record.meta_information
+          }
+        }
+
+        if (summary_type_info.min_summary) {
+          if (
+            summary_record.data.min_value === null ||
+            summary_record.data.min_value === undefined ||
+            record.value < summary_record.data.min_value
+          ) {
+            summary_record.data.min_value = record.value
+            summary_record.data.min_time = record.created_at
+            summary_record.data.min_meta_information = record.meta_information
+          }
+        }
+
+        if (summary_type_info.avg_summary) {
+          if (
+            summary_record.data.avg_value === null ||
+            summary_record.data.avg_value === undefined
+          ) {
+            summary_record.data.avg_value = record.value
+          } else {
+            summary_record.data.avg_value =
+              (summary_record.data.avg_value * summary_record.data.valid_record_count +
+                record.value) /
+              (summary_record.data.valid_record_count + 1)
+          }
+        }
+      } else if (summary_type_info.sum_summary) {
+        if (summary_record.data.value === null || summary_record.data.value === undefined) {
+          summary_record.data.value = record.value
+          summary_record.data.meta_information = record.meta_information
+        } else {
+          summary_record.data.value += record.value
+        }
+      } else if (summary_type_info.latest_summary) {
+        if (summary_record.data.value === null || summary_record.data.value === undefined) {
+          summary_record.data.value = record.value
+          summary_record.data.time = record.created_at
+          summary_record.data.meta_information = record.meta_information
+        }
+      } else if (summary_type_info.oldest_summary) {
+        if (summary_record.data.value === null || summary_record.data.value === undefined) {
+          summary_record.data.value = record.value
+          summary_record.data.time = record.created_at
+          summary_record.data.meta_information = record.meta_information
+        }
+      } else if (summary_type_info.custom_summary) {
+        // TODO!
       }
-    } else if (summary_type_info.oldest_summary) {
-      if (summary_record.data.value === null || summary_record.data.value === undefined) {
-        summary_record.data.value = record.value
-        summary_record.data.time = record.created_at
-        summary_record.data.meta_information = record.meta_information
-      }
-    } else if (summary_type_info.custom_summary) {
-      // TODO!
     }
 
     summary_record.data.record_count++
