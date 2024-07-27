@@ -5,24 +5,29 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 
 export default class extends BaseSeeder {
   public static environment = ['development', 'testing']
-  
+
   async run() {
     // TODO: Install sample interface
-    await this.create_station("hueff-vp2", "Hüffelsheimer Vantage Pro 2", false);
-    await this.create_station("remote-station", "Aachen Station (remote)", true);
+    await this.create_station('hueff-vp2', 'Hüffelsheimer Vantage Pro 2', false)
+    await this.create_station('remote-station', 'Aachen Station (remote)', true)
   }
 
-
- async create_station(slug: string, name: string, remote_recorder: boolean){
+  async create_station(slug: string, name: string, remote_recorder: boolean) {
     const weather_station = await WeatherStation.create({
       interface_slug: 'davis-vp2', // TODO: Fix url
       interface_config: {
-        path: 'COM3',
+        serial_path: {
+          message: 'Please enter the serial path: ',
+          name: 'Serial path',
+          type: 'text',
+          value: '',
+          description: 'The serial communication path',
+        },
       },
-      state: 'inactive',
+      target_state: 'inactive',
       slug,
       name,
-      remote_recorder: remote_recorder
+      remote_recorder: remote_recorder,
     })
 
     await UnitConfig.create({

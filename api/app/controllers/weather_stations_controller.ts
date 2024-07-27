@@ -1,6 +1,9 @@
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
-import { initialize_weather_station_validator } from '#validators/weather_stations'
+import {
+  connection_state_validator,
+  initialize_weather_station_validator,
+} from '#validators/weather_stations'
 import type { HttpContext } from '@adonisjs/core/http'
 import Sensor from '#models/sensor'
 import summary_creator_service from '../services/summary_creator_service.js'
@@ -35,7 +38,7 @@ export default class WeatherStationsController {
       throw new StationNotFoundException(ctx.params.slug)
     }
 
-    station.state = 'inactive'
+    station.target_state = 'inactive'
     await station.save()
 
     return {
@@ -50,7 +53,7 @@ export default class WeatherStationsController {
       throw new StationNotFoundException(ctx.params.slug)
     }
 
-    station.state = 'active'
+    station.target_state = 'active'
     await station.save()
 
     return {
@@ -58,7 +61,7 @@ export default class WeatherStationsController {
     }
   }
 
-  async get_station_state(ctx: HttpContext) {
+  async get_station_target_state(ctx: HttpContext) {
     const station = await WeatherStation.query().where('slug', ctx.params.slug).first()
 
     if (station == null) {
@@ -67,13 +70,49 @@ export default class WeatherStationsController {
 
     return {
       success: true,
-      data: station.state,
+      data: station.target_state,
+    }
+  }
+
+  async get_station_connection_state(ctx: HttpContext) {
+    const station = await WeatherStation.query().where('slug', ctx.params.slug).first()
+
+    if (station == null) {
+      throw new StationNotFoundException(ctx.params.slug)
+    }
+
+    return {
+      success: true,
+      data: station.connection_state,
+    }
+  }
+
+  async set_station_connection_state(ctx: HttpContext) {
+    const payload = await ctx.request.validateUsing(connection_state_validator)
+    const station = await WeatherStation.query().where('slug', ctx.params.slug).first()
+
+    if (station == null) {
+      throw new StationNotFoundException(ctx.params.slug)
+    }
+
+    station.connection_state = payload.connection_state
+    await station.save()
+
+    return {
+      success: true,
     }
   }
 
   async get_all() {
     const data = await WeatherStation.query()
-      .select('slug', 'name', 'interface_slug', 'state', 'remote_recorder')
+      .select(
+        'slug',
+        'name',
+        'interface_slug',
+        'target_state',
+        'connection_state',
+        'remote_recorder'
+      )
       .orderBy('name')
       .exec()
 
@@ -126,7 +165,8 @@ export default class WeatherStationsController {
       interface_config: payload.interface_config,
       name: payload.name,
       slug: payload.slug,
-      state: payload.state ?? 'inactive',
+      target_state: payload.target_state ?? 'inactive',
+      connection_state: payload.target_state === 'active' ? 'connecting' : 'disconnected',
       remote_recorder: payload.remote_recorder,
     })
 

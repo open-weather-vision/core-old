@@ -24,15 +24,15 @@ const install_command = new Command("install")
             validate: async (value) => {
                 const [error] = await url_validator.tryValidate(value);
 
-                if(error) return error.messages[0];
+                if (error) return error.messages[0];
                 else return true;
-            }
+            },
         });
-        if(!responses.repository_url){
+        if (!responses.repository_url) {
             return canceled_message();
         }
 
-        const spinner = ora('Installing interface...').start();
+        const spinner = ora("Installing interface...").start();
         try {
             const response = await axios({
                 url: `${config.get("api_url")}/interfaces`,
@@ -41,21 +41,28 @@ const install_command = new Command("install")
                     repository_url: responses.repository_url,
                 },
                 headers: {
-                    "OWVISION_AUTH_TOKEN": config.get("auth_token"),
-                    'Content-Type': 'multipart/form-data'
+                    OWVISION_AUTH_TOKEN: config.get("auth_token"),
                 },
-                timeout: 80 * 1000
+                timeout: 80 * 1000,
             });
-            file?.close()
-            spinner.stop()
+            file?.close();
+            spinner.stop();
             if (!response.data.success) {
-                return error_handling(response, { station_interface_url: responses.repository_url})
+                return error_handling(response, {
+                    station_interface_url: responses.repository_url,
+                });
             }
-            console.log(`${chalk.green(`✓ Sucessfully installed interface ${chalk.italic(response.data.data.meta_information.name)} (${response.data.data.slug})`)}`);
+            console.log(
+                `${chalk.green(
+                    `✓ Sucessfully installed interface ${chalk.italic(
+                        response.data.data.meta_information.name
+                    )} (${response.data.data.slug})`
+                )}`
+            );
         } catch (err) {
-            spinner.stop()
-            connection_failed_message()
+            spinner.stop();
+            connection_failed_message();
         }
-    })
+    });
 
 export default install_command;

@@ -9,8 +9,8 @@ import {
   TemperatureUnits,
   WindUnits,
 } from 'owvision-environment/units'
-import { WeatherStationStates } from '#models/weather_station'
-import { argument_vine_object } from 'owvision-environment/interfaces';
+import { argument_vine_object } from 'owvision-environment/interfaces'
+import { TargetWeatherStationStates, WeatherStationStates } from 'owvision-environment/types'
 
 export const initialize_weather_station_validator = vine.compile(
   vine.object({
@@ -24,31 +24,40 @@ export const initialize_weather_station_validator = vine.compile(
         allowUnderscores: true,
       })
       .maxLength(50),
-    units: vine
-      .object({
-        temperature: vine.enum(TemperatureUnits),
-        leaf_temperature: vine.enum(TemperatureUnits),
-        soil_temperature: vine.enum(TemperatureUnits),
-        precipation: vine.enum(PrecipationUnits),
-        evo_transpiration: vine.enum(PrecipationUnits),
-        pressure: vine.enum(PressureUnits),
-        elevation: vine.enum(ElevationUnits),
-        wind: vine.enum(WindUnits),
-        solar_radiation: vine.enum(SolarRadiationUnits),
-        soil_moisture: vine.enum(SoilMoistureUnits),
-        humidity: vine.enum(HumidityUnits),
-      }),
+    units: vine.object({
+      temperature: vine.enum(TemperatureUnits),
+      leaf_temperature: vine.enum(TemperatureUnits),
+      soil_temperature: vine.enum(TemperatureUnits),
+      precipation: vine.enum(PrecipationUnits),
+      evo_transpiration: vine.enum(PrecipationUnits),
+      pressure: vine.enum(PressureUnits),
+      elevation: vine.enum(ElevationUnits),
+      wind: vine.enum(WindUnits),
+      solar_radiation: vine.enum(SolarRadiationUnits),
+      soil_moisture: vine.enum(SoilMoistureUnits),
+      humidity: vine.enum(HumidityUnits),
+    }),
     interface_slug: vine.string(),
     interface_config: vine.record(argument_vine_object).optional(),
     remote_recorder: vine.boolean(),
-    state: vine.enum(WeatherStationStates).optional()
+    target_state: vine.enum(TargetWeatherStationStates).optional(),
   })
 )
 
-export const install_interface_validator = vine.compile(vine.object({
-  repository_url: vine.string().url(),
-}));
+export const install_interface_validator = vine.compile(
+  vine.object({
+    repository_url: vine.string().url(),
+  })
+)
 
-export const interface_slug_validator = vine.compile(vine.object({
-  slug: vine.string(),
-}));
+export const interface_slug_validator = vine.compile(
+  vine.object({
+    slug: vine.string(),
+  })
+)
+
+export const connection_state_validator = vine.compile(
+  vine.object({
+    connection_state: vine.enum(WeatherStationStates),
+  })
+)

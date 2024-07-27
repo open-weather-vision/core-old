@@ -1,0 +1,1481 @@
+{
+  message: {
+    interface_slug: 'davis-advanced-interface',
+    name: 'Test',
+    slug: 'test',
+    station_interface: {
+      repository_url: 'https://github.com/open-weather-vision/davis-advanced-interface.git',
+      slug: 'davis-advanced-interface',
+      dirname: 'davis-advanced-interface',
+      meta_information: {
+        name: 'Advanced Davis interface',
+        slug: 'davis-advanced-interface',
+        author: 'open-weather-vision',
+        config: {
+          baud_rate: {
+            name: 'Baud rate',
+            type: 'select',
+            value: 19200,
+            choices: [
+              { title: '19200', value: 19200 },
+              { title: '14400', value: 14400 },
+              { title: '9600', value: 9600 },
+              { title: '4800', value: 4800 },
+              { title: '2400', value: 2400 },
+              { title: '1200', value: 1200 }
+            ],
+            message: "Please enter your console's baud rate",
+            description: "This setting must match your console's settings."
+          },
+          serial_path: {
+            name: 'Serial path',
+            type: 'text',
+            value: '',
+            message: 'Please enter the serial connection path to your console',
+            description: 'The serial path defines the communication channel between owvision and your weather station console.'
+          },
+          rain_collector_size: {
+            name: 'Rain collector size',
+            type: 'select',
+            value: '0.1mm',
+            choices: [
+              { title: '0.1mm', value: '0.1mm' },
+              { title: '0.01in', value: '0.01in' },
+              { title: '0.2mm', value: '0.2mm' }
+            ],
+            message: "Please enter your station's rain collector size",
+            description: 'There are three different rain collector types. Please choose yours.'
+          }
+        },
+        sensors: [
+          {
+            name: 'Outside temperature',
+            slug: 'temp-out',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the outside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Inside temperature',
+            slug: 'temp-in',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the inside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Outside humidity',
+            slug: 'hum-out',
+            unit_type: 'humidity',
+            description: 'Humidity measured by the outside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Inside humidity',
+            slug: 'hum-in',
+            unit_type: 'humidity',
+            description: 'Humidity measured by the inside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra temperature 1',
+            slug: 'temp-extra-1',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 2',
+            slug: 'temp-extra-2',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 3',
+            slug: 'temp-extra-3',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 4',
+            slug: 'temp-extra-4',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 5',
+            slug: 'temp-extra-5',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 5',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 6',
+            slug: 'temp-extra-6',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 6',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 7',
+            slug: 'temp-extra-7',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 7',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra humidity 1',
+            slug: 'hum-extra-1',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 2',
+            slug: 'hum-extra-2',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 3',
+            slug: 'hum-extra-3',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 4',
+            slug: 'hum-extra-4',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 5',
+            slug: 'hum-extra-5',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 5',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 6',
+            slug: 'hum-extra-6',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 6',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 7',
+            slug: 'hum-extra-7',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 7',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Precipation',
+            slug: 'precipation',
+            unit_type: 'precipation',
+            description: 'Measured precipation',
+            summary_type: 'sum',
+            record_interval: '15min'
+          },
+          {
+            name: 'Wind speed',
+            slug: 'wind',
+            unit_type: 'wind',
+            description: 'Wind speed',
+            summary_type: 'min-max-avg',
+            record_interval: '7s'
+          },
+          {
+            name: 'Wind direction',
+            slug: 'wind-dir',
+            unit_type: 'none',
+            description: 'Wind direction in degrees',
+            summary_type: 'avg',
+            record_interval: '7s'
+          },
+          {
+            name: 'Wind gust speed',
+            slug: 'wind-gust',
+            unit_type: 'wind',
+            description: 'Maximum wind speed measured in 10 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind gust direction',
+            slug: 'wind-gust-dir',
+            unit_type: 'none',
+            description: 'Direction of the maximum wind gust in 10 minutes in degrees',
+            summary_type: 'avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind average short',
+            slug: 'wind-avg-2min',
+            unit_type: 'wind',
+            description: 'Average wind of 2 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '2min'
+          },
+          {
+            name: 'Wind average long',
+            slug: 'wind-avg-10min',
+            unit_type: 'wind',
+            description: 'Average wind of 10 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind chill',
+            slug: 'chill',
+            unit_type: 'temperature',
+            description: 'Perceived temperature influenced by the current wind speed',
+            summary_type: 'min',
+            record_interval: '1min'
+          },
+          {
+            name: 'THSW index',
+            slug: 'thsw-index',
+            unit_type: 'temperature',
+            description: 'Perceived temperature influenced by the current wind speed and the current humidity',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Heat index',
+            slug: 'heat-index',
+            unit_type: 'temperature',
+            description: 'Heat index',
+            summary_type: 'max',
+            record_interval: '1min'
+          },
+          {
+            name: 'Dewpoint',
+            slug: 'dewpoint',
+            unit_type: 'temperature',
+            description: 'Temperature at which water vapor can condense.',
+            summary_type: 'max',
+            record_interval: '1min'
+          },
+          {
+            name: 'Pressure',
+            slug: 'pressure',
+            unit_type: 'pressure',
+            description: 'Mean sea level pressure',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Evapotranspiration',
+            slug: 'evapotranspiration',
+            unit_type: 'evo_transpiration',
+            description: 'Combined process of water evaporation from soil and plant surfaces and transpiration from plants',
+            summary_type: 'sum',
+            record_interval: '1d'
+          },
+          {
+            name: 'Solar radiation',
+            slug: 'solar-radiation',
+            unit_type: 'solar_radiation',
+            description: 'Energy emitted by the sun that reaches the Earth in the form of sunlight',
+            summary_type: 'avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'UV index',
+            slug: 'uv-index',
+            unit_type: 'none',
+            description: "Strength of the sun's ultraviolet radiation",
+            summary_type: 'max',
+            record_interval: '30min'
+          },
+          {
+            name: 'Soil moisture 1',
+            slug: 'soil-moisture-1',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 2',
+            slug: 'soil-moisture-2',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 3',
+            slug: 'soil-moisture-3',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 4',
+            slug: 'soil-moisture-4',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Leaf temperature 1',
+            slug: 'leaf-temperature-1',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 2',
+            slug: 'leaf-temperature-2',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 3',
+            slug: 'leaf-temperature-3',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 4',
+            slug: 'leaf-temperature-4',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 1',
+            slug: 'leaf-wetness-1',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 2',
+            slug: 'leaf-wetness-2',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 3',
+            slug: 'leaf-wetness-3',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 4',
+            slug: 'leaf-wetness-4',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 1',
+            slug: 'soil-temperature-1',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 2',
+            slug: 'soil-temperature-2',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 3',
+            slug: 'soil-temperature-3',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 4',
+            slug: 'soil-temperature-4',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          }
+        ],
+        entrypoint: 'dist/index.js',
+        description: 'owvision interface for the davis vantage pro 2 and vue.'
+      }
+    },
+    interface_config: undefined,
+    units: {
+      precipation: 'in',
+      wind: 'km/h',
+      temperature: '°C',
+      solar_radiation: 'W/m²',
+      pressure: 'hPa',
+      soil_moisture: 'cb',
+      leaf_temperature: '°C',
+      soil_temperature: '°C',
+      evo_transpiration: 'in',
+      humidity: '%',
+      elevation: 'in'
+    },
+    target_state: 'active',
+    remote_recorder: false
+  },
+  level: 'info',
+  service: 'user-service'
+}
+{
+  message: 'Creating new weather station...',
+  level: 'info',
+  service: 'user-service'
+}
+{
+  message: {
+    interface_slug: 'davis-advanced-interface',
+    name: 'Test',
+    slug: 'test',
+    station_interface: {
+      repository_url: 'https://github.com/open-weather-vision/davis-advanced-interface.git',
+      slug: 'davis-advanced-interface',
+      dirname: 'davis-advanced-interface',
+      meta_information: {
+        name: 'Advanced Davis interface',
+        slug: 'davis-advanced-interface',
+        author: 'open-weather-vision',
+        config: {
+          baud_rate: {
+            name: 'Baud rate',
+            type: 'select',
+            value: 19200,
+            choices: [
+              { title: '19200', value: 19200 },
+              { title: '14400', value: 14400 },
+              { title: '9600', value: 9600 },
+              { title: '4800', value: 4800 },
+              { title: '2400', value: 2400 },
+              { title: '1200', value: 1200 }
+            ],
+            message: "Please enter your console's baud rate",
+            description: "This setting must match your console's settings."
+          },
+          serial_path: {
+            name: 'Serial path',
+            type: 'text',
+            value: '/dev/ttyUSB0',
+            message: 'Please enter the serial connection path to your console',
+            description: 'The serial path defines the communication channel between owvision and your weather station console.'
+          },
+          rain_collector_size: {
+            name: 'Rain collector size',
+            type: 'select',
+            value: '0.1mm',
+            choices: [
+              { title: '0.1mm', value: '0.1mm' },
+              { title: '0.01in', value: '0.01in' },
+              { title: '0.2mm', value: '0.2mm' }
+            ],
+            message: "Please enter your station's rain collector size",
+            description: 'There are three different rain collector types. Please choose yours.'
+          }
+        },
+        sensors: [
+          {
+            name: 'Outside temperature',
+            slug: 'temp-out',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the outside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Inside temperature',
+            slug: 'temp-in',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the inside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Outside humidity',
+            slug: 'hum-out',
+            unit_type: 'humidity',
+            description: 'Humidity measured by the outside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Inside humidity',
+            slug: 'hum-in',
+            unit_type: 'humidity',
+            description: 'Humidity measured by the inside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra temperature 1',
+            slug: 'temp-extra-1',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 2',
+            slug: 'temp-extra-2',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 3',
+            slug: 'temp-extra-3',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 4',
+            slug: 'temp-extra-4',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 5',
+            slug: 'temp-extra-5',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 5',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 6',
+            slug: 'temp-extra-6',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 6',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 7',
+            slug: 'temp-extra-7',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 7',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra humidity 1',
+            slug: 'hum-extra-1',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 2',
+            slug: 'hum-extra-2',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 3',
+            slug: 'hum-extra-3',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 4',
+            slug: 'hum-extra-4',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 5',
+            slug: 'hum-extra-5',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 5',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 6',
+            slug: 'hum-extra-6',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 6',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 7',
+            slug: 'hum-extra-7',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 7',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Precipation',
+            slug: 'precipation',
+            unit_type: 'precipation',
+            description: 'Measured precipation',
+            summary_type: 'sum',
+            record_interval: '15min'
+          },
+          {
+            name: 'Wind speed',
+            slug: 'wind',
+            unit_type: 'wind',
+            description: 'Wind speed',
+            summary_type: 'min-max-avg',
+            record_interval: '7s'
+          },
+          {
+            name: 'Wind direction',
+            slug: 'wind-dir',
+            unit_type: 'none',
+            description: 'Wind direction in degrees',
+            summary_type: 'avg',
+            record_interval: '7s'
+          },
+          {
+            name: 'Wind gust speed',
+            slug: 'wind-gust',
+            unit_type: 'wind',
+            description: 'Maximum wind speed measured in 10 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind gust direction',
+            slug: 'wind-gust-dir',
+            unit_type: 'none',
+            description: 'Direction of the maximum wind gust in 10 minutes in degrees',
+            summary_type: 'avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind average short',
+            slug: 'wind-avg-2min',
+            unit_type: 'wind',
+            description: 'Average wind of 2 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '2min'
+          },
+          {
+            name: 'Wind average long',
+            slug: 'wind-avg-10min',
+            unit_type: 'wind',
+            description: 'Average wind of 10 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind chill',
+            slug: 'chill',
+            unit_type: 'temperature',
+            description: 'Perceived temperature influenced by the current wind speed',
+            summary_type: 'min',
+            record_interval: '1min'
+          },
+          {
+            name: 'THSW index',
+            slug: 'thsw-index',
+            unit_type: 'temperature',
+            description: 'Perceived temperature influenced by the current wind speed and the current humidity',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Heat index',
+            slug: 'heat-index',
+            unit_type: 'temperature',
+            description: 'Heat index',
+            summary_type: 'max',
+            record_interval: '1min'
+          },
+          {
+            name: 'Dewpoint',
+            slug: 'dewpoint',
+            unit_type: 'temperature',
+            description: 'Temperature at which water vapor can condense.',
+            summary_type: 'max',
+            record_interval: '1min'
+          },
+          {
+            name: 'Pressure',
+            slug: 'pressure',
+            unit_type: 'pressure',
+            description: 'Mean sea level pressure',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Evapotranspiration',
+            slug: 'evapotranspiration',
+            unit_type: 'evo_transpiration',
+            description: 'Combined process of water evaporation from soil and plant surfaces and transpiration from plants',
+            summary_type: 'sum',
+            record_interval: '1d'
+          },
+          {
+            name: 'Solar radiation',
+            slug: 'solar-radiation',
+            unit_type: 'solar_radiation',
+            description: 'Energy emitted by the sun that reaches the Earth in the form of sunlight',
+            summary_type: 'avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'UV index',
+            slug: 'uv-index',
+            unit_type: 'none',
+            description: "Strength of the sun's ultraviolet radiation",
+            summary_type: 'max',
+            record_interval: '30min'
+          },
+          {
+            name: 'Soil moisture 1',
+            slug: 'soil-moisture-1',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 2',
+            slug: 'soil-moisture-2',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 3',
+            slug: 'soil-moisture-3',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 4',
+            slug: 'soil-moisture-4',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Leaf temperature 1',
+            slug: 'leaf-temperature-1',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 2',
+            slug: 'leaf-temperature-2',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 3',
+            slug: 'leaf-temperature-3',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 4',
+            slug: 'leaf-temperature-4',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 1',
+            slug: 'leaf-wetness-1',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 2',
+            slug: 'leaf-wetness-2',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 3',
+            slug: 'leaf-wetness-3',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 4',
+            slug: 'leaf-wetness-4',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 1',
+            slug: 'soil-temperature-1',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 2',
+            slug: 'soil-temperature-2',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 3',
+            slug: 'soil-temperature-3',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 4',
+            slug: 'soil-temperature-4',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          }
+        ],
+        entrypoint: 'dist/index.js',
+        description: 'owvision interface for the davis vantage pro 2 and vue.'
+      }
+    },
+    interface_config: {
+      baud_rate: {
+        name: 'Baud rate',
+        type: 'select',
+        value: 19200,
+        choices: [
+          { title: '19200', value: 19200 },
+          { title: '14400', value: 14400 },
+          { title: '9600', value: 9600 },
+          { title: '4800', value: 4800 },
+          { title: '2400', value: 2400 },
+          { title: '1200', value: 1200 }
+        ],
+        message: "Please enter your console's baud rate",
+        description: "This setting must match your console's settings."
+      },
+      serial_path: {
+        name: 'Serial path',
+        type: 'text',
+        value: '/dev/ttyUSB0',
+        message: 'Please enter the serial connection path to your console',
+        description: 'The serial path defines the communication channel between owvision and your weather station console.'
+      },
+      rain_collector_size: {
+        name: 'Rain collector size',
+        type: 'select',
+        value: '0.1mm',
+        choices: [
+          { title: '0.1mm', value: '0.1mm' },
+          { title: '0.01in', value: '0.01in' },
+          { title: '0.2mm', value: '0.2mm' }
+        ],
+        message: "Please enter your station's rain collector size",
+        description: 'There are three different rain collector types. Please choose yours.'
+      }
+    },
+    units: {
+      precipation: 'in',
+      wind: 'km/h',
+      temperature: '°C',
+      solar_radiation: 'W/m²',
+      pressure: 'hPa',
+      soil_moisture: 'cb',
+      leaf_temperature: '°C',
+      soil_temperature: '°C',
+      evo_transpiration: 'in',
+      humidity: '%',
+      elevation: 'in'
+    },
+    target_state: 'active',
+    remote_recorder: false
+  },
+  level: 'info',
+  service: 'user-service'
+}
+{
+  message: 'Creating new weather station...',
+  level: 'info',
+  service: 'user-service'
+}
+{
+  message: {
+    interface_slug: 'davis-advanced-interface',
+    name: 'Hüffelsheimer Vantage Pro 2',
+    slug: 'hueff-vp2',
+    station_interface: {
+      repository_url: 'https://github.com/open-weather-vision/davis-advanced-interface.git',
+      slug: 'davis-advanced-interface',
+      dirname: 'davis-advanced-interface',
+      meta_information: {
+        name: 'Advanced Davis interface',
+        slug: 'davis-advanced-interface',
+        author: 'open-weather-vision',
+        config: {
+          baud_rate: {
+            name: 'Baud rate',
+            type: 'select',
+            value: 19200,
+            choices: [
+              { title: '19200', value: 19200 },
+              { title: '14400', value: 14400 },
+              { title: '9600', value: 9600 },
+              { title: '4800', value: 4800 },
+              { title: '2400', value: 2400 },
+              { title: '1200', value: 1200 }
+            ],
+            message: "Please enter your console's baud rate",
+            description: "This setting must match your console's settings."
+          },
+          serial_path: {
+            name: 'Serial path',
+            type: 'text',
+            value: '/dev/ttyUSB0',
+            message: 'Please enter the serial connection path to your console',
+            description: 'The serial path defines the communication channel between owvision and your weather station console.'
+          },
+          rain_collector_size: {
+            name: 'Rain collector size',
+            type: 'select',
+            value: '0.1mm',
+            choices: [
+              { title: '0.1mm', value: '0.1mm' },
+              { title: '0.01in', value: '0.01in' },
+              { title: '0.2mm', value: '0.2mm' }
+            ],
+            message: "Please enter your station's rain collector size",
+            description: 'There are three different rain collector types. Please choose yours.'
+          }
+        },
+        sensors: [
+          {
+            name: 'Outside temperature',
+            slug: 'temp-out',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the outside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Inside temperature',
+            slug: 'temp-in',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the inside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Outside humidity',
+            slug: 'hum-out',
+            unit_type: 'humidity',
+            description: 'Humidity measured by the outside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Inside humidity',
+            slug: 'hum-in',
+            unit_type: 'humidity',
+            description: 'Humidity measured by the inside sensor',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra temperature 1',
+            slug: 'temp-extra-1',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 2',
+            slug: 'temp-extra-2',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 3',
+            slug: 'temp-extra-3',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 4',
+            slug: 'temp-extra-4',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 5',
+            slug: 'temp-extra-5',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 5',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 6',
+            slug: 'temp-extra-6',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 6',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra temperature 7',
+            slug: 'temp-extra-7',
+            unit_type: 'temperature',
+            description: 'Temperature measured by the extra sensor 7',
+            summary_type: 'min-max-avg',
+            record_interval: '5s'
+          },
+          {
+            name: 'Extra humidity 1',
+            slug: 'hum-extra-1',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 2',
+            slug: 'hum-extra-2',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 3',
+            slug: 'hum-extra-3',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 4',
+            slug: 'hum-extra-4',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 5',
+            slug: 'hum-extra-5',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 5',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 6',
+            slug: 'hum-extra-6',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 6',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Extra humidity 7',
+            slug: 'hum-extra-7',
+            unit_type: 'humidity',
+            description: 'Humdidity measured by the extra sensor 7',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Precipation',
+            slug: 'precipation',
+            unit_type: 'precipation',
+            description: 'Measured precipation',
+            summary_type: 'sum',
+            record_interval: '15min'
+          },
+          {
+            name: 'Wind speed',
+            slug: 'wind',
+            unit_type: 'wind',
+            description: 'Wind speed',
+            summary_type: 'min-max-avg',
+            record_interval: '7s'
+          },
+          {
+            name: 'Wind direction',
+            slug: 'wind-dir',
+            unit_type: 'none',
+            description: 'Wind direction in degrees',
+            summary_type: 'avg',
+            record_interval: '7s'
+          },
+          {
+            name: 'Wind gust speed',
+            slug: 'wind-gust',
+            unit_type: 'wind',
+            description: 'Maximum wind speed measured in 10 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind gust direction',
+            slug: 'wind-gust-dir',
+            unit_type: 'none',
+            description: 'Direction of the maximum wind gust in 10 minutes in degrees',
+            summary_type: 'avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind average short',
+            slug: 'wind-avg-2min',
+            unit_type: 'wind',
+            description: 'Average wind of 2 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '2min'
+          },
+          {
+            name: 'Wind average long',
+            slug: 'wind-avg-10min',
+            unit_type: 'wind',
+            description: 'Average wind of 10 minutes',
+            summary_type: 'min-max-avg',
+            record_interval: '10min'
+          },
+          {
+            name: 'Wind chill',
+            slug: 'chill',
+            unit_type: 'temperature',
+            description: 'Perceived temperature influenced by the current wind speed',
+            summary_type: 'min',
+            record_interval: '1min'
+          },
+          {
+            name: 'THSW index',
+            slug: 'thsw-index',
+            unit_type: 'temperature',
+            description: 'Perceived temperature influenced by the current wind speed and the current humidity',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Heat index',
+            slug: 'heat-index',
+            unit_type: 'temperature',
+            description: 'Heat index',
+            summary_type: 'max',
+            record_interval: '1min'
+          },
+          {
+            name: 'Dewpoint',
+            slug: 'dewpoint',
+            unit_type: 'temperature',
+            description: 'Temperature at which water vapor can condense.',
+            summary_type: 'max',
+            record_interval: '1min'
+          },
+          {
+            name: 'Pressure',
+            slug: 'pressure',
+            unit_type: 'pressure',
+            description: 'Mean sea level pressure',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Evapotranspiration',
+            slug: 'evapotranspiration',
+            unit_type: 'evo_transpiration',
+            description: 'Combined process of water evaporation from soil and plant surfaces and transpiration from plants',
+            summary_type: 'sum',
+            record_interval: '1d'
+          },
+          {
+            name: 'Solar radiation',
+            slug: 'solar-radiation',
+            unit_type: 'solar_radiation',
+            description: 'Energy emitted by the sun that reaches the Earth in the form of sunlight',
+            summary_type: 'avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'UV index',
+            slug: 'uv-index',
+            unit_type: 'none',
+            description: "Strength of the sun's ultraviolet radiation",
+            summary_type: 'max',
+            record_interval: '30min'
+          },
+          {
+            name: 'Soil moisture 1',
+            slug: 'soil-moisture-1',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 2',
+            slug: 'soil-moisture-2',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 3',
+            slug: 'soil-moisture-3',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Soil moisture 4',
+            slug: 'soil-moisture-4',
+            unit_type: 'soil_moisture',
+            description: 'Amount of water in the soil',
+            summary_type: 'min-max-avg',
+            record_interval: '1h'
+          },
+          {
+            name: 'Leaf temperature 1',
+            slug: 'leaf-temperature-1',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 2',
+            slug: 'leaf-temperature-2',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 3',
+            slug: 'leaf-temperature-3',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf temperature 4',
+            slug: 'leaf-temperature-4',
+            unit_type: 'leaf_temperature',
+            description: 'Leaf temperature measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 1',
+            slug: 'leaf-wetness-1',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 2',
+            slug: 'leaf-wetness-2',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 3',
+            slug: 'leaf-wetness-3',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Leaf wetness 4',
+            slug: 'leaf-wetness-4',
+            unit_type: 'none',
+            description: 'Leaf wetness measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 1',
+            slug: 'soil-temperature-1',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 1',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 2',
+            slug: 'soil-temperature-2',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 2',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 3',
+            slug: 'soil-temperature-3',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 3',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          },
+          {
+            name: 'Soil temperature 4',
+            slug: 'soil-temperature-4',
+            unit_type: 'soil_temperature',
+            description: 'Soil temperature measured by sensor 4',
+            summary_type: 'min-max-avg',
+            record_interval: '1min'
+          }
+        ],
+        entrypoint: 'dist/index.js',
+        description: 'owvision interface for the davis vantage pro 2 and vue.'
+      }
+    },
+    interface_config: {
+      baud_rate: {
+        name: 'Baud rate',
+        type: 'select',
+        value: 19200,
+        choices: [
+          { title: '19200', value: 19200 },
+          { title: '14400', value: 14400 },
+          { title: '9600', value: 9600 },
+          { title: '4800', value: 4800 },
+          { title: '2400', value: 2400 },
+          { title: '1200', value: 1200 }
+        ],
+        message: "Please enter your console's baud rate",
+        description: "This setting must match your console's settings."
+      },
+      serial_path: {
+        name: 'Serial path',
+        type: 'text',
+        value: '/dev/ttyUSB0',
+        message: 'Please enter the serial connection path to your console',
+        description: 'The serial path defines the communication channel between owvision and your weather station console.'
+      },
+      rain_collector_size: {
+        name: 'Rain collector size',
+        type: 'select',
+        value: '0.1mm',
+        choices: [
+          { title: '0.1mm', value: '0.1mm' },
+          { title: '0.01in', value: '0.01in' },
+          { title: '0.2mm', value: '0.2mm' }
+        ],
+        message: "Please enter your station's rain collector size",
+        description: 'There are three different rain collector types. Please choose yours.'
+      }
+    },
+    units: {
+      precipation: 'mm',
+      wind: 'km/h',
+      temperature: '°C',
+      solar_radiation: 'W/m²',
+      pressure: 'hPa',
+      soil_moisture: 'cb',
+      leaf_temperature: '°C',
+      soil_temperature: '°C',
+      evo_transpiration: 'mm',
+      humidity: '%',
+      elevation: 'm'
+    },
+    target_state: 'active',
+    remote_recorder: false
+  },
+  level: 'info',
+  service: 'user-service'
+}

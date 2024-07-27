@@ -287,7 +287,7 @@ const create_command = new Command("create")
                     interface_slug: responses.interface_slug,
                     interface_config: interface_config_schema,
                     units,
-                    state: "active",
+                    target_state: "active",
                     remote_recorder: responses.remote_recorder,
                 },
             });

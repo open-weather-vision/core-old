@@ -1,8 +1,8 @@
 import Service from './service.js'
 import { Recorder } from '../recorder.js'
-import RecorderJob from '#models/recorder_job';
-import logger from '@adonisjs/core/services/logger';
-
+import RecorderJob from '#models/recorder_job'
+import logger from '@adonisjs/core/services/logger'
+import JobNotFoundException from '#exceptions/job_not_found_exception'
 
 class RecorderService extends Service {
   private recorder_jobs: {
@@ -13,10 +13,10 @@ class RecorderService extends Service {
     logger.info(`Starting recorder service`)
     const recorder_jobs = await RecorderJob.query().where('state', 'active').exec()
     for (const job of recorder_jobs) {
-      try{
+      try {
         await this.start_recorder_job(job)
-      }catch(err){
-        logger.error(err.message);
+      } catch (err) {
+        logger.error(err.message)
       }
     }
   }
@@ -39,6 +39,17 @@ class RecorderService extends Service {
     await this.recorder_jobs[slug].stop()
     delete this.recorder_jobs[slug]
     logger.info(`Removed recorder job for station '${slug}'`)
+  }
+
+  /** Stops the recorder and deletes the job. */
+  async delete_job(slug: string) {
+    const job = await RecorderJob.query().where('station_slug', slug).first()
+
+    if (!job) throw new JobNotFoundException(slug)
+
+    await this.stop_recorder_job(slug)
+
+    await job.delete()
   }
 
   async terminating() {

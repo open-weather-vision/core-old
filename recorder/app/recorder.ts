@@ -10,6 +10,9 @@ import interface_service, { StationInterfaceCommunicator } from '#services/inter
 import { Unit } from 'owvision-environment/units'
 import { DateTime } from 'luxon'
 import { InterfaceConfig } from 'owvision-environment/interfaces'
+import recorder_service from '#services/recorder_service'
+import { sleepAwait } from 'sleep-await'
+import { WeatherStationState } from 'owvision-environment/types'
 
 /**
  * The recorder records weather data for each configured sensor of a weather station and sends them to the api.
@@ -38,6 +41,8 @@ export class Recorder {
   private interface_communicator?: StationInterfaceCommunicator
 
   private auth_token?: string
+
+  private config?: InterfaceConfig
 
   private sleep(time_milliseconds: number) {
     return new Promise<void>((resolve) => {
@@ -73,7 +78,7 @@ export class Recorder {
   private async wait_until_active() {
     const url = `${this.job.api_url}/weather-stations/${this.job.station_slug}/state`
     try {
-      this.logger.info('Checking station state...')
+      this.logger.info('Checking station target state...')
       const response = await axios({
         method: 'get',
         url,
@@ -92,6 +97,14 @@ export class Recorder {
       if (response.data.data === 'active') {
         this.state = 'running'
         this.logger.warn('Station is active again! Starting to record again...')
+        await this.update_connection_state('connecting')
+        try {
+          await this.interface_communicator?.connect_to_station(this.job.station_slug, this.config!)
+          await this.update_connection_state('connected')
+        } catch (err) {
+          await this.update_connection_state('connecting-failed')
+          throw err
+        }
       }
     } catch (err) {
       this.logger.warn('Failed to connect to owvision demon (network error)! Trying later...')
@@ -116,6 +129,10 @@ export class Recorder {
       this.start_record_pusher()
     } else if (this.state === 'waiting-until-active') {
       this.stop_recording()
+      try {
+        await this.update_connection_state('disconnected')
+        await this.interface_communicator?.disconnect_from_station(this.job.station_slug)
+      } catch (err) {}
       this.wait_until_active()
     }
   }
@@ -147,13 +164,20 @@ export class Recorder {
           this.logger.error(record)
           this.queue.dequeue()
         } else if (response.data.error?.code === 'E_PLEASE_STOP') {
-          this.logger.warn('Received stop signal... waiting until station is active again!')
+          this.logger.warn(
+            `Received stop signal (${this.job.station_slug}')... waiting until station is active again!`
+          )
           this.state = 'waiting-until-active'
           this.queue.clear()
+        } else if (response.data.error?.code === 'E_STATION_NOT_FOUND') {
+          this.logger.warn(`The station '${this.job.station_slug}' got deleted! Deleting job!`)
+          await recorder_service.delete_job(this.job.station_slug)
         } else {
           this.logger.error(
-            `Unknown error (${response.data.error?.code}): ${response.data.error?.message}. Trying to send again later...`
+            `Unknown error (${response.data.error?.code}): ${response.data.error?.message}. Deleting record: `
           )
+          this.logger.error(record)
+          this.queue.dequeue()
         }
         return false
       }
@@ -215,15 +239,14 @@ export class Recorder {
         throw new Error(config_response.data.error?.message)
       }
 
-      const config = config_response.data.data.interface_config as InterfaceConfig
+      this.config = config_response.data.data.interface_config as InterfaceConfig
       this.logger.info('Loaded interface config')
-      for (const key in config) {
-        const argument = config[key]
+      for (const key in this.config) {
+        const argument = this.config[key]
         this.logger.info(`${key}=${argument.value}`)
       }
 
       // Connect to weather station
-      await this.interface_communicator!.connect_to_station(this.job.station_slug, config)
     } catch (err) {
       throw new Error(err?.message)
     }
@@ -258,10 +281,33 @@ export class Recorder {
     this.logger = logger
   }
 
+  private async update_connection_state(connection_state: WeatherStationState) {
+    try {
+      await axios({
+        method: 'post',
+        url: `${this.job.api_url}/weather-stations/${this.job.station_slug}/connection_state`,
+        data: {
+          connection_state,
+        },
+        headers: {
+          OWVISION_AUTH_TOKEN: this.auth_token,
+        },
+      })
+    } catch (err) {}
+  }
+
   /**
-   * Starts the recorder.
+   * Starts the recorder. Connects to the weather station.
    */
   async start() {
+    try {
+      await this.update_connection_state('connecting')
+      await this.interface_communicator!.connect_to_station(this.job.station_slug, this.config!)
+      await this.update_connection_state('connected')
+    } catch (err) {
+      await this.update_connection_state('connecting-failed')
+      throw err
+    }
     for (const sensor_slug in this.sensor_schedules) {
       this.sensor_schedules[sensor_slug].start()
     }
@@ -282,16 +328,21 @@ export class Recorder {
   }
 
   /**
-   * Stops the recorder.
+   * Stops the recorder. Disconnects from the weather station.
    */
   async stop() {
     this.logger.info('Stopping recorder!')
     this.stop_recording()
     this.state = 'stopped'
+
+    await sleepAwait(1000)
+    await this.update_connection_state('disconnected')
+    await this.interface_communicator!.disconnect_from_station(this.job.station_slug)
   }
 
   /**
    * Creates a recorder. Throws if an invalid configuration is passed or no internet connection is available.
+   * Doesn't connect to the weather station, this is done in `start()`.
    * @param weather_station_slug the station's slug
    * @param api_url the url to the api (e.g. localhost:3333/v1)
    * @param logger the logger

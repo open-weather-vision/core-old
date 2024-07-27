@@ -99,7 +99,7 @@ export default class SensorsController {
     const payload = await write_validator.validate(ctx.request.all())
 
     const weather_station = await WeatherStation.query()
-      .select('id', 'state')
+      .select('id', 'target_state')
       .preload('unit_config')
       .where('slug', ctx.params.slug)
       .first()
@@ -108,7 +108,7 @@ export default class SensorsController {
       throw new StationNotFoundException(ctx.params.slug)
     }
 
-    if (weather_station.state === 'inactive') {
+    if (weather_station.target_state === 'inactive') {
       throw new PleaseStopException()
     }
 

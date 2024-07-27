@@ -6,10 +6,7 @@ import Summary from './summary.js'
 import AppBaseModel from './app_base_model.js'
 import StationInterface from './station_interface.js'
 import type { InterfaceConfig } from 'owvision-environment/interfaces'
-
-export type WeatherStationState = 'active' | 'inactive'
-
-export const WeatherStationStates: WeatherStationState[] = ['active', 'inactive']
+import type { WeatherStationState, TargetWeatherStationState } from 'owvision-environment/types'
 
 export default class WeatherStation extends AppBaseModel {
   @column({ isPrimary: true })
@@ -25,7 +22,7 @@ export default class WeatherStation extends AppBaseModel {
   declare interface_slug: string
 
   @belongsTo(() => StationInterface, {
-    foreignKey: 'interface_slug'
+    foreignKey: 'interface_slug',
   })
   declare interface: BelongsTo<typeof StationInterface>
 
@@ -54,5 +51,8 @@ export default class WeatherStation extends AppBaseModel {
   declare summaries: HasMany<typeof Summary>
 
   @column()
-  declare state: WeatherStationState
+  declare target_state: TargetWeatherStationState
+
+  @column()
+  declare connection_state: WeatherStationState
 }

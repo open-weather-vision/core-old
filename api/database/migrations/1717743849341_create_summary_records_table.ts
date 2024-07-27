@@ -23,6 +23,7 @@ export default class extends BaseSchema {
       table.jsonb('data')
       table.jsonb('meta_information')
       table.unique(['sensor_id', 'summary_id'])
+      //table.string('unit').references('units.unit').notNullable()
       table.enum('unit', [...Units, 'none']).notNullable()
     })
   }
