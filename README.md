@@ -2,7 +2,8 @@
 
 This repository contains the _official open weather vision (owvision) core engine_. This includes the **REST api** together with the corresponding **CLI** and the **abstract recorder interface**, which can be used to connect any weather station and any sensor.
 
-⚠️ Development just started - there is no offical working version yet.
+⚠️ Development just started - there is no offical version yet.
+View latest development updates on the [dev branch](https://github.com/open-weather-vision/core/tree/dev).
 
 ![Overview](./core-diagram.svg)
 _This image shows an overview of the open weather vision system_. Every red component is a docker container.
