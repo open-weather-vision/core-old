@@ -1,5 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
-import { ActivityStates, ConnectionStates } from 'owvision-environment/types'
+import { ActivityStates, ConnectionStates, RecorderTypes } from 'owvision-environment/types'
 
 export default class extends BaseSchema {
   protected tableName = 'weather_stations'
@@ -16,7 +16,7 @@ export default class extends BaseSchema {
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
       table.jsonb('config_arguments').notNullable()
-      table.enum('recorder_type', ['local', 'remote']).defaultTo('local').notNullable()
+      table.enum('recorder_type', RecorderTypes).defaultTo('local').notNullable()
       table.enum('activity_state', ActivityStates).defaultTo('inactive').notNullable(),
         table.enum('connection_state', ConnectionStates).defaultTo('disconnected').notNullable()
     })

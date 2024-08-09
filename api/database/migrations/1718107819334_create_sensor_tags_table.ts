@@ -1,4 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { SensorTags } from 'owvision-environment/types'
 
 export default class extends BaseSchema {
   protected tableName = 'sensor_tags'
@@ -12,7 +13,7 @@ export default class extends BaseSchema {
         .references('sensors.id')
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
-      table.string('tag', 50).notNullable()
+      table.enum('tag', SensorTags).notNullable()
       table.unique(['sensor_id', 'tag'])
     })
   }
