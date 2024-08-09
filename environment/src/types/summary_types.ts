@@ -1,33 +1,42 @@
-import { TimeUnit } from '../scheduler/scheduler.js'
+import { TimeUnit } from "../scheduler/scheduler.js";
 
-export type SensorSummaryType =
-  | 'max'
-  | 'min'
-  | 'min-max'
-  | 'min-avg'
-  | 'max-avg'
-  | 'min-max-avg'
-  | 'avg'
-  | 'latest'
-  | 'oldest'
-  | 'sum'
-  | 'wind-dir-avg'
-  | 'custom'
+export type ElementSummaryType =
+    | "max"
+    | "min"
+    | "min-max"
+    | "min-avg"
+    | "max-avg"
+    | "min-max-avg"
+    | "avg"
+    | "latest"
+    | "oldest"
+    | "sum"
+    | "wind-dir-avg"
+    | "custom";
 
-export const SensorSummaryTypes: SensorSummaryType[] = [
-  'max',
-  'min',
-  'min-max',
-  'min-avg',
-  'max-avg',
-  'min-max-avg',
-  'avg',
-  'latest',
-  'oldest',
-  'sum',
-  'wind-dir-avg',
-  'custom',
-]
+export const ElementSummaryTypes: ElementSummaryType[] = [
+    "max",
+    "min",
+    "min-max",
+    "min-avg",
+    "max-avg",
+    "min-max-avg",
+    "avg",
+    "latest",
+    "oldest",
+    "sum",
+    "wind-dir-avg",
+    "custom",
+];
 
-export type SummaryType = Exclude<TimeUnit, 'second' | 'minute'> | 'alltime'
-export const SummaryTypes: SummaryType[] = ['hour', 'day', 'week', 'month', 'year', 'alltime']
+export type SummaryInterval =
+    | Exclude<TimeUnit, "second" | "minute">
+    | "alltime";
+export const SummaryIntervals: SummaryInterval[] = [
+    "hour",
+    "day",
+    "week",
+    "month",
+    "year",
+    "alltime",
+];

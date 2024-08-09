@@ -1,5 +1,6 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
-import { SummaryTypes } from 'owvision-environment/types'
+import { ElementSummaryTypes } from 'owvision-environment/types'
+import units from 'simple-units'
 
 export default class extends BaseSchema {
   protected tableName = 'elements'
@@ -8,13 +9,11 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.string('slug', 30).primary()
       table.string('name', 50).notNullable()
-      table
-        .string('unit_group')
-        .references('unit_groups.slug')
-        .onDelete('CASCADE')
-        .onUpdate('CASCADE')
-        .notNullable()
-      table.enum('summary_type', SummaryTypes)
+      table.string('description', 255)
+      table.enum('default_unit', units.possibilities())
+      table.enum('internal_unit', units.possibilities())
+      table.enum('unit_group', units.groups())
+      table.enum('summary_type', ElementSummaryTypes).notNullable()
     })
   }
 

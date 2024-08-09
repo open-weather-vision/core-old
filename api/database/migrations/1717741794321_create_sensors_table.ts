@@ -1,7 +1,4 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
-import { SensorSummaryTypes } from 'owvision-environment/types'
-import { UnitTypes } from 'owvision-environment/units'
-import { TimeUnits } from 'owvision-environment/scheduler'
 
 export default class extends BaseSchema {
   protected tableName = 'sensors'
@@ -11,17 +8,15 @@ export default class extends BaseSchema {
       table.increments('id')
       table.string('slug', 50).index()
       table.string('name', 50).notNullable()
+      table.string('description', 255).notNullable()
       table
         .integer('weather_station_id')
         .notNullable()
         .references('weather_stations.id')
         .onUpdate('CASCADE')
         .onDelete('CASCADE')
-      table.enum('summary_type', SensorSummaryTypes).notNullable()
-      table.integer('interval').notNullable()
-      table.enum('interval_unit', TimeUnits).notNullable()
-      table.enum('unit_type', UnitTypes).notNullable()
-      table.unique(['name', 'weather_station_id'])
+      table.string('record_interval').notNullable()
+      table.string('element_slug').references('elements.slug')
       table.unique(['slug', 'weather_station_id'])
     })
   }

@@ -15,13 +15,10 @@ export default class Sensor extends AppBaseModel {
   declare id: number
 
   @column()
-  declare name: string
-
-  @column()
   declare slug: string
 
   @column()
-  declare summary_type: SensorSummaryType
+  declare name: string
 
   @column()
   declare interval: number
@@ -30,7 +27,12 @@ export default class Sensor extends AppBaseModel {
   declare interval_unit: TimeUnit
 
   @column()
-  declare unit_type: UnitType
+  declare element_slug: string
+
+  @belongsTo(() => WeatherElement, {
+    foreignKey: 'element_slug',
+  })
+  declare element: BelongsTo<typeof WeatherElement>
 
   @column()
   declare weather_station_id: number
@@ -50,7 +52,7 @@ export default class Sensor extends AppBaseModel {
   })
   declare tags: HasMany<typeof SensorTag>
 
-  get_type_information(): {
+  async get_type_information(): Promise<{
     max_summary: boolean
     min_summary: boolean
     avg_summary: boolean
@@ -58,15 +60,19 @@ export default class Sensor extends AppBaseModel {
     latest_summary: boolean
     oldest_summary: boolean
     custom_summary: boolean
-  } {
+  }> {
+    if (this.$preloaded.element === undefined) {
+      const sensor: Sensor = this
+      await sensor.load('element')
+    }
     return {
-      max_summary: this.summary_type.includes('max'),
-      min_summary: this.summary_type.includes('min'),
-      avg_summary: this.summary_type.includes('avg'),
-      sum_summary: this.summary_type === 'sum',
-      latest_summary: this.summary_type === 'latest',
-      oldest_summary: this.summary_type === 'oldest',
-      custom_summary: this.summary_type === 'custom',
+      max_summary: this.element.summary_type.includes('max'),
+      min_summary: this.element.summary_type.includes('min'),
+      avg_summary: this.element.summary_type.includes('avg'),
+      sum_summary: this.element.summary_type === 'sum',
+      latest_summary: this.element.summary_type === 'latest',
+      oldest_summary: this.element.summary_type === 'oldest',
+      custom_summary: this.element.summary_type === 'custom',
     }
   }
 }

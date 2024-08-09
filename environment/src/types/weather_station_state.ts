@@ -1,17 +1,14 @@
-export type TargetWeatherStationState = "active" | "inactive";
+export type ActivityState = "active" | "inactive";
 
-export const TargetWeatherStationStates: TargetWeatherStationState[] = [
-    "active",
-    "inactive",
-];
+export const ActivityStates: ActivityState[] = ["active", "inactive"];
 
-export type WeatherStationState =
+export type ConnectionState =
     | "connecting"
     | "connected"
     | "connecting-failed"
     | "disconnected";
 
-export const WeatherStationStates: WeatherStationState[] = [
+export const ConnectionStates: ConnectionState[] = [
     "connecting",
     "connected",
     "connecting-failed",

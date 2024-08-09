@@ -4,7 +4,7 @@ import Sensor from './sensor.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { TimeUnit } from 'owvision-environment/scheduler'
 import AppBaseModel from './app_base_model.js'
-import { Unit, convert } from 'owvision-environment/units'
+import { convert } from 'owvision-environment/units'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { MetaInformation } from 'owvision-environment/types'
 
@@ -22,7 +22,7 @@ export default class Record extends AppBaseModel {
   declare meta_information: MetaInformation
 
   @column()
-  declare unit: Unit | 'none'
+  declare unit: Unit | null
 
   @column.dateTime({ autoCreate: true })
   declare created_at: DateTime
@@ -43,14 +43,14 @@ export default class Record extends AppBaseModel {
       sensor_id: number
       value: number | null
       meta_information?: MetaInformation
-      unit: Unit | 'none'
+      unit: Unit | null
       created_at: DateTime
     },
-    target_unit: Unit | 'none'
+    target_unit: Unit | null
   ) {
-    if (target_unit === 'none' && raw_record.unit !== 'none')
-      throw new Exception(`Invalid unit '${raw_record.unit}': Expected 'none'!`, { status: 400 })
-    if (target_unit !== 'none' && raw_record.unit !== 'none' && target_unit !== raw_record.unit) {
+    if (target_unit === null && raw_record.unit !== null)
+      throw new Exception(`Invalid unit '${raw_record.unit}': Expected null!`, { status: 400 })
+    if (target_unit !== null && raw_record.unit !== null && target_unit !== raw_record.unit) {
       raw_record.value = convert(raw_record.value, raw_record.unit, target_unit)
       raw_record.unit = target_unit
     }
@@ -58,7 +58,7 @@ export default class Record extends AppBaseModel {
   }
 
   convert_to(unit: Unit) {
-    if (this.unit === 'none') {
+    if (this.unit === null) {
       throw new Exception('Cannot change unit of an record not having any unit!', { status: 400 })
     }
 

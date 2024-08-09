@@ -1,9 +1,4 @@
 import vine from "@vinejs/vine";
-import {
-    SensorSummaryType,
-    SensorSummaryTypes,
-} from "../types/summary_types.js";
-import { UnitType, UnitTypes } from "../units/units.js";
 import { Argument, argument_vine_object } from "./weather_station_interface.js";
 import { readFile } from "fs/promises";
 import { join } from "path";
@@ -29,22 +24,22 @@ export type InterfaceMetaInformation = {
     entrypoint: string;
     author?: string;
     sensors: SensorInformation[];
-    config?: { [Property in string]: Argument<any> };
+    config_arguments?: { [Property in string]: Argument<any> };
 };
 
 export type SensorInformation = {
     slug: string;
     name: string;
-    summary_type: SensorSummaryType;
-    unit_type: UnitType;
-    description?: string;
+    element: string;
+    description: string;
     record_interval:
         | string
         | {
               configurable?: boolean;
               default: string;
               choices?: string[];
-              range?: [string | null, string | null];
+              min?: string;
+              max?: string;
           };
 };
 
@@ -65,14 +60,13 @@ const interface_meta_information_validator = vine.compile(
         name: vine.string().maxLength(100).minLength(1),
         description: vine.string().maxLength(200),
         author: vine.string().optional(),
-        config: vine.record(argument_vine_object).optional(),
+        config_arguments: vine.record(argument_vine_object).optional(),
         sensors: vine.array(
             vine.object({
                 slug: vine.string(),
                 name: vine.string(),
-                unit_type: vine.enum(UnitTypes),
-                description: vine.string().optional(),
-                summary_type: vine.enum(SensorSummaryTypes),
+                description: vine.string(),
+                element: vine.string(),
                 record_interval: vine.union([
                     vine.union.if(
                         (record_interval) =>
@@ -84,10 +78,8 @@ const interface_meta_information_validator = vine.compile(
                             default: interval.clone(),
                             configurable: vine.boolean().optional(),
                             choices: vine.array(interval.clone()).optional(),
-                            range: vine.tuple([
-                                interval.clone().nullable(),
-                                interval.clone().nullable(),
-                            ]),
+                            min: interval.clone().optional(),
+                            max: interval.clone().optional(),
                         })
                     ),
                 ]),

@@ -1,7 +1,7 @@
 import vine from "@vinejs/vine";
 import { WeatherStationInterface } from "./weather_station_interface.js";
-import { Unit, Units } from "../units/index.js";
 import { randomUUID } from "crypto";
+import units from "simple-units";
 
 export type RequestMessage = {
     station_slug: string;
@@ -61,7 +61,7 @@ export type RecordResponseMessage = {
     sensor_slug: string;
     data: {
         value: number | null;
-        unit: Unit | "none";
+        unit: string | null;
     };
 };
 
@@ -93,7 +93,7 @@ const server_message_types = vine.group([
         sensor_slug: vine.string(),
         data: vine.object({
             value: vine.number().nullable(),
-            unit: vine.enum([...Units, "none"]),
+            unit: vine.enum([...units.possibilities()]).nullable(),
         }),
     }),
     vine.group.if((data) => data.type === "command-response", {

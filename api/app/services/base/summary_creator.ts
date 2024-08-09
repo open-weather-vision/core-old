@@ -2,10 +2,10 @@ import Record from '#models/record'
 import Summary from '#models/summary'
 import SummaryRecord from '#models/summary_record'
 import { DateTime } from 'luxon'
-import { SummaryType, SummaryTypes } from 'owvision-environment/types'
 import UnitConfig from '#models/unit_config'
 import WeatherStation from '#models/weather_station'
 import { Logger } from '@adonisjs/core/logger'
+import { SummaryInterval, SummaryIntervals } from 'owvision-environment/types'
 
 /**
  * The summary creator processes incoming records of a specified weather station to update
@@ -65,13 +65,13 @@ export class SummaryCreator {
       alltime: this.latest_record_time,
     }
 
-    for (const type of SummaryTypes) {
+    for (const type of SummaryIntervals) {
       await this.create_current_summary_if_not_existing(type, current_times[type])
     }
   }
 
   private async create_current_summary_if_not_existing(
-    type: SummaryType,
+    type: SummaryInterval,
     interval_start: DateTime
   ) {
     const latest_summary = await Summary.latest(type, this.weather_station.id)
@@ -99,7 +99,7 @@ export class SummaryCreator {
   }
 
   private async create_new_summary_if_new_interval_started(
-    type: SummaryType,
+    type: SummaryInterval,
     interval_start: DateTime
   ) {
     if (+interval_start !== +this[`current_${type}_summary`]!.created_at) {
@@ -147,7 +147,7 @@ export class SummaryCreator {
     }
 
     // Create new summary if necessary
-    for (const type of SummaryTypes) {
+    for (const type of SummaryIntervals) {
       if (type !== 'alltime')
         await this.create_new_summary_if_new_interval_started(type, record_times[type])
     }
@@ -156,15 +156,15 @@ export class SummaryCreator {
     await record.load('sensor')
 
     // Update sensor summary records
-    for (const type of SummaryTypes) {
+    for (const type of SummaryIntervals) {
       await this.update_current_summary_record(type, record)
     }
 
     return true
   }
 
-  private async update_current_summary_record(type: SummaryType, record: Record) {
-    const summary_type_info = record.sensor.get_type_information()
+  private async update_current_summary_record(type: SummaryInterval, record: Record) {
+    const summary_type_info = await record.sensor.get_type_information()
     const summary_record = await SummaryRecord.query()
       .where('sensor_id', record.sensor_id)
       .andWhere('summary_id', this[`current_${type}_summary`]!.id)
@@ -184,7 +184,6 @@ export class SummaryCreator {
           ) {
             summary_record.data.max_value = record.value
             summary_record.data.max_time = record.created_at
-            summary_record.data.max_meta_information = record.meta_information
           }
         }
 
@@ -196,7 +195,6 @@ export class SummaryCreator {
           ) {
             summary_record.data.min_value = record.value
             summary_record.data.min_time = record.created_at
-            summary_record.data.min_meta_information = record.meta_information
           }
         }
 
@@ -216,7 +214,6 @@ export class SummaryCreator {
       } else if (summary_type_info.sum_summary) {
         if (summary_record.data.value === null || summary_record.data.value === undefined) {
           summary_record.data.value = record.value
-          summary_record.data.meta_information = record.meta_information
         } else {
           summary_record.data.value += record.value
         }
@@ -224,13 +221,11 @@ export class SummaryCreator {
         if (summary_record.data.value === null || summary_record.data.value === undefined) {
           summary_record.data.value = record.value
           summary_record.data.time = record.created_at
-          summary_record.data.meta_information = record.meta_information
         }
       } else if (summary_type_info.oldest_summary) {
         if (summary_record.data.value === null || summary_record.data.value === undefined) {
           summary_record.data.value = record.value
           summary_record.data.time = record.created_at
-          summary_record.data.meta_information = record.meta_information
         }
       } else if (summary_type_info.custom_summary) {
         // TODO!

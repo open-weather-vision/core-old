@@ -1,5 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
-import { SummaryTypes } from 'owvision-environment/types'
+import { SummaryIntervals } from 'owvision-environment/types'
 
 export default class extends BaseSchema {
   protected tableName = 'summaries'
@@ -7,7 +7,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.enum('type', SummaryTypes)
+      table.enum('interval', SummaryIntervals)
       table
         .integer('weather_station_id')
         .notNullable()

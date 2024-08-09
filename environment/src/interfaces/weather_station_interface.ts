@@ -1,10 +1,9 @@
 import vine from "@vinejs/vine";
-import { Unit, Units } from "../units/units.js";
 import { CommandResponseMessage, RecordResponseMessage } from "./setup.js";
 
 const argument_vine_group = vine.group([
-    vine.group.if((val) => val.type === "select", {
-        type: vine.literal("select"),
+    vine.group.if((val) => val.type === "enum", {
+        type: vine.literal("enum"),
         choices: vine
             .array(
                 vine.object({
@@ -15,10 +14,8 @@ const argument_vine_group = vine.group([
             )
             .optional(),
     }),
-    vine.group.if((val) => val.type === "toggle", {
-        type: vine.literal("toggle"),
-        active: vine.string().optional(),
-        inactive: vine.string().optional(),
+    vine.group.if((val) => val.type === "boolean", {
+        type: vine.literal("boolean"),
     }),
     vine.group.else({
         type: vine.enum(["text", "number", "password"]),
@@ -27,9 +24,8 @@ const argument_vine_group = vine.group([
 
 export const argument_vine_object = vine
     .object({
-        value: vine.any(),
+        default: vine.any(),
         name: vine.string(),
-        message: vine.string(),
         description: vine.string().optional(),
     })
     .merge(argument_vine_group);
@@ -41,7 +37,7 @@ export type Argument<T> = {
     description?: string;
 } & (
     | {
-          type: "select";
+          type: "enum";
           choices?: {
               title: string;
               description?: string;
@@ -49,9 +45,7 @@ export type Argument<T> = {
           }[];
       }
     | {
-          type: "toggle";
-          active?: string;
-          inactive?: string;
+          type: "boolean";
       }
     | {
           type: T extends number
@@ -89,7 +83,7 @@ export function validate_config(
             if (configured_argument.type !== schema_argument.type)
                 throw new Error(`Type of argument '${key}' has been damaged!`);
             if (
-                schema_argument.type === "select" &&
+                schema_argument.type === "enum" &&
                 !schema_argument.choices
                     ?.map((choice) => choice.value)
                     .includes(configured_argument.value)
@@ -113,7 +107,7 @@ export function validate_config(
                     `Argument '${key}': Value must be of type number!`
                 );
             } else if (
-                schema_argument.type === "toggle" &&
+                schema_argument.type === "boolean" &&
                 typeof configured_argument.value !== "boolean"
             ) {
                 throw new Error(
@@ -151,12 +145,12 @@ export class Record {
     private type = "record-response" as const;
     private sensor_slug: string;
     private value: number | null;
-    private unit: Unit | "none";
+    private unit: string | null;
 
     constructor(
         sensor_slug: string,
         value: number | null,
-        unit: Unit | "none"
+        unit: string | null
     ) {
         this.sensor_slug = sensor_slug;
         this.value = value;
