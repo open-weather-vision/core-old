@@ -1,4 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import units from 'simple-units'
 
 export default class extends BaseSchema {
   protected tableName = 'records'
@@ -13,6 +14,7 @@ export default class extends BaseSchema {
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
       table.jsonb('value')
+      table.enum('unit', units.possibilities()).nullable()
       table.timestamp('created_at')
     })
   }

@@ -4,9 +4,8 @@ import Sensor from './sensor.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { TimeUnit } from 'owvision-environment/scheduler'
 import AppBaseModel from './app_base_model.js'
-import { convert } from 'owvision-environment/units'
 import { Exception } from '@adonisjs/core/exceptions'
-import type { MetaInformation } from 'owvision-environment/types'
+import units from 'simple-units'
 
 export default class Record extends AppBaseModel {
   @column({ isPrimary: true })
@@ -19,10 +18,7 @@ export default class Record extends AppBaseModel {
   declare value: number | null
 
   @column()
-  declare meta_information: MetaInformation
-
-  @column()
-  declare unit: Unit | null
+  declare unit: string | null
 
   @column.dateTime({ autoCreate: true })
   declare created_at: DateTime
@@ -42,27 +38,32 @@ export default class Record extends AppBaseModel {
     raw_record: {
       sensor_id: number
       value: number | null
-      meta_information?: MetaInformation
-      unit: Unit | null
+      unit: string | null
       created_at: DateTime
     },
-    target_unit: Unit | null
+    target_unit: string | null
   ) {
     if (target_unit === null && raw_record.unit !== null)
       throw new Exception(`Invalid unit '${raw_record.unit}': Expected null!`, { status: 400 })
-    if (target_unit !== null && raw_record.unit !== null && target_unit !== raw_record.unit) {
-      raw_record.value = convert(raw_record.value, raw_record.unit, target_unit)
+    if (
+      raw_record.value !== null &&
+      target_unit !== null &&
+      raw_record.unit !== null &&
+      target_unit !== raw_record.unit
+    ) {
+      raw_record.value = units.from(raw_record.value, raw_record.unit).to(target_unit)
       raw_record.unit = target_unit
     }
     return await this.create(raw_record)
   }
 
-  convert_to(unit: Unit) {
+  convert_to(unit: string) {
     if (this.unit === null) {
       throw new Exception('Cannot change unit of an record not having any unit!', { status: 400 })
     }
-
-    this.value = convert(this.value, this.unit, unit)
+    if (this.value !== null) {
+      this.value = units.from(this.value, this.unit).to(unit)
+    }
     this.unit = unit
   }
 }
