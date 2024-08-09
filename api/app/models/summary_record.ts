@@ -2,10 +2,10 @@ import { belongsTo, column } from '@adonisjs/lucid/orm'
 import Summary from './summary.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import AppBaseModel from './app_base_model.js'
-import { Unit, convert } from 'owvision-environment/units'
 import { Exception } from '@adonisjs/core/exceptions'
 import Sensor from './sensor.js'
 import type { SummaryRecordData } from 'owvision-environment/types'
+import units from 'simple-units'
 
 export default class SummaryRecord extends AppBaseModel {
   @column({ isPrimary: true })
@@ -18,7 +18,7 @@ export default class SummaryRecord extends AppBaseModel {
   declare summary_id: number
 
   @column()
-  declare unit: Unit | 'none'
+  declare unit: string | null
 
   @column()
   declare data: SummaryRecordData
@@ -33,19 +33,23 @@ export default class SummaryRecord extends AppBaseModel {
   })
   declare sensor: BelongsTo<typeof Sensor>
 
-  convert_to(unit: Unit) {
-    if (this.unit === 'none') {
+  convert_to(unit: string) {
+    if (this.unit === null) {
       throw new Exception('Cannot change unit of an record not having any unit!')
     }
-    this.data.value = convert(this.data.value, this.unit, unit)
-    this.data.avg_value = convert(this.data.avg_value, this.unit, unit)
-    this.data.max_value = convert(this.data.max_value, this.unit, unit)
-    this.data.min_value = convert(this.data.min_value, this.unit, unit)
+    if (this.data.value !== null && this.data.value !== undefined)
+      this.data.value = units.from(this.data.value, this.unit).to(unit)
+    if (this.data.avg_value !== null && this.data.avg_value !== undefined)
+      this.data.avg_value = units.from(this.data.avg_value, this.unit).to(unit)
+    if (this.data.max_value !== null && this.data.max_value !== undefined)
+      this.data.max_value = units.from(this.data.max_value, this.unit).to(unit)
+    if (this.data.min_value !== null && this.data.min_value !== undefined)
+      this.data.min_value = units.from(this.data.min_value, this.unit).to(unit)
     this.unit = unit
   }
 
-  static createForSensor(sensor: Sensor, summary_id: number, unit: Unit | 'none') {
-    const type_information = sensor.get_type_information()
+  static async createForSensor(sensor: Sensor, summary_id: number, unit: string | null) {
+    const type_information = await sensor.get_type_information()
 
     const data: SummaryRecordData = {
       record_count: 0,

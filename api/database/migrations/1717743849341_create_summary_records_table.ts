@@ -1,4 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import units from 'simple-units'
 
 export default class extends BaseSchema {
   protected tableName = 'summary_records'
@@ -20,6 +21,7 @@ export default class extends BaseSchema {
         .onUpdate('CASCADE')
         .index()
       table.jsonb('data')
+      table.enum('unit', units.possibilities()).nullable()
       table.unique(['sensor_id', 'summary_id'])
     })
   }

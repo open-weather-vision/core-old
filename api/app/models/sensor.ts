@@ -1,12 +1,11 @@
 import { belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
-import type { SensorSummaryType } from 'owvision-environment/types'
-import type { UnitType } from 'owvision-environment/units'
 import WeatherStation from './weather_station.js'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Record from './record.js'
 import SensorTag from './sensor_tag.js'
-import type { TimeUnit } from 'owvision-environment/scheduler'
 import AppBaseModel from './app_base_model.js'
+import SummaryRecord from './summary_record.js'
+import WeatherElement from './weather_element.js'
 
 export type SensorValueType = 'double' | 'int'
 
@@ -21,10 +20,10 @@ export default class Sensor extends AppBaseModel {
   declare name: string
 
   @column()
-  declare interval: number
+  declare description: string
 
   @column()
-  declare interval_unit: TimeUnit
+  declare record_interval: string
 
   @column()
   declare element_slug: string
@@ -46,6 +45,11 @@ export default class Sensor extends AppBaseModel {
     foreignKey: 'sensor_id',
   })
   declare records: HasMany<typeof Record>
+
+  @hasMany(() => SummaryRecord, {
+    foreignKey: 'sensor_id',
+  })
+  declare summary_records: HasMany<typeof SummaryRecord>
 
   @hasMany(() => SensorTag, {
     foreignKey: 'sensor_id',

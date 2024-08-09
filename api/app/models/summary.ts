@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
-import type { SummaryType } from 'owvision-environment/types'
+import type { SummaryInterval } from 'owvision-environment/types'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import SummaryRecord from './summary_record.js'
 import WeatherStation from './weather_station.js'
@@ -17,7 +17,7 @@ export default class Summary extends AppBaseModel {
   declare created_at: DateTime
 
   @column()
-  declare type: SummaryType
+  declare interval: SummaryInterval
 
   @column()
   declare weather_station_id: number
@@ -32,14 +32,14 @@ export default class Summary extends AppBaseModel {
   })
   declare records: HasMany<typeof SummaryRecord>
 
-  static current(type: TimeUnit & SummaryType, time: DateTime = DateTime.now()) {
+  static current(type: TimeUnit & SummaryInterval, time: DateTime = DateTime.now()) {
     return Summary.query()
       .where('created_at', '>=', time.startOf(type).toString())
       .andWhere('created_at', '<', time.endOf(type).toString())
       .andWhere('type', type)
   }
 
-  static latest(type: SummaryType, weather_station_id: number) {
+  static latest(type: SummaryInterval, weather_station_id: number) {
     return Summary.query()
       .where('type', type)
       .andWhere('weather_station_id', weather_station_id)

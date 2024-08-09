@@ -1,12 +1,11 @@
 import { belongsTo, column, hasMany, hasOne } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany, HasOne } from '@adonisjs/lucid/types/relations'
-import UnitConfig from './unit_config.js'
 import Sensor from './sensor.js'
 import Summary from './summary.js'
 import AppBaseModel from './app_base_model.js'
 import StationInterface from './station_interface.js'
 import type { InterfaceConfig } from 'owvision-environment/interfaces'
-import type { WeatherStationState, TargetWeatherStationState } from 'owvision-environment/types'
+import type { ConnectionState, ActivityState, RecorderType } from 'owvision-environment/types'
 
 export default class WeatherStation extends AppBaseModel {
   @column({ isPrimary: true })
@@ -27,18 +26,13 @@ export default class WeatherStation extends AppBaseModel {
   declare interface: BelongsTo<typeof StationInterface>
 
   @column()
-  declare interface_config: InterfaceConfig
+  declare config_arguments: InterfaceConfig
 
   @column()
-  declare remote_recorder: boolean
+  declare recorder_type: RecorderType
 
   @column({ serializeAs: null })
   declare unit_config_id: number
-
-  @hasOne(() => UnitConfig, {
-    foreignKey: 'weather_station_id',
-  })
-  declare unit_config: HasOne<typeof UnitConfig>
 
   @hasMany(() => Sensor, {
     foreignKey: 'weather_station_id',
@@ -51,8 +45,8 @@ export default class WeatherStation extends AppBaseModel {
   declare summaries: HasMany<typeof Summary>
 
   @column()
-  declare target_state: TargetWeatherStationState
+  declare activity_state: ActivityState
 
   @column()
-  declare connection_state: WeatherStationState
+  declare connection_state: ConnectionState
 }

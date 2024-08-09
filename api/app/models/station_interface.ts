@@ -1,10 +1,14 @@
 import { column, hasMany } from '@adonisjs/lucid/orm'
-import WeatherStation from './weather_station.js';
-import type { HasMany } from '@adonisjs/lucid/types/relations';
-import type { InterfaceMetaInformation } from 'owvision-environment/interfaces';
-import AppBaseModel from './app_base_model.js';
+import WeatherStation from './weather_station.js'
+import type { HasMany } from '@adonisjs/lucid/types/relations'
+import type {
+  Argument,
+  InterfaceMetaInformation,
+  SensorInformation,
+} from 'owvision-environment/interfaces'
+import AppBaseModel from './app_base_model.js'
 
-export default class StationInterface extends AppBaseModel {
+export default class StationInterface extends AppBaseModel implements InterfaceMetaInformation {
   @column()
   declare repository_url: string
 
@@ -12,14 +16,28 @@ export default class StationInterface extends AppBaseModel {
   declare slug: string
 
   @column()
-  declare dirname: string
+  declare description: string
 
   @column()
-  declare meta_information: InterfaceMetaInformation
+  declare author: string
+
+  @column()
+  declare name: string
+
+  @column()
+  declare entrypoint: string
+
+  @column()
+  declare config_arguments: { [Property in string]: Argument<any> }
+
+  @column()
+  declare commands: any // TODO: Define commands type
+
+  @column()
+  declare sensors: SensorInformation[]
 
   @hasMany(() => WeatherStation, {
-    foreignKey: "interface_slug",
+    foreignKey: 'interface_slug',
   })
   declare stations: HasMany<typeof WeatherStation>
-
 }
