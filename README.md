@@ -1,5 +1,11 @@
 # core
 
+<hr>
+
+🪄 Moved to [mono repo](https://github.com/open-weather-vision/owvision).
+
+<hr>
+
 This repository contains the _official open weather vision (owvision) core engine_. This includes the **REST api** together with the corresponding **CLI** and the **abstract recorder interface**, which can be used to connect any weather station and any sensor.
 
 ⚠️ Development just started - there is no offical version yet.
@@ -147,3 +153,4 @@ Executing a command is quite straightforward:
 ```markdown
 owvision station <station-name> exec <command> [OPTIONS ...]
 ```
+
